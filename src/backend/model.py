@@ -1,7 +1,7 @@
 import pyaudio
 import wave
 import cPickle as pickle
-
+from loader import dataroot
 
 FORMAT = pyaudio.paInt16
 CHUNK = 1024
@@ -10,14 +10,31 @@ RATE = 44100
 p = pyaudio.PyAudio()
 
 class Voice:
-	
-	phonemes = dict()
-	
-	def __init__(self):
+
+	def __init__(self, id):
 		self.phonemes = dict()
+		self.userid = id
+		
+	def __hash__(self):
+		return self.userid
 	
 	def addPhoneme(self, key, audio):
 		self.phonemes[key] = audio
+		
+	def setId(self, id):
+		self.userid = id
+		
+	def save(self):
+		pickle.dump(v,open(dataroot + str(self.userid) + ".dat", 'wb'))
+	
+	# Text to speech
+	def tts(txt):
+		# TODO
+		return []
+		
+	def textToPhonemes(txt):
+		# TODO
+		return []
 		
 def record(time):
 	CHUNK = 1024
@@ -55,7 +72,8 @@ def writeWav(filename, frames):
 	wf.setframerate(RATE)
 	wf.writeframes(b''.join(frames))
 	wf.close()
-
+	
+#v = Voice("12345")
 v = pickle.load(open("voice.dat", 'rb'))
 
 frames = record(3)
