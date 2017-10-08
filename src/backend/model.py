@@ -19,7 +19,18 @@ class Voice:
 		return self.userid
 	
 	def addPhoneme(self, key, audio):
-		self.phonemes[key] = audio
+		self.phonemes[key] = trimFront(audio)
+	
+	# Cut out the initial silence
+	def trimFront(self, audio):
+		i = 0
+		sample = int(RATE / 100)
+		while (volume(audio[i:i+sample:2] < 0.5):
+			i += sample * 4
+		return audio[i:]
+		
+	def volume(self, audio):
+		return sum(abs(audio)) / len(audio)
 		
 	def setId(self, id):
 		self.userid = id
