@@ -57,11 +57,17 @@ class CMUDict:
     def get_phoneme_set(self):
         return self.phonemes
         
-    def get_phonemes(self, word):
-        pronunciations = self.dictionary[word.upper()]
-        print(pronunciations)
-        return pronunciations
+    def get_phonemes(self, sentence):
+		words = sentence.split()
+		pronunciations = []
+		for word in words:
+			try:
+				pronunciations.append(self.dictionary[word.upper()])
+			except KeyError:
+				pass
+		return pronunciations
         
         
 cmudict = CMUDict()
 d = cmudict.load_dict('dict.p')
+print(cmudict.get_phonemes("HELLO WORLD"))
