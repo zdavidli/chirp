@@ -4,6 +4,7 @@ import cPickle as pickle
 from loader import dataroot
 import struct
 import numpy as np
+import scipy.io.wavfile as wavfile
 
 FORMAT = pyaudio.paInt16
 CHUNK = 1024
@@ -24,35 +25,10 @@ class Voice:
 		self.phonemes[key] = self.serialize(audio)
 		
 	def getPhoneme(self, key):
-		return self.deserialize(self.phonemes[key])
+		return self.phonemes[key]
 		
 	def serialize(self, input):
-		result = np.ndarray((len(input) * CHUNK,)).astype(np.int16)
-		for (i, chunk) in enumerate(input):
-			intchunk = []
-			for b in chunk:
-				intchunk.append(int(b.encode('hex'), 16))
-			one = np.array(intchunk[::2]).astype(np.int16)
-			two = np.array(intchunk[1::2]).astype(np.int16)
-			print " "
-			print two[0]
-			print one[0]
-			two = one + (256 * two)
-			result[i * CHUNK:(i + 1) * CHUNK] = two
-			print result[i * CHUNK]
-		return result.astype(np.int16)
-			
-	def deserialize(self, input):
-		result = np.ndarray((int(len(input) / CHUNK), CHUNK * 2))
-		for i in range(int(len(input) / CHUNK)):
-			one = (input[i * CHUNK:(i + 1) * CHUNK] / 256).astype(np.int8)
-			two = (input[i * CHUNK:(i + 1) * CHUNK] % 256).astype(np.int8)
-			result[i][::2] = two
-			result[i][1::2] = one
-		out = []
-		for i in range(len(result)):
-			out.append(str(bytearray(result[i])))
-		return out
+		return np.concatenate(input)
 			
 			
 	# Cut out the initial silence
@@ -97,7 +73,7 @@ def record(time):
 
 	for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
 		data = stream.read(CHUNK)
-		frames.append(data)
+		frames.append(np.fromstring(data, dtype=np.int16))
 
 	print("* done recording")
 
@@ -107,12 +83,8 @@ def record(time):
 	return frames
 	
 def writeWav(filename, frames):
-	wf = wave.open("outut.wav", 'wb')
-	wf.setnchannels(CHANNELS)
-	wf.setsampwidth(p.get_sample_size(FORMAT))
-	wf.setframerate(RATE)
-	wf.writeframes(b''.join(frames))
-	wf.close()
+	wavfile.write(filename, RATE, frames)
+
 	
 #v = Voice("12345")
 v = pickle.load(open("voice.dat", 'rb'))
