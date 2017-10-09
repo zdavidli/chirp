@@ -1,17 +1,11 @@
 import cPickle as pickle
 
 class CMUDict:
-
     dictionary = []
+    phonemes = {'IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'}
 
-    phonemes = set(['IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 
-					'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 
-					'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 
-					'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'])
-
-    def __init__(self, filename):
-        dictionary = self.gen_dict(filename)
-
+    def __init__(self):
+        self.dictionary = []
     #generate dictionary from file
     def gen_dict(self, infile):
         file_in = list()
@@ -56,12 +50,18 @@ class CMUDict:
         with open(filename, 'r') as f:
             self.dictionary = pickle.load(f)
         return self.dictionary
-:
-	def get_dict():
-		return self.dictionary
-	
-	def get_phoneme_set():
-		return self.phonemes
 
-cmudict = CMUDict('cmudict-0.7b.txt')
+    def get_dict(self):
+        return self.dictionary
+    
+    def get_phoneme_set(self):
+        return self.phonemes
+        
+    def get_phonemes(self, word):
+        pronunciations = self.dictionary[word.upper()]
+        print(pronunciations)
+        return pronunciations
+        
+        
+cmudict = CMUDict()
 d = cmudict.load_dict('dict.p')
