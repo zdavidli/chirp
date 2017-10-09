@@ -2,10 +2,12 @@ import pyaudio
 import wave
 import cPickle as pickle
 from loader import dataroot
+import struct
+import numpy as np
 
 FORMAT = pyaudio.paInt16
 CHUNK = 1024
-CHANNELS = 2
+CHANNELS = 1
 RATE = 44100
 p = pyaudio.PyAudio()
 
@@ -19,13 +21,45 @@ class Voice:
 		return self.userid
 	
 	def addPhoneme(self, key, audio):
-		self.phonemes[key] = trimFront(audio)
-	
+		self.phonemes[key] = self.serialize(audio)
+		
+	def getPhoneme(self, key):
+		return self.deserialize(self.phonemes[key])
+		
+	def serialize(self, input):
+		result = np.ndarray((len(input) * CHUNK,)).astype(np.int16)
+		for (i, chunk) in enumerate(input):
+			intchunk = []
+			for b in chunk:
+				intchunk.append(int(b.encode('hex'), 16))
+			one = np.array(intchunk[::2]).astype(np.int16)
+			two = np.array(intchunk[1::2]).astype(np.int16)
+			print " "
+			print two[0]
+			print one[0]
+			two = one + (256 * two)
+			result[i * CHUNK:(i + 1) * CHUNK] = two
+			print result[i * CHUNK]
+		return result.astype(np.int16)
+			
+	def deserialize(self, input):
+		result = np.ndarray((int(len(input) / CHUNK), CHUNK * 2))
+		for i in range(int(len(input) / CHUNK)):
+			one = (input[i * CHUNK:(i + 1) * CHUNK] / 256).astype(np.int8)
+			two = (input[i * CHUNK:(i + 1) * CHUNK] % 256).astype(np.int8)
+			result[i][::2] = two
+			result[i][1::2] = one
+		out = []
+		for i in range(len(result)):
+			out.append(str(bytearray(result[i])))
+		return out
+			
+			
 	# Cut out the initial silence
 	def trimFront(self, audio):
 		i = 0
 		sample = int(RATE / 100)
-		while (volume(audio[i:i+sample:2] < 0.5):
+		while (volume(audio[i:i+sample:2]) < 0.5):
 			i += sample * 4
 		return audio[i:]
 		
@@ -48,10 +82,6 @@ class Voice:
 		return []
 		
 def record(time):
-	CHUNK = 1024
-	FORMAT = pyaudio.paInt16
-	CHANNELS = 2
-	RATE = 44100
 	RECORD_SECONDS = time
 
 
@@ -89,8 +119,15 @@ v = pickle.load(open("voice.dat", 'rb'))
 
 frames = record(3)
 
-#v.addPhoneme("test", frames)
+v.addPhoneme("test", frames)
 
-writeWav("output.wav", v.phonemes["test"])
+#def bytes2int(b):
+#	return int(b.encode('hex'), 16)
+#for i in v.phonemes["test"][5]:
+#	print str(bytes2int(i)) + ' '
+#print len(v.phonemes["test"][5])
+#for i in v.phonemes["test"]:
+#	print i + ' '
+writeWav("output.wav", v.getPhoneme("test"))
 
 pickle.dump(v,open("voice.dat", 'wb'))
