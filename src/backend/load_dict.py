@@ -34,7 +34,6 @@ def load_dict():
             else:
                 stress[el] = 0
             stresses.append(stress)
-
         try:
             output[word].append(stresses)
         except KeyError:
