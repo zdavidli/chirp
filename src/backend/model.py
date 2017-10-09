@@ -36,8 +36,9 @@ class Voice:
 	def concat(self, v1, v2, i):
 		combined = np.zeros(i+len(v2))
 		combined[:len(v1)] = v1
-		combined[i:] += v2
 		combined[i:len(v1)] /= 2
+		combined[i:len(v1)] += v2[:len(v1)-i]/2
+		combined[len(v1):] += v2[len(v1)-i:]
 		return combined
 			
 	# Cut out the initial silence
