@@ -29,7 +29,16 @@ class Voice:
 		
 	def serialize(self, input):
 		return np.concatenate(input)
+		
+	def hard(self):
+		return self.concat(self.phonemes['test'], self.phonemes['test2'], RATE * 1)
 			
+	def concat(self, v1, v2, i):
+		combined = np.zeros(i+len(v2))
+		combined[:len(v1)] = v1
+		combined[i:] += v2
+		combined[i:len(v1)] /= 2
+		return combined
 			
 	# Cut out the initial silence
 	def trimFront(self, audio):
@@ -76,6 +85,7 @@ def record(time):
 		frames.append(np.fromstring(data, dtype=np.int16))
 
 	print("* done recording")
+	print np.max(frames)
 
 	stream.stop_stream()
 	stream.close()
@@ -91,7 +101,7 @@ v = pickle.load(open("voice.dat", 'rb'))
 
 frames = record(3)
 
-v.addPhoneme("test", frames)
+#v.addPhoneme("test", frames)
 
 #def bytes2int(b):
 #	return int(b.encode('hex'), 16)
@@ -100,6 +110,6 @@ v.addPhoneme("test", frames)
 #print len(v.phonemes["test"][5])
 #for i in v.phonemes["test"]:
 #	print i + ' '
-writeWav("output.wav", v.getPhoneme("test"))
+writeWav("output.wav", v.hard())
 
 pickle.dump(v,open("voice.dat", 'wb'))
