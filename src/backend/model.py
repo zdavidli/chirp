@@ -27,7 +27,7 @@ class Voice:
 		return self.userid
 	
 	def addPhoneme(self, key, audio):
-		self.phonemes[key] = self.trimFront(self.serialize(audio))
+		self.phonemes[key] = self.trimBack(self.trimFront(self.serialize(audio)))
 		
 	def getPhoneme(self, key):
 		return self.phonemes[key]
@@ -35,20 +35,21 @@ class Voice:
 	def serialize(self, input):
 		return np.concatenate(input)
 		
-	def hard(self):
-		word = ['HH', 'EH', 'L', 'OW']
-		out = self.trimBack(self.phonemes[word[0]])
+	def renderWord(self, pron):
+		out = self.phonemes[word[0]]
 		for i in range(1,len(word)):
-			
-			out = self.concat(out, self.trimBack(self.phonemes[word[i]]), int(len(self.trimBack(self.phonemes[word[i-1]])) / 1.2))
+			out = self.concat(out, self.phonemes[pron[i][0]], int(len(self.phonemes[word[i-1]]) / 1.2))
 		return out
 			
-	def concat(self, v1, v2, i):
+	def concat(self, v1, v2, i=-1):
+		if i < 0:
+			i = len(v1) - 1
 		v1,v2 = v1.astype(np.int32), v2.astype(np.int32)
 		combined = np.zeros(i+len(v2))
-		combined[:len(v1)-i] = v1[:i]
+		combined[:len(v1)] = v1
 		combined[i:] += v2
 		combined[combined>32767] = 32767
+		combined[combined<-32767] = -32767
 		return combined.astype(np.int16)
 			
 	# Cut out the initial silence
@@ -125,6 +126,6 @@ v = pickle.load(open("voice.dat", 'rb'))
 
 #v.addPhoneme('L', frames)
 
-writeWav("output.wav", v.hard())
+writeWav("output.wav", v.renderWord([('HH',0), ('EH',0), ('L',0), ('OW',0)]))
 
 pickle.dump(v,open("voice.dat", 'wb'))
