@@ -5,7 +5,8 @@ from loader import dataroot
 import struct
 import numpy as np
 import scipy.io.wavfile as wavfile
-#from CMUDict import CMUDict
+import os
+from CMUDict import CMUDict
 
 
 FORMAT = pyaudio.paInt16
@@ -13,18 +14,26 @@ CHUNK = 1024
 CHANNELS = 1
 RATE = 44100
 p = pyaudio.PyAudio()
-DICT_FILE = 'dict.p'
-#cmudict = CMUDict().load(DICT_FILE)
+cmudict = CMUDict()
+cmudict.load_dict("dict.p")
 
 class Voice:
 
 	def __init__(self, id):
 		self.phonemes = dict()
 		self.userid = id
+		self.generatePhonemeDict()
 		
 	def __hash__(self):
 		return self.userid
 	
+	def generatePhonemeDict(self):
+		for phoneme in sorted(cmudict.get_phonemes()):
+			print("Pronounce " + phoneme + " like <>. ENTER when done.")
+			self.addPhoneme(phoneme, record(3))
+			_listener = raw_input("Hit ENTER to continue.")
+			writeWav(phoneme+".wav", self.phonemes[phoneme])
+
 	def addPhoneme(self, key, audio):
 		self.phonemes[key] = self.normalize(self.trimBack(self.trimFront(self.serialize(audio))))
 		
@@ -144,8 +153,6 @@ v = pickle.load(open("voice.dat", 'rb'))
 
 #frames = record(1)
 #v.addPhoneme('K', frames)
-#for a in v.phonemes.keys():
-#	v.phonemes[a] = v.normalize(v.phonemes[a])
 world = [('W', 0), ('ER', '1'), ('L', 0), ('D', 0)]
 scott = [('S', 0), ('K', 0), ('AA', 1), ('T', 0)]
 hello = [('HH',0), ('EH',0), ('L',0), ('OW',0)]
