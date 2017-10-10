@@ -8,14 +8,13 @@ import scipy.io.wavfile as wavfile
 #from CMUDict import CMUDict
 
 
-DICT_FILE = 'dict.p'
 FORMAT = pyaudio.paInt16
 CHUNK = 1024
 CHANNELS = 1
 RATE = 44100
 p = pyaudio.PyAudio()
-#cmudict = CMUDict()
-#cmudict.load_dict(DICT_FILE)
+DICT_FILE = 'dict.p'
+cmudict = CMUDict().load(DICT_FILE)
 
 class Voice:
 
@@ -77,15 +76,15 @@ class Voice:
 		pickle.dump(v,open(dataroot + str(self.userid) + ".dat", 'wb'))
 	
 	# Text to speech
-	def tts(txt):
+	def tts(self,txt):
 		# TODO
 		return []
 		
-	def textToPhonemes(txt):
+	def textToPhonemes(self, txt):
 		phonemes = []
 		'''for word in text.split(" "):
 			wordPhones = self.cmudict.getPhoneme(word)[0]
-			wordPhones = reduce(lambda x,y: x + y.keys[0], self.cmudict.getPhoneme(word)[0], [])
+			wordPhones = reduce(lambda x,y: x + y[0], self.cmudict.getPhoneme(word)[0], [])
 			phonemes += wordPhones + [" "]'''
 		return phonemes
 		
