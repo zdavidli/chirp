@@ -5,10 +5,7 @@ from loader import dataroot
 import struct
 import numpy as np
 import scipy.io.wavfile as wavfile
-from CMUDict import CMUDict
 
-
-DICT_FILE = 'dict.p'
 FORMAT = pyaudio.paInt16
 CHUNK = 1024
 CHANNELS = 1
@@ -20,8 +17,6 @@ class Voice:
 	def __init__(self, id):
 		self.phonemes = dict()
 		self.userid = id
-		self.cmudict = CMUDict()
-		self.cmudict.load(DICT_FILE)
 		
 	def __hash__(self):
 		return self.userid
@@ -44,12 +39,12 @@ class Voice:
 		return out
 			
 	def concat(self, v1, v2, i):
-		v1,v2 = v1.astype(np.int32), v2.astype(np.int32)
 		combined = np.zeros(i+len(v2))
-		combined[:len(v1)-i] = v1[:i]
-		combined[i:] += v2
-		combined[combined>32767] = 32767
-		return combined.astype(np.int16)
+		combined[:len(v1)] = v1
+		combined[i:len(v1)] /= 2
+		combined[i:len(v1)] += v2[:len(v1)-i]/2
+		combined[len(v1):] += v2[len(v1)-i:]
+		return combined
 			
 	# Cut out the initial silence
 	def trimFront(self, audio):
@@ -81,12 +76,8 @@ class Voice:
 		return []
 		
 	def textToPhonemes(txt):
-		phonemes = []
-		for word in text.split(" "):
-			wordPhones = self.cmudict.getPhoneme(word)[0]
-			wordPhones = reduce(lambda x,y: x + y.keys[0], self.cmudict.getPhoneme(word)[0], [])
-			phonemes += wordPhones + [" "]
-		return phonemes
+		# TODO
+		return []
 		
 def record(time):
 	RECORD_SECONDS = time
