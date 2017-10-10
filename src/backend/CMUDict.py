@@ -1,12 +1,25 @@
 import cPickle as pickle
 
+"""
+Class for processing a dictionary file
+
+Can save output into pickle file and load dictionary from pickle file
+
+Also handles phoneme splitting from word.
+"""
+
 class CMUDict:
     dictionary = []
     phonemes = {'IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'}
 
     def __init__(self):
         self.dictionary = []
-    #generate dictionary from file
+		
+	"""	
+    Input: Dictionary file (CMUDict)
+	Output: None
+	Generate dictionary from file and save to dictionary in class
+	"""
     def gen_dict(self, infile):
         file_in = list()
         with open(infile, 'r') as f:
@@ -46,22 +59,48 @@ class CMUDict:
         #save file to pickle file
         pickle.dump(output, open('dict.p', "wb" ))
 
+	"""
+	Input: None
+	Output: Dictionary
+	Load a dictionary from a pickle file.
+	"""
     def load_dict(self, filename):
         with open(filename, 'r') as f:
             self.dictionary = pickle.load(f)
         return self.dictionary
 
+	"""
+	Input: None
+	Output: Current dictionary.
+	Accessor for dictionary.
+	"""
     def get_dict(self):
         return self.dictionary
     
+	"""
+	Input: None
+	Output: Set of 39 phonemes in CMUDict
+	"""
     def get_phoneme_set(self):
         return self.phonemes
         
+	"""
+	Input: Single word to decompose into phonemes
+	Output: List of possible pronunciations of word, 
+			pronunciations are lists of sets of phonemes mapped to stresses
+			
+	Example: 
+		get_phonemes("HELLO")
+	Output: [[{'HH': 0}, {'AH': '0'}, {'L': 0}, {'OW': '1'}], [{'HH': 0}, {'EH': '0'}, {'L': 0}, {'OW': '1'}]]
+	"""
     def get_phonemes(self, word):
-        pronunciations = self.dictionary[word.upper()]
-        print(pronunciations)
-        return pronunciations
+		try:
+			pronunciation = self.dictionary[word.upper()]
+			return pronunciation
+		except KeyError:
+			return None
         
         
 cmudict = CMUDict()
 d = cmudict.load_dict('dict.p')
+print(cmudict.get_phonemes("HELLO WORLD"))
