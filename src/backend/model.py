@@ -8,20 +8,19 @@ import scipy.io.wavfile as wavfile
 from CMUDict import CMUDict
 
 
-DICT_FILE = 'dict.p'
 FORMAT = pyaudio.paInt16
 CHUNK = 1024
 CHANNELS = 1
 RATE = 44100
 p = pyaudio.PyAudio()
+DICT_FILE = 'dict.p'
+cmudict = CMUDict().load(DICT_FILE)
 
 class Voice:
 
 	def __init__(self, id):
 		self.phonemes = dict()
 		self.userid = id
-		self.cmudict = CMUDict()
-		self.cmudict.load(DICT_FILE)
 		
 	def __hash__(self):
 		return self.userid
