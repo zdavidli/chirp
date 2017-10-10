@@ -9,11 +9,11 @@ Also handles phoneme splitting from word.
 """
 
 class CMUDict:
-    dictionary = []
+    dictionary = {}
     phonemes = {'IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'}
 
     def __init__(self):
-        self.dictionary = []
+        self.dictionary = {}
 		
 	"""	
     Input: Dictionary file (CMUDict)
@@ -45,17 +45,18 @@ class CMUDict:
             #map phoneme to stress in pronunciation
             stresses = []
             for el in pronunciation:
-                stress = {}
+                
                 if el[-1] == '0' or el[-1] == '1' or el[-1] == '2':
-                    stress[el[:-1]] = el[-1]
+                    stress = (el[:-1], int(el[-1]))
                 else:
-                    stress[el] = 0
+                    stress = (el, 0)
                 stresses.append(stress)
             try:
                 output[word].append(stresses)
             except KeyError:
                 output[word] = [stresses]
 
+		self.dictionary = output
         #save file to pickle file
         pickle.dump(output, open('dict.p', "wb" ))
 
@@ -102,5 +103,6 @@ class CMUDict:
         
         
 cmudict = CMUDict()
-d = cmudict.load_dict('dict.p')
-print(cmudict.get_phonemes("HELLO WORLD"))
+#cmudict.gen_dict('cmudict-0.7b.txt')
+cmudict.load_dict('dict.p')
+print(cmudict.get_phonemes("HELLO"))
