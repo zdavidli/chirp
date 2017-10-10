@@ -27,7 +27,7 @@ class Voice:
 		return self.userid
 	
 	def addPhoneme(self, key, audio):
-		self.phonemes[key] = self.serialize(audio)
+		self.phonemes[key] = self.trimFront(self.serialize(audio))
 		
 	def getPhoneme(self, key):
 		return self.phonemes[key]
@@ -36,7 +36,12 @@ class Voice:
 		return np.concatenate(input)
 		
 	def hard(self):
-		return self.concat(self.phonemes['test'], self.phonemes['test2'], RATE * 1)
+		word = ['HH', 'EH', 'L', 'OW']
+		out = self.trimBack(self.phonemes[word[0]])
+		for i in range(1,len(word)):
+			
+			out = self.concat(out, self.trimBack(self.phonemes[word[i]]), int(len(self.trimBack(self.phonemes[word[i-1]])) / 1.2))
+		return out
 			
 	def concat(self, v1, v2, i):
 		v1,v2 = v1.astype(np.int32), v2.astype(np.int32)
@@ -50,12 +55,19 @@ class Voice:
 	def trimFront(self, audio):
 		i = 0
 		sample = int(RATE / 100)
-		while (volume(audio[i:i+sample:2]) < 0.5):
+		while (self.volume(audio[i:i+sample:2]) < 1000):
 			i += sample * 4
 		return audio[i:]
 		
+	def trimBack(self, audio):
+		i = len(audio) - 1
+		sample = int(RATE / 100)
+		while (self.volume(audio[i-sample:i:2]) < 1000):
+			i -= sample * 4
+		return audio[:i]
+		
 	def volume(self, audio):
-		return sum(abs(audio)) / len(audio)
+		return np.sum(abs(audio)) / len(audio)
 		
 	def setId(self, id):
 		self.userid = id
@@ -109,17 +121,10 @@ def writeWav(filename, frames):
 #v = Voice("12345")
 v = pickle.load(open("voice.dat", 'rb'))
 
-frames = record(3)
+#frames = record(1)
 
-#v.addPhoneme("test", frames)
+#v.addPhoneme('L', frames)
 
-#def bytes2int(b):
-#	return int(b.encode('hex'), 16)
-#for i in v.phonemes["test"][5]:
-#	print str(bytes2int(i)) + ' '
-#print len(v.phonemes["test"][5])
-#for i in v.phonemes["test"]:
-#	print i + ' '
 writeWav("output.wav", v.hard())
 
 pickle.dump(v,open("voice.dat", 'wb'))
