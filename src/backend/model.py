@@ -14,7 +14,7 @@ CHANNELS = 1
 RATE = 44100
 p = pyaudio.PyAudio()
 DICT_FILE = 'dict.p'
-cmudict = CMUDict().load(DICT_FILE)
+#cmudict = CMUDict().load(DICT_FILE)
 
 class Voice:
 
@@ -26,7 +26,7 @@ class Voice:
 		return self.userid
 	
 	def addPhoneme(self, key, audio):
-		self.phonemes[key] = self.trimBack(self.trimFront(self.serialize(audio)))
+		self.phonemes[key] = self.normalize(self.trimBack(self.trimFront(self.serialize(audio))))
 		
 	def getPhoneme(self, key):
 		return self.phonemes[key]
@@ -37,32 +37,53 @@ class Voice:
 	def renderWord(self, pron):
 		out = self.phonemes[pron[0][0]]
 		for i in range(1,len(pron)):
-			out = self.concat(out, self.phonemes[pron[i][0]], int(len(self.phonemes[pron[i-1][0]]) / 1.5))
+			out = self.concat(out, self.phonemes[pron[i][0]], RATE * 0.1)
+			print len(out)
 		return out
 
-	def concat(self, v1, v2, i=-1):
-		if i < 0:
-			i = len(v1) - 1
-		v1,v2 = v1.astype(np.int32), v2.astype(np.int32)
-		combined = np.zeros(i+len(v2))
+	def concat(self, v1, v2, i=0):
+		v1, v2 = v1.astype(np.int32), v2.astype(np.int32)
+		left = v1[:len(v1) - i]
+		right = []
+		m1 = []
+		m2 = []
+		if i >= len(v2):
+			right = v1[len(v1) - i:len(v1) - i + len(v2)]
+			m1 = v1[len(v1) - i:len(v1) - i + len(v2)]
+			m2 = v2
+		else:
+			right = v2[i:]
+			m1 = v1[len(v1) - i:]
+			m2 = v2[:i]
+		m1 = m1[:len(m2)] + m2
+		m1[m1>32767] = 32767
+		m1[m1<-32767] = -32767
+		return np.append(np.append(left, m1), right).astype(np.int16)
+		'''v1,v2 = v1.astype(np.int32), v2.astype(np.int32)
+		combined = np.zeros(max(i+len(v2), len(v1)))
 		combined[:len(v1)] = v1
-		combined[i:] += v2
+		combined[i:i+len(v2)] += v2
 		combined[combined>32767] = 32767
-		combined[combined<-32767] = -32767
+		combined[combined<-32767] = -32767'''
 		return combined.astype(np.int16)
+		
+	def normalize(self, audio):
+		mean = np.mean(np.abs(audio)) * 2
+		ratio = mean / 4000.0
+		return (audio / ratio).astype(np.int16)
 			
 	# Cut out the initial silence
 	def trimFront(self, audio):
 		i = 0
 		sample = int(RATE / 100)
-		while (self.volume(audio[i:i+sample:2]) < 1000):
+		while (self.volume(audio[i:i+sample:2]) < 1500):
 			i += sample * 4
 		return audio[i:]
 		
 	def trimBack(self, audio):
 		i = len(audio) - 1
 		sample = int(RATE / 100)
-		while (self.volume(audio[i-sample:i:2]) < 1000):
+		while (self.volume(audio[i-sample:i:2]) < 1500):
 			i -= sample * 4
 		return audio[:i]
 		
@@ -122,9 +143,12 @@ def writeWav(filename, frames):
 v = pickle.load(open("voice.dat", 'rb'))
 
 #frames = record(1)
-
-#v.addPhoneme('L', frames)
-
-writeWav("output.wav", v.renderWord([('HH',0), ('EH',0), ('L',0), ('OW',0)]))
+#v.addPhoneme('K', frames)
+#for a in v.phonemes.keys():
+#	v.phonemes[a] = v.normalize(v.phonemes[a])
+world = [('W', 0), ('ER', '1'), ('L', 0), ('D', 0)]
+scott = [('S', 0), ('K', 0), ('AA', 1), ('T', 0)]
+hello = [('HH',0), ('EH',0), ('L',0), ('OW',0)]
+writeWav("output.wav", np.concatenate((v.renderWord(hello),np.zeros((RATE * 0.2)).astype(np.int16),v.renderWord(scott))))
 
 pickle.dump(v,open("voice.dat", 'wb'))
