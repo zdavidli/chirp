@@ -51,6 +51,7 @@ class Voice:
 		return out
 
 	def concat(self, v1, v2, i=0):
+		i = int(min(i, len(v1)))
 		v1, v2 = v1.astype(np.int32), v2.astype(np.int32)
 		left = v1[:len(v1) - i]
 		right = []
