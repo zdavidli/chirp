@@ -22,17 +22,30 @@ class Voice:
 	def __init__(self, id):
 		self.phonemes = dict()
 		self.userid = id
-		self.generatePhonemeDict()
+		if self.userid+"_PhonemeBank" not in os.listdir(os.path.abspath("VoiceData/")):
+			self.generatePhonemeDict()
+		#else if len(os.listdir(os.path.abspath("VoiceData/"+self.userid+"_PhonemeBank"))) < 44:
+		#	self.generatePhonemeDict()
 		
 	def __hash__(self):
 		return self.userid
 	
 	def generatePhonemeDict(self):
-		for phoneme in sorted(cmudict.get_phonemes()):
-			print("Pronounce " + phoneme + " like <>. ENTER when done.")
-			self.addPhoneme(phoneme, record(3))
-			_listener = raw_input("Hit ENTER to continue.")
-			writeWav(phoneme+".wav", self.phonemes[phoneme])
+			pronounce_dict = {}
+			with open("cmudict.pronounciations", "r") as infile:
+			    for line in infile.readlines():
+			        line = line.split("\t")
+			        line[2] = line[2].rstrip("\n")
+			        pronounce_dict[line[0]] = line[1:]
+
+			for phoneme in sorted(cmudict.get_phonemes()):
+				print("Pronounce " + phoneme + " like " + phoneme + " in " \
+					+ pronounce_dict[phoneme][0] + " (Spelled " \
+					+ pronounce_dict[phoneme][1] + "). ENTER when done.")
+				  
+				self.addPhoneme(phoneme, record(3))
+				_listener = raw_input("Hit ENTER to continue.")
+				writeWav("id"+phoneme+".wav", self.phonemes[phoneme])
 
 	def addPhoneme(self, key, audio):
 		self.phonemes[key] = self.normalize(self.trimBack(self.trimFront(self.serialize(audio))))
