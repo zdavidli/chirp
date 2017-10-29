@@ -17,7 +17,8 @@ class Voice:
     self.phonemes = dict()
     self.userid = id
     if self.userid+"_PhonemeBank" not in os.listdir(os.path.abspath("VoiceData/")):
-      self.generatePhonemeDict()
+      #self.generatePhonemeDict()
+      pass
     #else if len(os.listdir(os.path.abspath("VoiceData/"+self.userid+"_PhonemeBank"))) < 44:
     #  self.generatePhonemeDict()
     
@@ -85,8 +86,8 @@ class Voice:
     return combined.astype(np.int16)
     
   def normalize(self, audio):
-    mean = np.mean(np.abs(audio)) * 2
-    ratio = mean / 4000.0
+    mean = np.mean(np.abs(audio))
+    ratio = mean / 2000.0
     return (audio / ratio).astype(np.int16)
       
   # Cut out the initial silence
