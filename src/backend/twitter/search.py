@@ -18,7 +18,7 @@ oauth = OAuth(ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
 # Initiate the connection to Twitter REST API
 twitter = Twitter(auth=oauth)
             
-# Search for latest tweets about "#nlproc"
+# Search for latest tweets about "#Twitter4Me"
 a = twitter.search.tweets(q='#Twitter4Me')
 
 print json.dumps(a)
