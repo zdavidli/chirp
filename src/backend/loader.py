@@ -10,19 +10,19 @@ import csv
 dataroot = "voices/"
 
 def loadVoice(userid):
-	return pickle.load(open(dataroot + str(userid) + ".dat", 'rb'))
-	
+  return pickle.load(open(dataroot + str(userid) + ".dat", 'rb'))
+  
 def loadAllVoices():
-	voices = dict()
-	rootdir = './'
-	for subdir, dirs, files in os.walk(rootdir + dataroot):
-		for file in files:
-			fname = path.join(subdir, file).replace('\\','/')
-			#print labelpath
-			if '.dat' in fname:
-				try:
-					v = pickle.load(open(fname, 'rb'))
-					voices[v] = v
-				except:
-					pass
-	return voices
+  voices = dict()
+  rootdir = './'
+  for subdir, dirs, files in os.walk(rootdir + dataroot):
+    for file in files:
+      fname = path.join(subdir, file).replace('\\','/')
+      #print labelpath
+      if '.dat' in fname:
+        try:
+          v = pickle.load(open(fname, 'rb'))
+          voices[v] = v
+        except:
+          pass
+  return voices
