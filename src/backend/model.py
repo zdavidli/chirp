@@ -118,16 +118,17 @@ class Voice:
     wordStrs = self.processPunctuation(txt.strip().split())
     out = np.zeros(1).astype(np.int16)
     for word in wordStrs:
-      if word == " ":
+      if word == ' ':
         out = np.concatenate((out, np.zeros((int(RATE * delay))).astype(np.int16), np.zeros((int(RATE * delay))).astype(np.int16)))
       #TODO do not always take the first translation
-      conv = dict.get_phonemes_from_text(word)[0]
-      if conv is not None:
-        ######TEMP#######
-        if (conv[1] == ("AH",0)):
-          conv[1] = ("EH",0)
-        ################
-        out = np.concatenate((out, self.renderWord(conv), np.zeros((int(RATE * delay))).astype(np.int16)))
+      else:
+        conv = dict.get_phonemes_from_text(word)[0]
+        if conv is not None:
+          ######TEMP#######
+          if (conv[1] == ("AH",0)):
+            conv[1] = ("EH",0)
+          ################
+          out = np.concatenate((out, self.renderWord(conv), np.zeros((int(RATE * delay))).astype(np.int16)))
     return out
 
   def processPunctuation(self, wordStrs):
@@ -149,6 +150,8 @@ class Voice:
       word = word.replace("http", ".h.t.t.p.s.")
       
       wordsplit = word.split(".")
+      while '' in wordsplit:
+        wordsplit.remove('')
       if word[-1] == ".":
         wordsplit.append(" ")
       words += wordsplit

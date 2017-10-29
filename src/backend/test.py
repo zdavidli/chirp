@@ -22,6 +22,6 @@ world = [('W', 0), ('ER', '1'), ('L', 0), ('D', 0)]
 scott = [('S', 0), ('K', 0), ('AA', 1), ('T', 0)]
 hello = [('HH',0), ('EH',0), ('L',0), ('OW',0)]
 #writeWav("output.wav", np.concatenate((v.renderWord(hello),np.zeros((RATE * 0.2)).astype(np.int16),v.renderWord(scott))))
-writeWav("output.wav", v.tts("hello scott hot lot cot hell", cmu))
+writeWav("output.wav", v.tts("hello scott. hot. lot cot. hell", cmu))
 
 #pickle.dump(v,open("voice.dat", 'wb'))
