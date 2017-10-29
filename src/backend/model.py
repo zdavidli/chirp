@@ -115,16 +115,41 @@ class Voice:
   
   # Text to speech
   def tts(self,txt,dict,delay=0.2):
-    wordStrs = txt.split()
+    wordStrs = self.processPunctuation(txt.strip().split())
     out = np.zeros(1).astype(np.int16)
     for word in wordStrs:
+      if word == " ":
+        out = np.concatenate((out, np.zeros((int(RATE * delay))).astype(np.int16), np.zeros((int(RATE * delay))).astype(np.int16)))
       #TODO do not always take the first translation
       conv = dict.get_phonemes_from_text(word)[0]
-      ######TEMP#######
-      if (conv[1] == ("AH",0)):
-        conv[1] = ("EH",0)
-      ################
-      print len(out)
       if conv is not None:
+        ######TEMP#######
+        if (conv[1] == ("AH",0)):
+          conv[1] = ("EH",0)
+        ################
         out = np.concatenate((out, self.renderWord(conv), np.zeros((int(RATE * delay))).astype(np.int16)))
     return out
+
+  def processPunctuation(self, wordStrs):
+    words = []
+    for word in wordStrs:
+      word = word.replace(",", ".")
+      word = word.replace(";", ".")
+      word = word.replace(":", ".")
+      word = word.replace("/", "")
+      word = word.replace("\\", "")
+      word = word.replace("\"", "")
+      word = word.replace("\'", "")
+      
+      
+      #TEMP Replace ? and ! with .
+      word = word.replace("?", ".")
+      word = word.replace("!", ".")
+      word = word.replace("http", ".h.t.t.p.")
+      word = word.replace("http", ".h.t.t.p.s.")
+      
+      wordsplit = word.split(".")
+      if word[-1] == ".":
+        wordsplit.append(" ")
+      words += wordsplit
+    return words
