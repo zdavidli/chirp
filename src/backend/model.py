@@ -54,7 +54,7 @@ class Voice:
     out = self.phonemes[pron[0][0]]
     for i in range(1,len(pron)):
       out = self.concat(out, self.phonemes[pron[i][0]], RATE * 0.1)
-      print len(out)
+      #print len(out)
     return out
 
   def concat(self, v1, v2, i=0):
@@ -114,14 +114,17 @@ class Voice:
     pickle.dump(v,open(dataroot + str(self.userid) + ".dat", 'wb'))
   
   # Text to speech
-  def tts(self,txt):
-    # TODO
-    return []
-    
-  def textToPhonemes(self, txt):
-    phonemes = []
-    '''for word in text.split(" "):
-      wordPhones = self.cmudict.getPhoneme(word)[0]
-      wordPhones = reduce(lambda x,y: x + y[0], self.cmudict.getPhoneme(word)[0], [])
-      phonemes += wordPhones + [" "]'''
-    return phonemes
+  def tts(self,txt,dict,delay=0.2):
+    wordStrs = txt.split()
+    out = np.zeros(1).astype(np.int16)
+    for word in wordStrs:
+      #TODO do not always take the first translation
+      conv = dict.get_phonemes_from_text(word)[0]
+      ######TEMP#######
+      if (conv[1] == ("AH",0)):
+        conv[1] = ("EH",0)
+      ################
+      print len(out)
+      if conv is not None:
+        out = np.concatenate((out, self.renderWord(conv), np.zeros((int(RATE * delay))).astype(np.int16)))
+    return out
