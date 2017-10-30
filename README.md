@@ -33,3 +33,20 @@ Backend
 Frontend
 
 * Build the React webserver
+
+
+# Testing
+
+To run all tests...
+
+On Unix systems, run
+
+```shell
+$ ./test.sh
+```
+
+On Windows systems, run
+
+```shell
+test.bat
+```
