@@ -25,15 +25,6 @@ On Windows systems, run
 build.bat
 ```
 
-Backend
-
-* The backend server is written in python, and does not need to be built. The flask server is in flaskserver.py
-
-
-Frontend
-
-* Build the React webserver
-
 
 # Testing
 
