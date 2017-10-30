@@ -1,3 +1,15 @@
+# Iteration 3
+
+We have reorganized the backend to be much closer to the final architecture.
+
+drivertest.py contains a sketch to the workflow and is used for our testing.
+
+flaskserver.py is the flask server for the backend, and will be responsible to handling the requests for training, tts, and login.
+
+test.py is the test code for the entire voice model system. This currently contains tests for many of the major components of the model, and will be later expanded to be much more comprehensive.
+
+# Iteration 2
+
 Prototype backend code that will eventually become the full backend server.
 
 To run the voice generation test, simply execute:
