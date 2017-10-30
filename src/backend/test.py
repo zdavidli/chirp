@@ -15,7 +15,7 @@ from util import RATE
 from util import CHUNK
 from model import Voice
 
-class TestModelMethods(unittest.TestCase):
+class TestModel(unittest.TestCase):
 
     def setUp(self):
       self.v = Voice("testname")
@@ -57,13 +57,27 @@ class TestModelMethods(unittest.TestCase):
       ans = ["this", "is", "the", "best", " ", "but", "this", "is", "not", " ", "lulz", " " ]
       self.assertEqual(result, ans)
       
+      result = self.v.processPunctuation("...".strip().split())
+      ans = [ " " ]
+      self.assertEqual(result, ans)
+      
+      result = self.v.processPunctuation("bruh...".strip().split())
+      ans = [ "bruh", " " ]
+      self.assertEqual(result, ans)
+      
+      result = self.v.processPunctuation("KaPPa PRIDE!".strip().split())
+      ans = [ "kappa", "pride", " " ]
+      self.assertEqual(result, ans)
+      
+      result = self.v.processPunctuation("".strip().split())
+      ans = [ ]
+      self.assertEqual(result, ans)
+      
     def test_volume(self):
       self.assertEqual(self.v.volume(self.testset["OW"]), 4845)
       ans = [ 5256, 9185, 4430, 3972, 10004, 4503, 4158, 10091, 4015, 4106]
       for i in range(10):
         self.assertEqual(self.v.volume(self.testset["OW"][i * 100:i * 100 + 100]), ans[i])
-      
-      
 
 if __name__ == '__main__':
     unittest.main()
