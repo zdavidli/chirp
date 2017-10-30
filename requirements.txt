@@ -1,0 +1,6 @@
+setuptools==3.3
+numpy==1.13.1
+Flask==0.12.2
+pyaudio==0.2.11
+scipy==1.0.0
+simplejson==3.11.1
