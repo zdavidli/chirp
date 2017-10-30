@@ -135,6 +135,7 @@ class Voice:
   def processPunctuation(self, wordStrs):
     words = []
     for word in wordStrs:
+      word = word.lower()
       word = word.replace(",", ".")
       word = word.replace(";", ".")
       word = word.replace(":", ".")
@@ -148,12 +149,15 @@ class Voice:
       word = word.replace("?", ".")
       word = word.replace("!", ".")
       word = word.replace("http", ".h.t.t.p.")
+      word = word.replace("www", ".w.w.w.")
       word = word.replace("http", ".h.t.t.p.s.")
+      
+      word = word.replace("..", ".")
       
       wordsplit = word.split(".")
       while '' in wordsplit:
         wordsplit.remove('')
-      if word[-1] == ".":
+      if len(word) > 0 and word[-1] == ".":
         wordsplit.append(" ")
       words += wordsplit
     return words

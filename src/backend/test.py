@@ -44,21 +44,26 @@ class TestModelMethods(unittest.TestCase):
       
       self.assertEqual(np.mean(np.abs(self.v.normalize(self.testset["frames"]))), 1799.6127134811047)
       
+    def test_processPunctuation(self):
+      result = self.v.processPunctuation("hel'LO worl\D. But ther/e, is no!".strip().split())
+      ans = ["hello", "world", " ", "but", "there", " ", "is", "no", " "]
+      self.assertEqual(result, ans)
+      
+      result = self.v.processPunctuation("http://www.google.com".strip().split())
+      ans = ["h", "t", "t", "p", "w", "w", "w", "google", "com"]
+      self.assertEqual(result, ans)
+      
+      result = self.v.processPunctuation("This is the best. But this is not. lulz.".strip().split())
+      ans = ["this", "is", "the", "best", " ", "but", "this", "is", "not", " ", "lulz", " " ]
+      self.assertEqual(result, ans)
+      
+    def test_volume(self):
+      self.assertEqual(self.v.volume(self.testset["OW"]), 4845)
+      ans = [ 5256, 9185, 4430, 3972, 10004, 4503, 4158, 10091, 4015, 4106]
+      for i in range(10):
+        self.assertEqual(self.v.volume(self.testset["OW"][i * 100:i * 100 + 100]), ans[i])
       
       
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
-
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
-
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
 
 if __name__ == '__main__':
     unittest.main()

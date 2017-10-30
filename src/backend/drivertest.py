@@ -12,12 +12,13 @@ from util import writeWav
 from util import RATE
 from model import Voice
 
-testset = dict()
-testset["frames"] = record(2)
+v = pickle.load(open("voice.dat", 'rb'))
+
+testset = pickle.load(open("testset.dat", 'rb'))
+testset["OW"] = v.phonemes["OW"]
 pickle.dump(testset,open("testset.dat", 'wb'))
 
 #v = Voice("12345")
-v = pickle.load(open("voice.dat", 'rb'))
 cmu = CMUDict()
 cmu.load_dict("dict.p")
 #frames = record(1)
