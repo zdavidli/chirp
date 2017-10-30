@@ -11,6 +11,20 @@ Group Members:
 
 # Building the project:
 
+To build the project...
+
+On Unix systems, run
+
+```shell
+$ ./build.sh
+```
+
+On Windows systems, run
+
+```shell
+build.bat
+```
+
 Backend
 
 * The backend server is written in python, and does not need to be built. The flask server is in flaskserver.py

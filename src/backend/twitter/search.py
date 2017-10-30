@@ -19,6 +19,8 @@ oauth = OAuth(ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
 twitter = Twitter(auth=oauth)
             
 # Search for latest tweets about "#Twitter4Me"
-a = twitter.search.tweets(q='#Twitter4Me')
+#a = twitter.search.tweets(q='#Twitter4Me', indent = 4)
 
-print json.dumps(a)
+twitter.statuses.update(status="Using Python Twitter Tools.")
+
+#print json.dumps(a)
