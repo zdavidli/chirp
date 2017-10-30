@@ -16,9 +16,9 @@ class Voice:
   def __init__(self, id):
     self.phonemes = dict()
     self.userid = id
-    if self.userid+"_PhonemeBank" not in os.listdir(os.path.abspath("VoiceData/")):
+    #if self.userid+"_PhonemeBank" not in os.listdir(os.path.abspath("VoiceData/")):
       #self.generatePhonemeDict()
-      pass
+    #  pass
     #else if len(os.listdir(os.path.abspath("VoiceData/"+self.userid+"_PhonemeBank"))) < 44:
     #  self.generatePhonemeDict()
     
