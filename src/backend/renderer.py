@@ -17,7 +17,7 @@ class Renderer:
     pass
     
   @staticmethod
-  def serialize(self, input):
+  def serialize(input):
     return np.concatenate(input)
   @staticmethod
   def renderWord(voice, pron):
@@ -65,7 +65,7 @@ class Renderer:
   def trimBack(audio):
     i = len(audio) - 1
     sample = int(RATE / 100)
-    while (voice.volume(audio[i-sample:i:2]) < 1500):
+    while (Renderer.volume(audio[i-sample:i:2]) < 1500):
       i -= sample * 4
     return audio[:i]
   @staticmethod
