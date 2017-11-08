@@ -15,8 +15,11 @@ from loader import loadAllVoices
 app = Flask(__name__)
 api = Api(app)
 
+# Initialize the voice data and cmudict
 voices = loadAllVoices()
-
+cmu = CMUDict()
+cmu.load_dict("dict.p")
+counter = 0
 
 #curl http://localhost:5000/hello/1 -d "data=Remember the milk" -X GET
 class HelloWorld(Resource):
@@ -26,36 +29,18 @@ class HelloWorld(Resource):
 
 api.add_resource(HelloWorld, '/hello/<string:todo_id>')
 
-
-'''@app.route('/get_image')
-def get_image():
-    if request.args.get('type') == '1':
-       filename = 'ok.gif'
-    else:
-       filename = 'error.gif'
-    return send_file(filename, mimetype='image/gif')'''
-
+#curl http://localhost:5000/tts/<speaker_id> -d "data=words to read out" -X GET
 class tts(Resource):
   def get(self, speaker_id):
-    filename = 'output.wav'
-    userid = request.form['data']
+    txt = request.form['data']
+    v = voices[speaker_id]
+    counter += 1
+    filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
+    writeWav(filename, v.tts(txt,cmu,delay=0.2))
     return send_file(filename, mimetype='audio/wav')
 
 api.add_resource(tts, '/tts/<string:speaker_id>')
 
-
-
-'''@app.route("/")
-def hello():
-  return "Hello World!"
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-  if request.method == 'POST':
-    do_the_login()
-  else:
-    show_the_login_form()'''
         
 if __name__ == '__main__':
     app.run(debug=True)
