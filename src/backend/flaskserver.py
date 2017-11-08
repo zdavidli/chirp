@@ -17,11 +17,14 @@ api = Api(app)
 
 voices = loadAllVoices()
 
-class HelloWorld(Resource):
-  def get(self):
-    return {'hello': 'world'}
 
-api.add_resource(HelloWorld, '/hello')
+#curl http://localhost:5000/hello/1 -d "data=Remember the milk" -X GET
+class HelloWorld(Resource):
+  def get(self, todo_id):
+    d = request.form['data']
+    return {'hello': d}
+
+api.add_resource(HelloWorld, '/hello/<string:todo_id>')
 
 
 '''@app.route('/get_image')
@@ -33,11 +36,12 @@ def get_image():
     return send_file(filename, mimetype='image/gif')'''
 
 class tts(Resource):
-  def get(self):
+  def get(self, speaker_id):
     filename = 'output.wav'
+    userid = request.form['data']
     return send_file(filename, mimetype='audio/wav')
 
-api.add_resource(tts, '/tts')
+api.add_resource(tts, '/tts/<string:speaker_id>')
 
 
 
