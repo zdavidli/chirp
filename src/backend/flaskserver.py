@@ -42,9 +42,9 @@ class tts(Resource):
 
 api.add_resource(tts, '/tts/<string:speaker_id>')
 
-#curl http://localhost:5000/tts/<user_id> -d "data=<recording>" -X GET
+#curl http://localhost:5000/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):
-  def get(self, user_id):
+  def put(self, user_id):
     audio = request.form['data']
     if user_id not in voices:
       voices[user_id] = Voice()
