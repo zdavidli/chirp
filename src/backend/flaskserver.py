@@ -7,10 +7,12 @@ from flask import send_file
 
 #Model imports
 from model import Voice
-from model import record
-from model import writeWav
+from util import record
+from util import writeWav
+from util import RATE
 from loader import loadVoice
 from loader import loadAllVoices
+from CMUDict import CMUDict
 
 app = Flask(__name__)
 api = Api(app)
@@ -22,12 +24,11 @@ cmu.load_dict("dict.p")
 counter = 0
 
 #curl http://localhost:5000/hello/1 -d "data=Remember the milk" -X GET
-class HelloWorld(Resource):
-  def get(self, todo_id):
-    d = request.form['data']
-    return {'hello': d}
+class SampleRate(Resource):
+  def get(self):
+    return {'rate': RATE}
 
-api.add_resource(HelloWorld, '/hello/<string:todo_id>')
+api.add_resource(SampleRate, '/samplerate')
 
 #curl http://localhost:5000/tts/<speaker_id> -d "data=words to read out" -X GET
 class tts(Resource):
@@ -40,6 +41,19 @@ class tts(Resource):
     return send_file(filename, mimetype='audio/wav')
 
 api.add_resource(tts, '/tts/<string:speaker_id>')
+
+#curl http://localhost:5000/tts/<user_id> -d "data=<recording>" -X GET
+class trainer(Resource):
+  def get(self, user_id):
+    audio = request.form['data']
+    if user_id not in voices:
+      voices[user_id] = Voice()
+    v = voices[speaker_id]
+    v.addPhoneme(audio)
+    v.save()
+    return send_file(filename, mimetype='audio/wav')
+
+api.add_resource(trainer, '/train/<string:user_id>')
 
         
 if __name__ == '__main__':

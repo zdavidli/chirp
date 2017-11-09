@@ -55,8 +55,10 @@ class Voice:
   def setId(self, id):
     self.userid = id
     
-  def save(self):
-    pickle.dump(v,open(dataroot + str(self.userid) + ".dat", 'wb'))
+  def save(self, root=None):
+    if root is None:
+      root = dataroot
+    pickle.dump(self,open(root + str(self.userid) + ".dat", 'wb'))
   
   # Text to speech
   def tts(self,txt,dict,delay=0.2):

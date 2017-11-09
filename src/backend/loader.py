@@ -11,7 +11,9 @@ dataroot = "voices/"
 
 def loadVoice(userid):
   return pickle.load(open(dataroot + str(userid) + ".dat", 'rb'))
+
   
+# Returns a dict of all voices stored in /voices/
 def loadAllVoices():
   voices = dict()
   rootdir = './'
