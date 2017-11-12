@@ -9,6 +9,7 @@ try:
     c.execute("drop table trend_data")
     c.execute("drop table twit_data")
     c.execute("drop table lang_data")
+    c.execute("drop table dm_data")
 except:
     # Nothing to drop, do nothing.
     pass
@@ -22,6 +23,9 @@ c.execute(cmd)
 
 
 cmd = "CREATE TABLE lang_data (language TEXT, top_language TEXT, datetime TEXT)"
+c.execute(cmd)
+
+cmd = "CREATE TABLE dm_data (message TEXT, datetime TEXT)"
 c.execute(cmd)
 
 

@@ -45,6 +45,14 @@ class twitter_listener(StreamListener):
             # @TODO: Very dangerous, come back to this!
             pass
 
+    def on_direct_message( self, status ):
+        print("Entered on_direct_message()")
+        try:
+            print(status)
+            return True
+        except BaseException as e:
+            print("Failed on_direct_message()", str(e))
+
     def on_error(self, status):
         print(status)
 
@@ -59,6 +67,7 @@ class TwitterMain():
         self.stats = stats()
         self.conn = conn
         self.c = self.conn.cursor()
+
 
     def get_streaming_data(self):
         twitter_stream = Stream(self.auth, twitter_listener(num_tweets_to_grab=self.num_tweets_to_grab, retweet_count = self.retweet_count, stats = self.stats, get_tweet_html = self.get_tweet_html ))
@@ -112,6 +121,7 @@ if __name__ == "__main__":
         conn = sqlite3.connect(db)
         twit = TwitterMain(num_tweets_to_grab, retweet_count, conn)
         twit.get_streaming_data()
+
 
     except Exception as e:
         print(e.__doc__)
