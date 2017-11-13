@@ -1,3 +1,4 @@
 oose/
 *.pyc
 *.wav
+config.py
