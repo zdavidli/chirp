@@ -58,4 +58,4 @@ def top_tweets():
     return render_template('top_tweets.html', tweets = tweets, datetime_toptweets = datetime_toptweets)
 
 if __name__ == "__main__":
-    app.run(debug = True)
+    app.run(debug = True, port=80)
