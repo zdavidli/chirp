@@ -17,28 +17,31 @@ langs = {'ar': 'Arabic', 'bg': 'Bulgarian', 'ca': 'Catalan', 'cs': 'Czech', 'da'
 
 class twitter_listener(StreamListener):
 
-    def __init__(self, num_tweets_to_grab, stats, get_tweet_html, retweet_count=10000):
+    def __init__(self, num_tweets_to_grab, stats, get_tweet_html, retweet_count=10000, lang='en'):
         self.counter = 0
         self.num_tweets_to_grab = num_tweets_to_grab
         self.retweet_count = retweet_count
         self.stats = stats
         self.get_tweet_html = get_tweet_html
+        self.lang = lang
 
     def on_data(self, data):
         try:
             json_data = json.loads(data)
-            self.stats.add_lang(langs[json_data["lang"]])
 
-            self.counter += 1
-            retweet_count = json_data["retweeted_status"]["retweet_count"]
+            if json_data["lang"] == self.lang:
+                self.stats.add_lang(langs[json_data["lang"]])
 
-            if retweet_count >= self.retweet_count:
-                #print(json_data["text"], retweet_count, langs[json_data["lang"]])
-                self.stats.add_top_tweets(self.get_tweet_html(json_data['id']))
-                self.stats.add_top_lang(langs[json_data["lang"]])
+                self.counter += 1
+                retweet_count = json_data["retweeted_status"]["retweet_count"]
 
-            if self.counter >= self.num_tweets_to_grab:
-                return False
+                if retweet_count >= self.retweet_count:
+                    #print(json_data["text"], retweet_count, langs[json_data["lang"]])
+                    self.stats.add_top_tweets(self.get_tweet_html(json_data['id']))
+                    self.stats.add_top_lang(langs[json_data["lang"]])
+
+                if self.counter >= self.num_tweets_to_grab:
+                    return False
 
             return True
         except:
@@ -115,7 +118,7 @@ class stats():
         return self.lang, self.top_lang, self.top_tweets
 
 if __name__ == "__main__":
-    num_tweets_to_grab = 1000
+    num_tweets_to_grab = 100
     retweet_count = 10000
     try:
         conn = sqlite3.connect(db)
