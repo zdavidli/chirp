@@ -102,6 +102,26 @@ class TestModel(unittest.TestCase):
         remainingPhonemes.remove(p)
         self.assertEqual(result, remainingPhonemes)
       self.assertTrue(self.v.isFullyTrained())
+      
+    def test_trainedPhonemes(self):
+      result = self.v.trainedPhonemes()
+      remainingPhonemes = set()
+      self.assertEqual(result, remainingPhonemes)
+      self.assertFalse(self.v.isFullyTrained())
+      
+      input = np.random.rand(43, 1024) * 22000 - 128
+      self.v.addPhoneme("AA", input)
+      result = self.v.trainedPhonemes()
+      remainingPhonemes.add("AA")
+      self.assertEqual(result, remainingPhonemes)
+      
+      
+      for p in copy.copy(remainingPhonemes):
+        self.v.addPhoneme(p, input)
+        result = self.v.trainedPhonemes()
+        remainingPhonemes.add(p)
+        self.assertEqual(result, remainingPhonemes)
+      self.assertFalse(self.v.isFullyTrained())
 
 if __name__ == '__main__':
     unittest.main()

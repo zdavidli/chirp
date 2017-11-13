@@ -75,6 +75,10 @@ class Voice:
       remainingPhonemes.remove(k)
     return remainingPhonemes
   
+  # Returns a set of all phonemes that have been trained
+  def trainedPhonemes(self):
+    return set(self.phonemes.keys())
+  
   # Returns True if the phoneme set is complete (has all nessecary phonemes for english)
   def isFullyTrained(self):
     if len(self.missingPhonemes()) == 0:
