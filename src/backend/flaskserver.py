@@ -23,7 +23,7 @@ cmu = CMUDict()
 cmu.load_dict("dict.p")
 counter = 0
 
-#curl http://localhost:5000/hello/1 -d "data=Remember the milk" -X GET
+#curl http://localhost:5000/samplerate -d "data=Remember the milk" -X GET
 class SampleRate(Resource):
   def get(self):
     return {'rate': RATE}

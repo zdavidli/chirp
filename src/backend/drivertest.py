@@ -12,6 +12,8 @@ from util import writeWav
 from util import RATE
 from model import Voice
 
+
+open("voice.datx", 'rb')
 v = pickle.load(open("voice.dat", 'rb'))
 
 testset = pickle.load(open("testset.dat", 'rb'))
@@ -30,3 +32,4 @@ hello = [('HH',0), ('EH',0), ('L',0), ('OW',0)]
 writeWav("output.wav", v.tts("hello scott. hot. lot cot. hell", cmu))
 
 #pickle.dump(v,open("voice.dat", 'wb'))
+v.save()
