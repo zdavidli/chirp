@@ -1,18 +1,23 @@
 import pyaudio
 import wave
 import cPickle as pickle
-from loader import dataroot
 import struct
 import numpy as np
 import scipy.io.wavfile as wavfile
 import os
+import copy
+
+# Custom Code
+from loader import dataroot
 from CMUDict import CMUDict
+from CMUDict import ALL_PHONEMES
 from util import record
 from util import writeWav
 from util import RATE
+from renderer import Renderer
 
 class Voice:
-
+  
   def __init__(self, id):
     self.phonemes = dict()
     self.userid = id
@@ -43,121 +48,39 @@ class Voice:
         writeWav("id"+phoneme+".wav", self.phonemes[phoneme])
 
   def addPhoneme(self, key, audio):
-    self.phonemes[key] = self.normalize(self.trimBack(self.trimFront(self.serialize(audio))))
+    self.phonemes[key] = Renderer.normalize(Renderer.trimBack(Renderer.trimFront(Renderer.serialize(audio))))
     
   def getPhoneme(self, key):
     return self.phonemes[key]
     
-  def serialize(self, input):
-    return np.concatenate(input)
-    
   def renderWord(self, pron):
-    out = self.phonemes[pron[0][0]]
-    for i in range(1,len(pron)):
-      out = self.concat(out, self.phonemes[pron[i][0]], RATE * 0.1)
-      #print len(out)
-    return out
-
-  def concat(self, v1, v2, i=0):
-    i = int(min(i, len(v1)))
-    v1, v2 = v1.astype(np.int32), v2.astype(np.int32)
-    left = v1[:len(v1) - i]
-    right = []
-    m1 = []
-    m2 = []
-    if i >= len(v2):
-      right = v1[len(v1) - i:len(v1) - i + len(v2)]
-      m1 = v1[len(v1) - i:len(v1) - i + len(v2)]
-      m2 = v2
-    else:
-      right = v2[i:]
-      m1 = v1[len(v1) - i:]
-      m2 = v2[:i]
-    m1 = m1[:len(m2)] + m2
-    m1[m1>32767] = 32767
-    m1[m1<-32767] = -32767
-    return np.append(np.append(left, m1), right).astype(np.int16)
-    '''v1,v2 = v1.astype(np.int32), v2.astype(np.int32)
-    combined = np.zeros(max(i+len(v2), len(v1)))
-    combined[:len(v1)] = v1
-    combined[i:i+len(v2)] += v2
-    combined[combined>32767] = 32767
-    combined[combined<-32767] = -32767'''
-    return combined.astype(np.int16)
-    
-  def normalize(self, audio):
-    mean = np.mean(np.abs(audio))
-    ratio = mean / 2000.0
-    return (audio / ratio).astype(np.int16)
-      
-  # Cut out the initial silence
-  def trimFront(self, audio):
-    i = 0
-    sample = int(RATE / 100)
-    while (self.volume(audio[i:i+sample:2]) < 1500):
-      i += sample * 4
-    return audio[i:]
-    
-  def trimBack(self, audio):
-    i = len(audio) - 1
-    sample = int(RATE / 100)
-    while (self.volume(audio[i-sample:i:2]) < 1500):
-      i -= sample * 4
-    return audio[:i]
-    
-  def volume(self, audio):
-    return np.sum(abs(audio)) / len(audio)
+    return Renderer.renderWord(self, pron)
     
   def setId(self, id):
     self.userid = id
     
-  def save(self):
-    pickle.dump(v,open(dataroot + str(self.userid) + ".dat", 'wb'))
+  def save(self, root=None):
+    if root is None:
+      root = dataroot
+    pickle.dump(self,open(root + str(self.userid) + ".dat", 'wb'))
   
   # Text to speech
   def tts(self,txt,dict,delay=0.2):
-    wordStrs = self.processPunctuation(txt.strip().split())
-    out = np.zeros(1).astype(np.int16)
-    for word in wordStrs:
-      if word == ' ':
-        out = np.concatenate((out, np.zeros((int(RATE * delay))).astype(np.int16), np.zeros((int(RATE * delay))).astype(np.int16)))
-      #TODO do not always take the first translation
-      else:
-        conv = dict.get_phonemes_from_text(word)[0]
-        if conv is not None:
-          ######TEMP#######
-          if (conv[1] == ("AH",0)):
-            conv[1] = ("EH",0)
-          ################
-          out = np.concatenate((out, self.renderWord(conv), np.zeros((int(RATE * delay))).astype(np.int16)))
-    return out
-
-  def processPunctuation(self, wordStrs):
-    words = []
-    for word in wordStrs:
-      word = word.lower()
-      word = word.replace(",", ".")
-      word = word.replace(";", ".")
-      word = word.replace(":", ".")
-      word = word.replace("/", "")
-      word = word.replace("\\", "")
-      word = word.replace("\"", "")
-      word = word.replace("\'", "")
-      
-      
-      #TEMP Replace ? and ! with .
-      word = word.replace("?", ".")
-      word = word.replace("!", ".")
-      word = word.replace("http", ".h.t.t.p.")
-      word = word.replace("www", ".w.w.w.")
-      word = word.replace("http", ".h.t.t.p.s.")
-      
-      word = word.replace("..", ".")
-      
-      wordsplit = word.split(".")
-      while '' in wordsplit:
-        wordsplit.remove('')
-      if len(word) > 0 and word[-1] == ".":
-        wordsplit.append(" ")
-      words += wordsplit
-    return words
+    return Renderer.tts(self, txt, dict, delay)
+  
+  # Returns a set of all remaining phonemes that need to be trained
+  def missingPhonemes(self):
+    remainingPhonemes = copy.copy(ALL_PHONEMES)
+    for k in self.phonemes.keys():
+      remainingPhonemes.remove(k)
+    return remainingPhonemes
+  
+  # Returns a set of all phonemes that have been trained
+  def trainedPhonemes(self):
+    return set(self.phonemes.keys())
+  
+  # Returns True if the phoneme set is complete (has all nessecary phonemes for english)
+  def isFullyTrained(self):
+    if len(self.missingPhonemes()) == 0:
+      return True
+    return False

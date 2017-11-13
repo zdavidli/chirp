@@ -32,7 +32,6 @@ def record(time):
     frames.append(np.fromstring(data, dtype=np.int16))
 
   print("* done recording")
-  print np.max(frames)
 
   stream.stop_stream()
   stream.close()

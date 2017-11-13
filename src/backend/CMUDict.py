@@ -1,8 +1,53 @@
 import cPickle as pickle
+import copy
+
+ALL_PHONEMES = {'IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'}
+
+exampleWords = dict()
+exampleWords['IY'] = ['Eat', 'fEEt']
+exampleWords['W'] = ['We', 'Wand']
+exampleWords['DH'] = ['THee', 'THat']
+exampleWords['Y'] = ['Yes', 'Yield']
+exampleWords['HH'] = ['He', 'Head']
+exampleWords['CH'] = ['CHeese', 'watCH']
+exampleWords['JH'] = ['Jump', 'Jack']
+exampleWords['ZH'] = ['sieZUre', 'Genre']
+exampleWords['EH'] = ['hEllo', 'Eddie']
+exampleWords['NG'] = ['piNG', 'haNG']
+exampleWords['TH'] = ['THree', 'wiTH']
+exampleWords['AA'] = ['Awesome', 'Odd']
+exampleWords['B'] = ['Bat', 'haBitat']
+exampleWords['AE'] = ['At', 'hAt']
+exampleWords['D'] = ['Day', 'haD']
+exampleWords['G'] = ['Green', 'raG']
+exampleWords['F'] = ['Fee', 'halF']
+exampleWords['AH'] = ['hUt', 'bUt']
+exampleWords['K'] = ['Key', 'hacK']
+exampleWords['M'] = ['Me', 'haM']
+exampleWords['L'] = ['Lee', 'beLL']
+exampleWords['AO'] = ['bOUght', 'OUght']
+exampleWords['N'] = ['Need', 'haNd']
+exampleWords['IH'] = ['It', 'hId']
+exampleWords['S'] = ['Sea', 'hiSS']
+exampleWords['R'] = ['Read', 'Ramble']
+exampleWords['EY'] = ['Ate', 'hAY']
+exampleWords['T'] = ['Tea', 'haT']
+exampleWords['AW'] = ['cOW', 'mOUth']
+exampleWords['V'] = ['Vision', 'haVE']
+exampleWords['AY'] = ['rIde', 'I']
+exampleWords['Z'] = ['Zebra', 'haS']
+exampleWords['ER'] = ['hURt', 'bURgER']
+exampleWords['P'] = ['Pen', 'hiP']
+exampleWords['UW'] = ['shOE', 'bOO']
+exampleWords['SH'] = ['SHe', 'slaSH']
+exampleWords['UH'] = ['hUg', 'rUg']
+exampleWords['OY'] = ['tOY', 'bOY']
+exampleWords['OW'] = ['bOAt', 'OAt']
+
 
 class CMUDict:
     word2phonemes_dict = []
-    phonemes = {'IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'}
+    phonemes = copy.copy(ALL_PHONEMES)
 
     def __init__(self):
         self.word2phonemes_dict = []
