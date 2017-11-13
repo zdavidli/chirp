@@ -1,14 +1,17 @@
 import unittest
-
 import pyaudio
 import wave
 import cPickle as pickle
-from loader import dataroot
 import struct
 import numpy as np
 import scipy.io.wavfile as wavfile
 import os
+import copy
+
+from loader import loadVoice
+from loader import dataroot
 from CMUDict import CMUDict
+from CMUDict import ALL_PHONEMES
 from util import record
 from util import writeWav
 from util import RATE
@@ -79,6 +82,26 @@ class TestModel(unittest.TestCase):
       ans = [ 5256, 9185, 4430, 3972, 10004, 4503, 4158, 10091, 4015, 4106]
       for i in range(10):
         self.assertEqual(Renderer.volume(self.testset["OW"][i * 100:i * 100 + 100]), ans[i])
+        
+    def test_missingPhonemes(self):
+      result = self.v.missingPhonemes()
+      remainingPhonemes = copy.copy(ALL_PHONEMES)
+      self.assertEqual(result, remainingPhonemes)
+      self.assertFalse(self.v.isFullyTrained())
+      
+      input = np.random.rand(43, 1024) * 22000 - 128
+      self.v.addPhoneme("AA", input)
+      result = self.v.missingPhonemes()
+      remainingPhonemes.remove("AA")
+      self.assertEqual(result, remainingPhonemes)
+      
+      
+      for p in copy.copy(remainingPhonemes):
+        self.v.addPhoneme(p, input)
+        result = self.v.missingPhonemes()
+        remainingPhonemes.remove(p)
+        self.assertEqual(result, remainingPhonemes)
+      self.assertTrue(self.v.isFullyTrained())
 
 if __name__ == '__main__':
     unittest.main()
