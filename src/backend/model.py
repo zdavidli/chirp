@@ -65,7 +65,7 @@ class Voice:
     pickle.dump(self,open(root + str(self.userid) + ".dat", 'wb'))
   
   # Text to speech
-  def tts(self,txt,dict,delay=0.2):
+  def tts(self,txt,dict,delay=0.1):
     return Renderer.tts(self, txt, dict, delay)
   
   # Returns a set of all remaining phonemes that need to be trained

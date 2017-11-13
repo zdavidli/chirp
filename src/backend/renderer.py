@@ -11,6 +11,8 @@ from util import record
 from util import writeWav
 from util import RATE
 
+trimThreshold = 1100
+
 class Renderer:
   
   def __init__(self, id):
@@ -21,11 +23,22 @@ class Renderer:
     return np.concatenate(input)
   @staticmethod
   def renderWord(voice, pron):
-    out = voice.phonemes[pron[0][0]]
+    out = Renderer.rampEdges(voice.phonemes[pron[0][0]])
+    gap = 0.12
+    if len(pron) > 5:
+      gap *= 1.4
     for i in range(1,len(pron)):
-      out = Renderer.concat(out, voice.phonemes[pron[i][0]], RATE * 0.1)
-      #print len(out)
+      out = Renderer.concat(out, Renderer.rampEdges(voice.phonemes[pron[i][0]]), min(RATE * gap, len(voice.phonemes[pron[i][0]])))
     return out
+    
+  @staticmethod
+  def rampEdges(audio):
+    edge = int(len(audio) * 0.2);
+    for i in range(edge):
+      audio[i] *= i / edge
+      audio[len(audio) - i - 1] *= i / edge
+    return audio
+  
   @staticmethod
   def concat(v1, v2, i=0):
     i = int(min(i, len(v1)))
@@ -50,7 +63,7 @@ class Renderer:
   @staticmethod
   def normalize(audio):
     mean = np.mean(np.abs(audio))
-    ratio = mean / 2000.0
+    ratio = mean / 1700.0
     return (audio / ratio).astype(np.int16)
       
   # Cut out the initial silence
@@ -58,23 +71,25 @@ class Renderer:
   def trimFront(audio):
     i = 0
     sample = int(RATE / 100)
-    while (Renderer.volume(audio[i:i+sample:2]) < 1500):
+    audioNorm = Renderer.normalize(audio)
+    while (Renderer.volume(audioNorm[i:i+sample:2]) < trimThreshold) and len(audio) - i > sample * 9:
       i += sample * 4
-    return audio[i:]
+    return audio[max(i,i - sample * 4):]
   @staticmethod
   def trimBack(audio):
     i = len(audio) - 1
     sample = int(RATE / 100)
-    while (Renderer.volume(audio[i-sample:i:2]) < 1500):
+    audioNorm = Renderer.normalize(audio)
+    while (Renderer.volume(audioNorm[i-sample:i:2]) < trimThreshold) and i > sample * 9:
       i -= sample * 4
-    return audio[:i]
+    return audio[:min(i,i + sample * 4)]
   @staticmethod
   def volume(audio):
     return np.sum(abs(audio)) / len(audio)
   
   # Text to speech
   @staticmethod
-  def tts(voice,txt,dict,delay=0.2):
+  def tts(voice,txt,dict,delay):
     wordStrs = Renderer.processPunctuation(txt.strip().split())
     out = np.zeros(1).astype(np.int16)
     for word in wordStrs:
@@ -84,10 +99,10 @@ class Renderer:
       else:
         conv = dict.get_phonemes_from_text(word)[0]
         if conv is not None:
-          ######TEMP#######
-          if (conv[1] == ("AH",0)):
-            conv[1] = ("EH",0)
-          ################
+          #######TEMP#######
+          #if (conv[1] == ("AH",0)):
+          #  conv[1] = ("EH",0)
+          #################
           out = np.concatenate((out, Renderer.renderWord(voice, conv), np.zeros((int(RATE * delay))).astype(np.int16)))
     return out
   @staticmethod

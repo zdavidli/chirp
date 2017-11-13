@@ -13,7 +13,8 @@ dataroot = "voices/"
 # returns None if the user has no voice model.
 def loadVoice(userid):
   try:
-    return pickle.load(open(dataroot + str(userid) + ".dat", 'rb'))
+    v = pickle.load(open(dataroot + str(userid) + ".dat", 'r'))
+    return v
   except:
     return None
 

@@ -36,7 +36,7 @@ writeWav("output.wav", v.tts("hello scott. hot. lot cot. hell", cmu))
 #pickle.dump(v,open("voice.dat", 'wb'))
 """
 
-TRAIN_VOCAB = ['W', 'ER', 'L', 'D']
+TRAIN_VOCAB = ALL_PHONEMES#['W', 'ER', 'L', 'D']
 
 cmuDict = CMUDict()
 cmuDict.load_dict("dict.p")
@@ -55,7 +55,7 @@ def train_model(model, phonemes=ALL_PHONEMES):
 		#while not accepted:
 		print "Please say the phoneme %s as in %s or %s" % (phone, exampleWords[phone][0],exampleWords[phone][1])
 		raw_input("Press enter to start recording")
-		audio = record(3)
+		audio = record(1.2)
 			#accepted = raw_input("Accept Recording? y/n:\n") == 'y'
 			#print accepted
 		try:
