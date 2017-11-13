@@ -1,12 +1,16 @@
 import pyaudio
 import wave
 import cPickle as pickle
-from loader import dataroot
 import struct
 import numpy as np
 import scipy.io.wavfile as wavfile
 import os
+import copy
+
+# Custom Code
+from loader import dataroot
 from CMUDict import CMUDict
+from CMUDict import ALL_PHONEMES
 from util import record
 from util import writeWav
 from util import RATE
@@ -63,3 +67,16 @@ class Voice:
   # Text to speech
   def tts(self,txt,dict,delay=0.2):
     return Renderer.tts(self, txt, dict, delay)
+  
+  # Returns a set of all remaining phonemes that need to be trained
+  def missingPhonemes(self):
+    remainingPhonemes = copy.copy(ALL_PHONEMES)
+    for k in self.phonemes.keys():
+      remainingPhonemes.remove(k)
+    return remainingPhonemes
+  
+  # Returns True if the phoneme set is complete (has all nessecary phonemes for english)
+  def isFullyTrained(self):
+    if len(self.missingPhonemes()) == 0:
+      return True
+    return False
