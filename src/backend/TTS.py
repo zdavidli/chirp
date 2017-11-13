@@ -16,9 +16,11 @@ from util import writeWav
 from util import RATE
 from model import Voice
 
+
+
 def main():
   if len(sys.argv) == 1:
-    print "No parameters :("
+    print 'No parameters :(. Usage: python TTS.py "Phrase to say" <userid>'
     return 1
   name = ""
   if len(sys.argv) == 2:
@@ -37,7 +39,7 @@ def main():
   cmu = CMUDict()
   cmu.load_dict("dict.p")
   print "Done."
-  print "Rendering audio..."
+  print "Rendering audio to output.wav..."
   writeWav("output.wav", v.tts(txt, cmu))
   print "Done"
   
