@@ -1,8 +1,11 @@
 import cPickle as pickle
+import copy
+
+ALL_PHONEMES = {'IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'}
 
 class CMUDict:
     word2phonemes_dict = []
-    phonemes = {'IY', 'W', 'DH', 'Y', 'HH', 'CH', 'JH', 'ZH', 'EH', 'NG', 'TH', 'AA', 'B', 'AE', 'D', 'G', 'F', 'AH', 'K', 'M', 'L', 'AO', 'N', 'IH', 'S', 'R', 'EY', 'T', 'AW', 'V', 'AY', 'Z', 'ER', 'P', 'UW', 'SH', 'UH', 'OY', 'OW'}
+    phonemes = copy.copy(ALL_PHONEMES)
 
     def __init__(self):
         self.word2phonemes_dict = []

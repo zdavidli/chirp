@@ -9,9 +9,16 @@ import csv
 
 dataroot = "voices/"
 
+# Loads the voice for the specified user.
+# returns None if the user has no voice model.
 def loadVoice(userid):
-  return pickle.load(open(dataroot + str(userid) + ".dat", 'rb'))
+  try:
+    return pickle.load(open(dataroot + str(userid) + ".dat", 'rb'))
+  except:
+    return None
+
   
+# Returns a dict of all voices stored in /voices/
 def loadAllVoices():
   voices = dict()
   rootdir = './'
