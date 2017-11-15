@@ -3,6 +3,7 @@ from flask import Flask
 from flask import request
 from flask_restful import Resource, Api
 from flask import send_file
+from flask.ext.api import status
 
 
 #Model imports
@@ -26,19 +27,32 @@ counter = 0
 #curl http://localhost:5000/samplerate -d "data=Remember the milk" -X GET
 class SampleRate(Resource):
   def get(self):
-    return {'rate': RATE}
+    return {'rate': RATE}, status.HTTP_200_OK
 
 api.add_resource(SampleRate, '/samplerate')
+
+# Get the voice by the id. If the voice is not loaded, load it.
+# if the voice does not exist, return DEFAULT
+def getVoice(speaker_id):
+  if speaker_id in voices:
+    return voices[speaker_id]
+  else:
+    v = loadVoice(speaker_id)
+    if v is None:
+      return voices['DEFAULT']
+    else:
+      voices[speaker_id] = v
+      return voices[speaker_id]
 
 #curl http://localhost:5000/tts/<speaker_id> -d "data=words to read out" -X GET
 class tts(Resource):
   def get(self, speaker_id):
     txt = request.form['data']
-    v = voices[speaker_id]
+    v = getVoice(speaker_id)
     counter += 1
     filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
     writeWav(filename, v.tts(txt,cmu,delay=0.2))
-    return send_file(filename, mimetype='audio/wav')
+    return send_file(filename, mimetype='audio/wav'), status.HTTP_200_OK
 
 api.add_resource(tts, '/tts/<string:speaker_id>')
 
@@ -49,7 +63,10 @@ class trainer(Resource):
     if user_id not in voices:
       voices[user_id] = Voice()
     v = voices[speaker_id]
-    v.addPhoneme(audio)
+    try:
+      v.addPhoneme(audio)
+    except:
+      return " 'status': 'failed'", status.HTTP_500_INTERNAL_SERVER_ERROR
     v.save()
     return send_file(filename, mimetype='audio/wav')
 
@@ -57,4 +74,4 @@ api.add_resource(trainer, '/train/<string:user_id>')
 
         
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=420)
