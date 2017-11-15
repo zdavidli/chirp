@@ -3,7 +3,6 @@ from flask import Flask
 from flask import request
 from flask_restful import Resource, Api
 from flask import send_file
-from flask.ext.api import status
 
 
 #Model imports
@@ -27,7 +26,7 @@ counter = 0
 #curl http://localhost:5000/samplerate -d "data=Remember the milk" -X GET
 class SampleRate(Resource):
   def get(self):
-    return {'rate': RATE}, status.HTTP_200_OK
+    return {'rate': RATE}, 200
 
 api.add_resource(SampleRate, '/samplerate')
 
@@ -48,11 +47,14 @@ def getVoice(speaker_id):
 class tts(Resource):
   def get(self, speaker_id):
     txt = request.form['data']
-    v = getVoice(speaker_id)
-    counter += 1
-    filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
-    writeWav(filename, v.tts(txt,cmu,delay=0.2))
-    return send_file(filename, mimetype='audio/wav'), status.HTTP_200_OK
+    try:
+      v = getVoice(speaker_id)
+      counter += 1
+      filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
+      writeWav(filename, v.tts(txt,cmu,delay=0.2))
+      return send_file(filename, mimetype='audio/wav'), 200
+    except:
+      return " 'status': 'failed'", 500
 
 api.add_resource(tts, '/tts/<string:speaker_id>')
 
@@ -66,9 +68,9 @@ class trainer(Resource):
     try:
       v.addPhoneme(audio)
     except:
-      return " 'status': 'failed'", status.HTTP_500_INTERNAL_SERVER_ERROR
+      return " 'status': 'failed'", 500
     v.save()
-    return send_file(filename, mimetype='audio/wav')
+    return send_file(filename, mimetype='audio/wav'), 200
 
 api.add_resource(trainer, '/train/<string:user_id>')
 
