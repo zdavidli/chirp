@@ -13,6 +13,49 @@ from util import RATE
 
 trimThreshold = 1100
 
+phonemeVolumeScale = dict()
+phonemeVolumeScale['IY'] = 1.0    # ['Eat', 'fEEt']
+phonemeVolumeScale['W'] =  1.2    #['We', 'Wand']
+phonemeVolumeScale['DH'] = 1.2    # ['THee', 'THat']
+phonemeVolumeScale['Y'] =  1.1    #['Yes', 'Yield']
+phonemeVolumeScale['HH'] = 1.25    # ['He', 'Head']
+phonemeVolumeScale['CH'] = 1.0    # ['CHeese', 'watCH']
+phonemeVolumeScale['JH'] = 1.0    # ['Jump', 'Jack']
+phonemeVolumeScale['ZH'] = 1.1    # ['sieZUre', 'Genre']
+phonemeVolumeScale['EH'] = 1.0    # ['hEllo', 'Eddie']
+phonemeVolumeScale['NG'] = 1.25    # ['piNG', 'haNG']
+phonemeVolumeScale['TH'] = 1.1    # ['THree', 'wiTH']
+phonemeVolumeScale['AA'] = 1.15    # ['Awesome', 'Odd']
+phonemeVolumeScale['B'] =  1.2    #['Bat', 'haBitat']
+phonemeVolumeScale['AE'] = 1.0    # ['At', 'hAt']
+phonemeVolumeScale['D'] =  1.1    #['Day', 'haD']
+phonemeVolumeScale['G'] =  1.2    #['Green', 'raG']
+phonemeVolumeScale['F'] =  1.05    #['Fee', 'halF']
+phonemeVolumeScale['AH'] = 1.2    # ['hUt', 'bUt']
+phonemeVolumeScale['K'] =  1.1    #['Key', 'hacK']
+phonemeVolumeScale['M'] =  1.25    #['Me', 'haM']
+phonemeVolumeScale['L'] =  1.3    #['Lee', 'beLL']
+phonemeVolumeScale['AO'] = 1.2    # ['bOUght', 'OUght']
+phonemeVolumeScale['N'] =  1.3    #['Need', 'haNd']
+phonemeVolumeScale['IH'] = 1.0    # ['It', 'hId']
+phonemeVolumeScale['S'] =  1.0    #['Sea', 'hiSS']
+phonemeVolumeScale['R'] =  1.3    #['Read', 'Ramble']
+phonemeVolumeScale['EY'] = 1.0    # ['Ate', 'hAY']
+phonemeVolumeScale['T'] =  1.15    #['Tea', 'haT']
+phonemeVolumeScale['AW'] = 1.1    # ['cOW', 'mOUth']
+phonemeVolumeScale['V'] =  1.3    #['Vision', 'haVE']
+phonemeVolumeScale['AY'] = 1.1    # ['rIde', 'I']
+phonemeVolumeScale['Z'] =  1.1   #['Zebra', 'haS']
+phonemeVolumeScale['ER'] = 1.1    # ['hURt', 'bURgER']
+phonemeVolumeScale['P'] =  1.2    #['Pen', 'hiP']
+phonemeVolumeScale['UW'] = 1.2    # ['shOE', 'bOO']
+phonemeVolumeScale['SH'] = 1.0    # ['SHe', 'slaSH']
+phonemeVolumeScale['UH'] = 1.2    # ['hUg', 'rUg']
+phonemeVolumeScale['OY'] = 1.1    # ['tOY', 'bOY']
+phonemeVolumeScale['OW'] = 1.2    # ['bOAt', 'OAt']
+
+
+
 class Renderer:
   
   def __init__(self, id):
@@ -23,11 +66,12 @@ class Renderer:
     return np.concatenate(input)
   @staticmethod
   def renderWord(voice, pron):
-    out = Renderer.rampEdges(voice.phonemes[pron[0][0]])
     gap = 0.12
+    overallScale = 0.75
+    out = Renderer.rampEdges(voice.phonemes[pron[0][0]])# * phonemeVolumeScale[pron[0][0]] * overallScale)
     if len(pron) > 5:
       gap *= 1.4
-    for i in range(1,len(pron)):
+    for i in range(1,len(pron)):# * phonemeVolumeScale[pron[i][0]] * overallScale
       out = Renderer.concat(out, Renderer.rampEdges(voice.phonemes[pron[i][0]]), min(RATE * gap, len(voice.phonemes[pron[i][0]])))
     return out
     

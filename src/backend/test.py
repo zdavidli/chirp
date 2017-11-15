@@ -46,7 +46,7 @@ class TestModel(unittest.TestCase):
       self.assertEqual(self.v.userid, "testname")
       self.assertEqual(len(self.v.phonemes.keys()), 0)
       
-      self.assertEqual(np.mean(np.abs(Renderer.normalize(self.testset["frames"]))), 1799.6127134811047)
+      self.assertEqual(np.mean(np.abs(Renderer.normalize(self.testset["frames"]))), 1578.1323582848838)
       
     def test_processPunctuation(self):
       result = Renderer.processPunctuation("hel'LO worl\D. But ther/e, is no!".strip().split())
