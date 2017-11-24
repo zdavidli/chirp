@@ -56,6 +56,10 @@ def main():
 def top_tweets():
     tweets, datetime_toptweets = get_top_tweets()
     return render_template('top_tweets.html', tweets = tweets, datetime_toptweets = datetime_toptweets)
+    
+@app.route("/train")
+def train():
+    return render_template('train.html')
 
 if __name__ == "__main__":
     app.run(debug = True, port=80)
