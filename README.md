@@ -11,6 +11,8 @@ Group Members:
 
 # Building the project:
 
+Note: Since the project is primarily in python and Flask, it does not need to be built!
+
 To build the project...
 
 On Unix systems, run
