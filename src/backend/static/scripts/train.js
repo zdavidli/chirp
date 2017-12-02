@@ -13,6 +13,7 @@ var stop = document.querySelector('.stop');
 var accept = document.querySelector('.accept');
 var soundClips = document.querySelector('.sound-clips');
 var canvas = document.querySelector('.visualizer');
+var test = document.querySelector('.test');
 
 // disable stop button while not recording
 
@@ -62,6 +63,11 @@ if (navigator.getUserMedia) {
     accept.onclick = function() {
       console.log("WHOOO");
       sendPhoneme(stream);
+    }
+    
+    test.onclick = function() {
+      console.log("WHOOO");
+      playaudio("gary");
     }
 
     mediaRecorder.onstop = function(e) {
@@ -183,7 +189,6 @@ function visualize(stream) {
 }
 
 function sendPhoneme(stream) {
-  console.log("TESTTESTTEST");
   var url = "samplerate";
   var request = new XMLHttpRequest();
   request.onreadystatechange = function() {
@@ -198,5 +203,41 @@ function sendPhoneme(stream) {
   };
   request.open("GET", url , true);
   request.send(null);
-  
+}
+
+function playaudio(speaker) {
+  var request = new XMLHttpRequest();
+  var audioContext = new AudioContext();
+  var source = audioContext.createBufferSource();
+  var url = "samplerate";
+  request.onload = function() {
+    var playAudio = function(buffer) {
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+
+      source.start(0);
+    };
+
+    // TODO: Handle properly (exiquio)
+    // NOTE: error is being received
+    var handleError = function(error) {
+      console.log('An audio decoding error occurred');
+    }
+
+    audioContext
+      .decodeAudioData(request.response, playAudio, handleError);
+  };
+  request.onerror = function() { console.log('An error occurred'); };
+
+  var urlBase = 'tts';
+  var url = [
+    urlBase,
+    "/",
+    speaker,
+  ].join('');
+
+  request.open('GET', encodeURI(url), true);
+  //request.setRequestHeader('x-access-token', Application.token);
+  request.responseType = 'arraybuffer';
+  request.send(JSON.stringify({txt:"Test sentence"}));
 }
