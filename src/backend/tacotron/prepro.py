@@ -18,15 +18,21 @@ def create_train_data():
     char2idx, idx2char = load_vocab() 
       
     texts, sound_files = [], []
+    i = 0
     reader = csv.reader(codecs.open(hp.text_file, 'rb', 'utf-8'))
     for row in reader:
         sound_fname, text, duration = row
+        #print text, len(text)
         sound_file = hp.sound_fpath + "/" + sound_fname + ".wav"
         text = re.sub(r"[^ a-z']", "", text.strip().lower())
          
         if hp.min_len <= len(text) <= hp.max_len:
+            #print "um"
             texts.append(np.array([char2idx[char] for char in text], np.int32).tostring())
             sound_files.append(sound_file)
+        i += 1
+        if i > 100:
+            break
              
     return texts, sound_files
      
@@ -53,5 +59,17 @@ def load_eval_data():
         X[i, :len(_text)] = _text
     
     return X
- 
 
+def process_text(text):
+    assert 10 <= len(text) <= 100
+    char2idx, idx2char = load_vocab() 
+    text = re.sub(r"[^ a-z']", "", text.strip().lower())
+    return np.fromstring(np.array([char2idx[char] for char in text], np.int32).tostring(), np.int32)
+
+def send_texts(texts=["Hello World", "I am a complete degenerate", "Johns Hopkins is a top ten univeristy"]):
+    X = np.zeros(shape=[len(texts), 100], dtype=np.int32)
+    for i, text in enumerate(texts):
+        text = process_text(text)
+        X[i, :len(text)] = text
+        
+    return X

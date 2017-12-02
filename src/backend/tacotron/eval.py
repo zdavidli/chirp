@@ -21,7 +21,8 @@ def eval():
     print("Graph loaded")
     
     # Load data
-    X = load_eval_data() # texts
+    #X = load_eval_data() # texts
+    X = send_texts()
     char2idx, idx2char = load_vocab()
              
     with g.graph.as_default():    
@@ -35,7 +36,7 @@ def eval():
             mname = open(hp.logdir + '/checkpoint', 'r').read().split('"')[1] # model name
 
             timesteps = 100  # Adjust this number as you want
-            outputs1 = np.zeros((hp.num_samples, timesteps, hp.n_mels * hp.r), np.float32)  # hp.n_mels*hp.r
+            outputs1 = np.zeros((X.shape[0], timesteps, hp.n_mels * hp.r), np.float32)  # hp.n_mels*hp.r
             for j in range(timesteps):
                 _outputs1 = sess.run(g.outputs1, {g.x: X, g.y: outputs1})
                 outputs1[:, j, :] = _outputs1[:, j, :]
