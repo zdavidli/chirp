@@ -1,4 +1,5 @@
 oose/
 *.pyc
-*.wav
 config.py
+src/backend/tacotron/logdir_s/*
+src/backend/tacotron/WEB/*
