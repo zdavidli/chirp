@@ -10,6 +10,7 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 
 var record = document.querySelector('.record');
 var stop = document.querySelector('.stop');
+var accept = document.querySelector('.accept');
 var soundClips = document.querySelector('.sound-clips');
 var canvas = document.querySelector('.visualizer');
 
@@ -46,6 +47,7 @@ if (navigator.getUserMedia) {
     }
 
     stop.onclick = function() {
+      console.log("stopping");
       mediaRecorder.stop();
       console.log(mediaRecorder.state);
       console.log("recorder stopped");
@@ -55,6 +57,11 @@ if (navigator.getUserMedia) {
 
       stop.disabled = true;
       record.disabled = false;
+    }
+    
+    accept.onclick = function() {
+      console.log("WHOOO");
+      sendPhoneme(stream);
     }
 
     mediaRecorder.onstop = function(e) {
@@ -176,16 +183,18 @@ function visualize(stream) {
 }
 
 function sendPhoneme(stream) {
+  console.log("TESTTESTTEST");
+  var url = "127.0.0.1:420/samplerate";
   var request = new XMLHttpRequest();
   request.onreadystatechange = function() {
-      if (request.readyState === 4) {
-          if (request.status === 200) {
-              document.body.className = 'ok';
-              console.log(request.responseText);
-          } else {
-              document.body.className = 'error';
-          }
+    if (request.readyState === 4) {
+      if (request.status === 200) {
+        document.body.className = 'ok';
+        console.log(request.responseText);
+      } else {
+        document.body.className = 'error';
       }
+    }
   };
   request.open("GET", url , true);
   request.send(null);
