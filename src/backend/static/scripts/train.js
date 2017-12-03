@@ -61,13 +61,12 @@ if (navigator.getUserMedia) {
     }
     
     accept.onclick = function() {
-      console.log("WHOOO");
       sendPhoneme(stream);
     }
     
     test.onclick = function() {
-      console.log("WHOOO");
-      playaudio("gary");
+      console.log("Test");
+      playaudio("gary", "test sentence scott is the best");
     }
 
     mediaRecorder.onstop = function(e) {
@@ -205,30 +204,7 @@ function sendPhoneme(stream) {
   request.send(null);
 }
 
-function playaudio(speaker) {
-  var request = new XMLHttpRequest();
-  var audioContext = new AudioContext();
-  var source = audioContext.createBufferSource();
-  var url = "samplerate";
-  request.onload = function() {
-    var playAudio = function(buffer) {
-      source.buffer = buffer;
-      source.connect(audioContext.destination);
-
-      source.start(0);
-    };
-
-    // TODO: Handle properly (exiquio)
-    // NOTE: error is being received
-    var handleError = function(error) {
-      console.log('An audio decoding error occurred');
-    }
-
-    audioContext
-      .decodeAudioData(request.response, playAudio, handleError);
-  };
-  request.onerror = function() { console.log('An error occurred'); };
-
+function playaudio(speaker, txt) {
   var urlBase = 'tts';
   var url = [
     urlBase,
@@ -236,8 +212,18 @@ function playaudio(speaker) {
     speaker,
   ].join('');
 
-  request.open('GET', encodeURI(url), true);
-  //request.setRequestHeader('x-access-token', Application.token);
-  request.responseType = 'arraybuffer';
-  request.send("data=test sentence");//JSON.stringify({"data":"Test sentence"}));
+  $.ajax({
+    url : url,
+    type: 'GET',
+    data: txt,
+    success : handledata
+  })
+  
+  function handledata(data) {
+    console.log("hello");
+    console.log(data);
+    var audio = new Audio(data);
+    audio.play();
+
+  }
 }

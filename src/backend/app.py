@@ -1,8 +1,9 @@
-from flask import Flask, render_template
 import sqlite3
 import ast
+import os.path
 
 #flask imports
+from flask import Flask, render_template
 from flask import request
 from flask_restful import Resource, Api
 from flask import send_file
@@ -63,31 +64,41 @@ def getCount():
   counter += 1
   return counter
 
-#curl http://localhost:5000/tts/<speaker_id> -d "data=words to read out" -X GET
-class tts(Resource):
-  counter = 0
-  def get(self, speaker_id):
-    print request.values.get('data')
-    txt = request.values.get('data')
-    if txt is None:
-      print "Text was None. Falling back"
-      txt = "fallback text to render"
-      #return " 'status': 'No text'", 400
-    try:
-      print "in try"
-      v = getVoice(speaker_id)
-      counter = tts.counter
-      tts.counter += 1
-      filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
-      
-      writeWav(filename, v.tts(txt,cmu,delay=0.2))
-      return send_file(filename, mimetype='audio/wav'), 200
-    except:
-      return " 'status': 'failed'", 500
+#curl http://localhost/tts/<speaker_id> -d "words to read out" -X GET
+@app.route('/tts/<string:speaker_id>', methods=['GET', 'POST'])
+def tts(speaker_id):
+  txt = request.values.keys()[0]
+  if txt is None:
+    print "Text was None. Falling back"
+    txt = "fallback text to render"
+    #return " 'status': 'No text'", 400
+  try:
+    v = getVoice(speaker_id)
+    renderroot = "static/audio/"
+    counter = 0
+    filename = renderroot + speaker_id + str(counter) + ".wav"
+    #while os.path.isfile(filename) == False and counter > 0:
+    #  print counter
+    #  counter -= 1
+    #  filename = renderroot + speaker_id + str(counter) + ".wav"
+    #print "removing"
+    #for i in range(counter - 2):
+    #  print i
+    #  fn = renderroot + speaker_id + str(i) + ".wav"
+    #  if os.path.isfile(fn):
+    #    os.remove(fn)
+    #print "Here"
+    #filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
+    #filename = renderroot + speaker_id + str(counter % 10) + ".wav"
 
-api.add_resource(tts, '/tts/<string:speaker_id>')
+    audio = v.tts(txt,cmu,delay=0.2)
+    #print audio
+    writeWav(filename, audio)
+    return filename, 200
+  except:
+    return "'status': 'failed'", 500
 
-#curl http://localhost:5000/train/<user_id> -d "data=<recording>" -X PUT
+#curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):
   def put(self, user_id):
     audio = request.form['data']
