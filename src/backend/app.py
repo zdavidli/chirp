@@ -58,15 +58,28 @@ def getVoice(speaker_id):
     else:
       voices[speaker_id] = v
       return voices[speaker_id]
+      
+def getCount():
+  counter += 1
+  return counter
 
 #curl http://localhost:5000/tts/<speaker_id> -d "data=words to read out" -X GET
 class tts(Resource):
+  counter = 0
   def get(self, speaker_id):
-    txt = request.form['data']
+    print request.values.get('data')
+    txt = request.values.get('data')
+    if txt is None:
+      print "Text was None. Falling back"
+      txt = "fallback text to render"
+      #return " 'status': 'No text'", 400
     try:
+      print "in try"
       v = getVoice(speaker_id)
-      counter += 1
+      counter = tts.counter
+      tts.counter += 1
       filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
+      
       writeWav(filename, v.tts(txt,cmu,delay=0.2))
       return send_file(filename, mimetype='audio/wav'), 200
     except:

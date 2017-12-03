@@ -239,5 +239,5 @@ function playaudio(speaker) {
   request.open('GET', encodeURI(url), true);
   //request.setRequestHeader('x-access-token', Application.token);
   request.responseType = 'arraybuffer';
-  request.send(JSON.stringify({txt:"Test sentence"}));
+  request.send("data=test sentence");//JSON.stringify({"data":"Test sentence"}));
 }
