@@ -204,14 +204,13 @@ function sendPhoneme(speaker, audio) {
     "/",
     speaker,
   ].join('');
-  console.log(url);
   
   var formData = new FormData();
   formData.append('audio/wav', audio, speaker + ".wav");
   $.ajax({
     url : url,
     type: 'POST',
-    body: audio,
+    data: audio,
     processData: false,
     contentType: false,
     success : handledata

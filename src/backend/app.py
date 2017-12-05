@@ -98,13 +98,10 @@ def addtraindata(speaker_id):
     while os.path.isfile(filename) == True:
       counter += 1
       filename = root + "/" + str(counter) + ".wav"
-      
     if not os.path.exists(root):
       os.makedirs(root)
     f = open(filename, 'wb')
-    print "here"
     f.write(request.data)
-    print "here"
     f.close()
     #print "Here"
     #form = cgi.FieldStorage()
@@ -224,5 +221,5 @@ def train():
     return render_template('train.html')
 
 if __name__ == "__main__":
-    app.run(debug = True, port=5000)
+    app.run(debug = True, port=80)
 
