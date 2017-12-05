@@ -1,5 +1,6 @@
 .DS_Store
 oose/
+*.db
 config.py
 src/backend/tacotron/logdir_s/*
 src/backend/tacotron/WEB/*
