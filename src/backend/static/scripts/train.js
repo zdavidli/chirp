@@ -15,6 +15,10 @@ var soundClips = document.querySelector('.sound-clips');
 var canvas = document.querySelector('.visualizer');
 var test = document.querySelector('.test');
 
+
+//var trainingArticle = document.getElementById('train');
+var trainingIdx =0;
+
 // disable stop button while not recording
 
 stop.disabled = true;
@@ -42,9 +46,12 @@ if (navigator.getUserMedia) {
       console.log(mediaRecorder.state);
       console.log("recorder started");
       record.style.background = "red";
-
       stop.disabled = false;
       record.disabled = true;
+
+      displayTrainingArticle(trainingIdx);
+      trainingIdx++;
+      console.log("training article value reset");
     }
 
     stop.onclick = function() {
@@ -227,3 +234,11 @@ function playaudio(speaker, txt) {
 
   }
 }
+
+function displayTrainingArticle(idx){
+  var articles = ["article 1", "article 2", "article 3"];
+  var index = idx % (articles.length);
+  document.getElementById('train').innerHTML = articles[index];
+   //trainingArticle.textContent = "hello word! this is the text to train";
+}
+

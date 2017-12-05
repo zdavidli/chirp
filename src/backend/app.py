@@ -124,6 +124,16 @@ api.add_resource(trainer, '/train/<string:user_id>')
 ###################################################################################
 ###################################################################################
 
+#get lines of articles to read
+def getList():
+    text = []
+    with open('article.txt','r') as f:
+        data = f.readlines()
+        for i in data:
+            if i != '\n':
+                text.append(i.rstrip())
+    return text
+
 def get_top_tweets():
     conn = sqlite3.connect(db)
     conn.row_factory = sqlite3.Row
@@ -180,5 +190,5 @@ def train():
     return render_template('train.html')
 
 if __name__ == "__main__":
-    app.run(debug = True, port=80)
+    app.run(debug = True, port=5000)
 
