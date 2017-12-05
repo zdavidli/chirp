@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sqlite3
 import ast
 import os.path
@@ -59,7 +61,7 @@ def getVoice(speaker_id):
     else:
       voices[speaker_id] = v
       return voices[speaker_id]
-      
+
 def getCount():
   counter += 1
   return counter
@@ -184,7 +186,7 @@ def main():
 def top_tweets():
     tweets, datetime_toptweets = get_top_tweets()
     return render_template('top_tweets.html', tweets = tweets, datetime_toptweets = datetime_toptweets)
-    
+
 @app.route("/train")
 def train():
     return render_template('train.html')
