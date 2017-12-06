@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+
 import sqlite3
 import ast
 import os.path
+import cgitb
+import cgi
 
 #flask imports
 from flask import Flask, render_template
@@ -38,6 +42,7 @@ voices = loadAllVoices()
 cmu = CMUDict()
 cmu.load_dict("dict.p")
 counter = 0
+cgitb.enable()
 
 #curl http://localhost:5000/samplerate -d "data=Remember the milk" -X GET
 class SampleRate(Resource):
@@ -58,7 +63,7 @@ def getVoice(speaker_id):
     else:
       voices[speaker_id] = v
       return voices[speaker_id]
-      
+
 def getCount():
   counter += 1
   return counter
@@ -76,19 +81,6 @@ def tts(speaker_id):
     renderroot = "static/audio/"
     counter = 0
     filename = renderroot + speaker_id + str(counter) + ".wav"
-    #while os.path.isfile(filename) == False and counter > 0:
-    #  print counter
-    #  counter -= 1
-    #  filename = renderroot + speaker_id + str(counter) + ".wav"
-    #print "removing"
-    #for i in range(counter - 2):
-    #  print i
-    #  fn = renderroot + speaker_id + str(i) + ".wav"
-    #  if os.path.isfile(fn):
-    #    os.remove(fn)
-    #print "Here"
-    #filename = "renderedAudio/" + speaker_id + str(counter % 10) + ".wav"
-    #filename = renderroot + speaker_id + str(counter % 10) + ".wav"
 
     audio = v.tts(txt,cmu,delay=0.2)
     #print audio
@@ -97,6 +89,48 @@ def tts(speaker_id):
   except:
     return "'status': 'failed'", 500
 
+@app.route('/addtraindata/<string:speaker_id>', methods=['POST', 'PUT'])
+def addtraindata(speaker_id):
+  #txt = request.values.keys()[0]
+  try:
+    root = "static/traindata/" + speaker_id
+    counter = 0
+    filename = root + "/" + str(counter) + ".wav"
+    while os.path.isfile(filename) == True:
+      counter += 1
+      filename = root + "/" + str(counter) + ".wav"
+    if not os.path.exists(root):
+      os.makedirs(root)
+    f = open(filename, 'wb')
+    f.write(request.data)
+    f.close()
+    #print "Here"
+    #form = cgi.FieldStorage()
+    #fname = form["audio"].filename
+    #print fname
+    #with contextlib.closing(wave.open(fname,'r')) as f:
+    #  print f
+    #audio = request.data
+    #writeWav(filename, audio)
+    return "success", 200
+  except:
+    return "'status': 'failed'", 500
+    
+@app.route('/deletetraindata/<string:speaker_id>', methods=['POST', 'PUT'])
+def deletetraindata(speaker_id):
+  #txt = request.values.keys()[0]
+  try:
+    root = "static/traindata/" + speaker_id + "/"
+    counter = 0
+    filename = root + str(counter) + ".wav"
+    while os.path.isfile(filename) == True:
+      os.remove(filename)
+      counter += 1
+      filename = root + str(counter) + ".wav"
+    return "success", 200
+  except:
+    return "'status': 'failed'", 500
+    
 #curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):
   def put(self, user_id):
@@ -110,7 +144,6 @@ class trainer(Resource):
       return " 'status': 'failed'", 500
     v.save()
     return send_file(filename, mimetype='audio/wav'), 200
-
 api.add_resource(trainer, '/train/<string:user_id>')
 
 ###################################################################################
@@ -183,12 +216,12 @@ def main():
 def top_tweets():
     tweets, datetime_toptweets = get_top_tweets()
     return render_template('top_tweets.html', tweets = tweets, datetime_toptweets = datetime_toptweets)
-    
+
 @app.route("/train")
 def train():
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
 if __name__ == "__main__":
-    app.run(debug = True, port=5000)
+    app.run(debug = True, port=80)
 

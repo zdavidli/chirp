@@ -15,6 +15,8 @@ var soundClips = document.querySelector('.sound-clips');
 var canvas = document.querySelector('.visualizer');
 var test = document.querySelector('.test');
 
+var CurrAudio = null;
+
 
 //var trainingArticle = document.getElementById('train');
 var trainingIdx =0;
@@ -68,7 +70,7 @@ if (navigator.getUserMedia) {
     }
     
     accept.onclick = function() {
-      sendPhoneme(stream);
+      sendPhoneme("gary", CurrAudio);
     }
     
     test.onclick = function() {
@@ -103,7 +105,8 @@ if (navigator.getUserMedia) {
       soundClips.appendChild(clipContainer);
 
       audio.controls = true;
-      var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+      var blob = new Blob(chunks, { 'type' : 'audio/wav;' });
+      CurrAudio = blob;
       chunks = [];
       var audioURL = window.URL.createObjectURL(blob);
       audio.src = audioURL;
@@ -194,21 +197,30 @@ function visualize(stream) {
   }
 }
 
-function sendPhoneme(stream) {
-  var url = "samplerate";
-  var request = new XMLHttpRequest();
-  request.onreadystatechange = function() {
-    if (request.readyState === 4) {
-      if (request.status === 200) {
-        document.body.className = 'ok';
-        console.log(request.responseText);
-      } else {
-        document.body.className = 'error';
-      }
-    }
-  };
-  request.open("GET", url , true);
-  request.send(null);
+function sendPhoneme(speaker, audio) {
+  var urlBase = 'addtraindata';
+  var url = [
+    urlBase,
+    "/",
+    speaker,
+  ].join('');
+  
+  var formData = new FormData();
+  formData.append('audio/wav', audio, speaker + ".wav");
+  $.ajax({
+    url : url,
+    type: 'POST',
+    data: audio,
+    processData: false,
+    contentType: false,
+    success : handledata
+  })
+  
+  
+  function handledata(data) {
+    console.log(data);
+  }
+  /////////////////////////////////////////////
 }
 
 function playaudio(speaker, txt) {
@@ -227,11 +239,10 @@ function playaudio(speaker, txt) {
   })
   
   function handledata(data) {
-    console.log("hello");
     console.log(data);
+    console.log("Playing: " + str(txt))
     var audio = new Audio(data);
     audio.play();
-
   }
 }
 
