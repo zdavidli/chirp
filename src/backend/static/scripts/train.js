@@ -106,7 +106,7 @@ if (navigator.getUserMedia) {
 
       audio.controls = true;
       var blob = new Blob(chunks, { 'type' : 'audio/wav;' });
-      CurrAudio = blob;
+      CurrAudio = blob;//new Blob(chunks, { 'type' : 'string;' });;
       chunks = [];
       var audioURL = window.URL.createObjectURL(blob);
       audio.src = audioURL;
@@ -205,22 +205,49 @@ function sendPhoneme(speaker, audio) {
     speaker,
   ].join('');
   
+  //var arrayBuffer;
+  //var fileReader = new FileReader();
+  //fileReader.onload = function() {
+  //  arrayBuffer = this.result;
+  //  console.log(arrayBuffer);
+  //};
+  //fileReader.readAsArrayBuffer(audio);
+  
+  
   var formData = new FormData();
-  formData.append('audio/wav', audio, speaker + ".wav");
+  
+  var fd = new FormData();
+  fd.append('fname', 'test.wav');
+  var file = new File([audio], "name");
+  fd.append('file', file);
   $.ajax({
-    url : url,
     type: 'POST',
-    data: audio,
+    url: url,
+    data: fd,
     processData: false,
-    contentType: false,
-    success : handledata
-  })
-  
-  
-  function handledata(data) {
+    contentType: false
+  }).done(function(data) {
     console.log(data);
-  }
-  /////////////////////////////////////////////
+  });
+  
+  //$.ajax({
+  //  url : url,
+  //  type: 'POST',
+  //  data: formData,
+  //  processData: false,
+  //  contentType: false,
+  //  success : handledata
+  //})
+  //
+  //
+  //function handledata(data) {
+  //  console.log(data);
+  //}
+  ///////////////////////////////////////////
+}
+
+function send(audio) {
+  
 }
 
 function playaudio(speaker, txt) {

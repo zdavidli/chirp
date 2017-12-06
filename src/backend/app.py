@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-
+import array
 import sqlite3
 import ast
 import os.path
 import cgitb
 import cgi
+import numpy as np
 
 #flask imports
 from flask import Flask, render_template
@@ -102,19 +103,23 @@ def addtraindata(speaker_id):
       filename = root + "/" + str(counter) + ".wav"
     if not os.path.exists(root):
       os.makedirs(root)
-    f = open(filename, 'wb')
-    f.write(request.data)
-    f.close()
-    #print "Here"
-    #form = cgi.FieldStorage()
-    #fname = form["audio"].filename
-    #print fname
-    #with contextlib.closing(wave.open(fname,'r')) as f:
-    #  print f
-    #audio = request.data
-    #writeWav(filename, audio)
+    #f = open(filename, 'wb')
+    #f.write(request.data)
+    print "saving"
+    request.files['file'].save(filename)
+    print "saved"
+    #print request.files['file']
+    #strlist = list(request.data)
+    #for i in range(len(strlist)):
+    #  strlist[i] = ord(strlist[i]) * 125 - 16000
+    #  #print strlist[i]
+    #data = np.array(strlist).astype(np.int16)
+    #print "test"
+    #writeWav(filename, data);
+    #f.close()
     return "success", 200
-  except:
+  except Exception as e:
+    print e
     return "'status': 'failed'", 500
     
 @app.route('/deletetraindata/<string:speaker_id>', methods=['POST', 'PUT'])
