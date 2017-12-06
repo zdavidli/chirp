@@ -24,7 +24,9 @@
       
       <section class="main-controls">
         <p> This is a new paragraph to read: </p>
-        <div id = "train">trainingArticle</div> 
+        <div id = "train">trainingArticle</div>
+        <script type="text/javascript"> 
+          var articleText = {{ articles|tojson }}; </script>
         <canvas class="visualizer"></canvas>
         <div id="buttons">
           <button class="record">Record</button>

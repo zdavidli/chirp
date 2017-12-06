@@ -13,20 +13,19 @@ Group Members:
 
 Note: Since the project is primarily in python and Flask, it does not need to be built!
 
-To build the project...
+To install requirements
 
-On Unix systems, run
-
-```shell
-$ ./build.sh
+```
+pip install -r requirements
 ```
 
-On Windows systems, run
+To run:
 
-```shell
-build.bat
+```
+python src/backend/app.py
 ```
 
+You will now be able to access the app at localhost:8080/train
 
 # Testing
 
