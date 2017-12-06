@@ -18,7 +18,6 @@ from loader import loadVoice
 from loader import loadAllVoices
 from CMUDict import CMUDict
 
-
 db = "../twit_data.db"
 
 app = Flask(__name__)
@@ -124,14 +123,14 @@ api.add_resource(trainer, '/train/<string:user_id>')
 ###################################################################################
 ###################################################################################
 
-#get lines of articles to read
-def getList():
+
+def getArticle():
     text = []
     with open('article.txt','r') as f:
         data = f.readlines()
         for i in data:
             if i != '\n':
-                text.append(i.rstrip())
+                text.append(i)
     return text
 
 def get_top_tweets():
@@ -187,7 +186,8 @@ def top_tweets():
     
 @app.route("/train")
 def train():
-    return render_template('train.html')
+    articles = getArticle()
+    return render_template('train.html', articles = articles)
 
 if __name__ == "__main__":
     app.run(debug = True, port=5000)

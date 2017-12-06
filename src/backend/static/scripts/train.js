@@ -237,8 +237,10 @@ function playaudio(speaker, txt) {
 
 function displayTrainingArticle(idx){
   var articles = ["article 1", "article 2", "article 3"];
-  var index = idx % (articles.length);
-  document.getElementById('train').innerHTML = articles[index];
+  //var index = idx % (articles.length);
+  var index = idx % (articleText.length);
+  console.log("display Training Article");
+  document.getElementById('train').innerHTML = articleText[index]; //articleList[index];
    //trainingArticle.textContent = "hello word! this is the text to train";
 }
 
