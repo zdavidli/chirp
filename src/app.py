@@ -72,7 +72,7 @@ def getCount():
   return counter
 
 #curl http://localhost/tts/<speaker_id> -d "words to read out" -X GET
-@app.route('/tts/<string:speaker_id>', methods=['GET', 'POST'])
+@app.route('/api/tts/<string:speaker_id>', methods=['GET', 'POST'])
 def tts(speaker_id):
   txt = request.values.keys()[0]
   if txt is None:
@@ -92,7 +92,7 @@ def tts(speaker_id):
   except:
     return "'status': 'failed'", 500
 
-@app.route('/addtraindata/<string:speaker_id>', methods=['POST', 'PUT'])
+@app.route('/api/addtraindata/<string:speaker_id>', methods=['POST', 'PUT'])
 def addtraindata(speaker_id):
   #txt = request.values.keys()[0]
   try:
@@ -112,7 +112,7 @@ def addtraindata(speaker_id):
     print e
     return "'status': 'failed'", 500
     
-@app.route('/deletetraindata/<string:speaker_id>', methods=['POST', 'PUT'])
+@app.route('/api/deletetraindata/<string:speaker_id>', methods=['POST', 'PUT'])
 def deletetraindata(speaker_id):
   #txt = request.values.keys()[0]
   try:
@@ -126,6 +126,17 @@ def deletetraindata(speaker_id):
     return "success", 200
   except:
     return "'status': 'failed'", 500
+
+@app.route('/api/train/<string:user_id>', methods=['POST', 'PUT'])
+def starttrain(user_id):
+  #txt = request.values.keys()[0]
+  try:
+    root = "static/traindata/" + user_id + "/"
+    filename = root + str(counter) + ".wav"
+    #train here
+    return "Success: Training", 200
+  except:
+    return "Internal Server Error", 500
     
 #curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):
