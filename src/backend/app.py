@@ -104,27 +104,9 @@ def addtraindata(speaker_id):
       filename = root + "/" + str(counter) + ".wav"
     if not os.path.exists(root):
       os.makedirs(root)
-    #f = open(filename, 'wb')
-    #f.write(request.data)
-    print "saving"
+    print "Saving: " + filename
     blob = request.files['file']
-    print "saving"
     blob.save(filename)
-    print blob
-    
-    
-    #wave_read = wave.open(request.files['file'], 'rb')
-    #frames = wave_read.readframes(wave_read.getnframes())
-    print "saved"
-    #print request.files['file']
-    #strlist = list(request.data)
-    #for i in range(len(strlist)):
-    #  strlist[i] = ord(strlist[i]) * 125 - 16000
-    #  #print strlist[i]
-    #data = np.array(strlist).astype(np.int16)
-    #print "test"
-    #writeWav(filename, data);
-    #f.close()
     return "success", 200
   except Exception as e:
     print e

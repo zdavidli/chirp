@@ -18,13 +18,14 @@
   
   <div class="wrapper">
 
-      <header>
-        <h1>Web dictaphone</h1>
-      </header>
-      
       <section class="main-controls">
-        <p> This is a new paragraph to read: </p>
-        <div id = "train">trainingArticle</div>
+        <header>
+          <h1>Training</h1>
+        </header>
+        <p>Read This:</p>
+        <br></br>
+        <div id = "train"><b>trainingArticle</b></div>
+        <br></br>
         <script type="text/javascript"> 
           var articleText = {{ articles|tojson }}; </script>
         <canvas class="visualizer"></canvas>

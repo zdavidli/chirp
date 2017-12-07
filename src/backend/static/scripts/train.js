@@ -19,6 +19,7 @@ var CurrAudio = null;
 
 //var trainingArticle = document.getElementById('train');
 var trainingIdx =0;
+displayTrainingArticle(trainingIdx);
 
 // disable stop button while not recording
 
@@ -38,16 +39,8 @@ audioContext = new AudioContext;
 if (audioContext.createScriptProcessor == null) {
   audioContext.createScriptProcessor = audioContext.createJavaScriptNode;
 }
-mixer = audioContext.createGain();
-mixer.connect(audioContext.destination);
-var recorder = new WebAudioRecorder(mixer, {
-  workerDir: "static/worker/",     // must end with slash
-  numChannels: 1,
-  encoding: "wav"
-});
-recorder.setOptions({
-  encodeAfterRecord: true
-})
+
+var recorder;
 
 if (navigator.getUserMedia) {
   console.log('getUserMedia supported.');
@@ -58,6 +51,30 @@ if (navigator.getUserMedia) {
     var mediaRecorder = new MediaRecorder(stream);
 
     visualize(stream);
+    
+    var audioCon = new AudioContext();
+    var source = audioCon.createMediaStreamSource(stream);
+    //source.connect(audioCon.destination);
+    recorder = new WebAudioRecorder(source, {
+      workerDir: "static/worker/",     // must end with slash
+      numChannels: 1,
+      encoding: "wav"
+    });
+    recorder.setOptions({
+      encodeAfterRecord: true
+    })
+    //recorder.onEncoderLoading = function(recorder, encoding) { ... }
+    //recorder.onEncoderLoaded = function(recorder, encoding) { ... }
+    //recorder.onTimeout = function(recorder) { ... }
+    //recorder.onEncodingProgress = function (recorder, progress) { ... }
+    //recorder.onEncodingCanceled = function(recorder) { ... }
+    recorder.onComplete = function(recorder, blob) {
+      CurrAudio = blob;
+      console.log("Completed Encoding");
+      console.log(blob);
+      //sendPhoneme("gary", blob);
+    }
+    //recorder.onError = function(recorder, message) { ... }
 
     record.onclick = function() {
       mediaRecorder.start();
@@ -67,8 +84,6 @@ if (navigator.getUserMedia) {
       stop.disabled = false;
       record.disabled = true;
 
-      displayTrainingArticle(trainingIdx);
-      trainingIdx++;
       console.log("training article value reset");
       
       recorder.startRecording()
@@ -90,7 +105,9 @@ if (navigator.getUserMedia) {
     }
     
     accept.onclick = function() {
-       sendPhoneme("gary", CurrAudio);
+      displayTrainingArticle(trainingIdx);
+      trainingIdx++;
+      sendPhoneme("gary", CurrAudio);
     }
     
     test.onclick = function() {
@@ -217,19 +234,6 @@ function visualize(stream) {
   }
 }
 
-//recorder.onEncoderLoading = function(recorder, encoding) { ... }
-//recorder.onEncoderLoaded = function(recorder, encoding) { ... }
-//recorder.onTimeout = function(recorder) { ... }
-//recorder.onEncodingProgress = function (recorder, progress) { ... }
-//recorder.onEncodingCanceled = function(recorder) { ... }
-recorder.onComplete = function(recorder, blob) {
-  CurrAudio = blob;
-  console.log("Completed Encoding");
-  console.log(blob);
-  sendPhoneme("gary", blob);
-}
-//recorder.onError = function(recorder, message) { ... }
-
 function sendPhoneme(speaker, audio) {
   var urlBase = 'addtraindata';
   var url = [
@@ -293,7 +297,7 @@ function displayTrainingArticle(idx){
   //var index = idx % (articles.length);
   var index = idx % (articleText.length);
   console.log("display Training Article");
-  document.getElementById('train').innerHTML = articleText[index]; //articleList[index];
+  document.getElementById('train').innerHTML = "<b>" + articleText[index] + "</b>"; //articleList[index];
    //trainingArticle.textContent = "hello word! this is the text to train";
 }
 
