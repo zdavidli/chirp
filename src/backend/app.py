@@ -6,6 +6,8 @@ import os.path
 import cgitb
 import cgi
 import numpy as np
+import wave
+import requests
 
 #flask imports
 from flask import Flask, render_template
@@ -105,7 +107,14 @@ def addtraindata(speaker_id):
     #f = open(filename, 'wb')
     #f.write(request.data)
     print "saving"
-    request.files['file'].save(filename)
+    blob = request.files['file']
+    print "saving"
+    blob.save(filename)
+    print blob
+    
+    
+    #wave_read = wave.open(request.files['file'], 'rb')
+    #frames = wave_read.readframes(wave_read.getnframes())
     print "saved"
     #print request.files['file']
     #strlist = list(request.data)

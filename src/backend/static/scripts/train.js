@@ -17,7 +17,6 @@ var test = document.querySelector('.test');
 
 var CurrAudio = null;
 
-
 //var trainingArticle = document.getElementById('train');
 var trainingIdx =0;
 
@@ -31,11 +30,28 @@ var audioCtx = new (window.AudioContext || webkitAudioContext)();
 var canvasCtx = canvas.getContext("2d");
 
 //main block for doing the audio recording
+var constraints = { audio: true };
+var encoder = new WavAudioEncoder(44100, 1);
+
+audioContext = new AudioContext;
+
+if (audioContext.createScriptProcessor == null) {
+  audioContext.createScriptProcessor = audioContext.createJavaScriptNode;
+}
+mixer = audioContext.createGain();
+mixer.connect(audioContext.destination);
+var recorder = new WebAudioRecorder(mixer, {
+  workerDir: "static/worker/",     // must end with slash
+  numChannels: 1,
+  encoding: "wav"
+});
+recorder.setOptions({
+  encodeAfterRecord: true
+})
 
 if (navigator.getUserMedia) {
   console.log('getUserMedia supported.');
 
-  var constraints = { audio: true };
   var chunks = [];
 
   var onSuccess = function(stream) {
@@ -54,6 +70,8 @@ if (navigator.getUserMedia) {
       displayTrainingArticle(trainingIdx);
       trainingIdx++;
       console.log("training article value reset");
+      
+      recorder.startRecording()
     }
 
     stop.onclick = function() {
@@ -67,10 +85,12 @@ if (navigator.getUserMedia) {
 
       stop.disabled = true;
       record.disabled = false;
+      
+      recorder.finishRecording()
     }
     
     accept.onclick = function() {
-      sendPhoneme("gary", CurrAudio);
+       sendPhoneme("gary", CurrAudio);
     }
     
     test.onclick = function() {
@@ -197,6 +217,19 @@ function visualize(stream) {
   }
 }
 
+//recorder.onEncoderLoading = function(recorder, encoding) { ... }
+//recorder.onEncoderLoaded = function(recorder, encoding) { ... }
+//recorder.onTimeout = function(recorder) { ... }
+//recorder.onEncodingProgress = function (recorder, progress) { ... }
+//recorder.onEncodingCanceled = function(recorder) { ... }
+recorder.onComplete = function(recorder, blob) {
+  CurrAudio = blob;
+  console.log("Completed Encoding");
+  console.log(blob);
+  sendPhoneme("gary", blob);
+}
+//recorder.onError = function(recorder, message) { ... }
+
 function sendPhoneme(speaker, audio) {
   var urlBase = 'addtraindata';
   var url = [
@@ -204,22 +237,21 @@ function sendPhoneme(speaker, audio) {
     "/",
     speaker,
   ].join('');
+
   
-  //var arrayBuffer;
   //var fileReader = new FileReader();
   //fileReader.onload = function() {
   //  arrayBuffer = this.result;
   //  console.log(arrayBuffer);
+  //  send(arrayBuffer);
   //};
   //fileReader.readAsArrayBuffer(audio);
-  
-  
-  var formData = new FormData();
+ 
   
   var fd = new FormData();
-  fd.append('fname', 'test.wav');
-  var file = new File([audio], "name");
-  fd.append('file', file);
+  //var file = new File([audio], "name");
+  //fd.append('file', file);
+  fd.append('file', audio);
   $.ajax({
     type: 'POST',
     url: url,
@@ -230,25 +262,8 @@ function sendPhoneme(speaker, audio) {
     console.log(data);
   });
   
-  //$.ajax({
-  //  url : url,
-  //  type: 'POST',
-  //  data: formData,
-  //  processData: false,
-  //  contentType: false,
-  //  success : handledata
-  //})
-  //
-  //
-  //function handledata(data) {
-  //  console.log(data);
-  //}
-  ///////////////////////////////////////////
 }
 
-function send(audio) {
-  
-}
 
 function playaudio(speaker, txt) {
   var urlBase = 'tts';
