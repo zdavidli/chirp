@@ -13,9 +13,11 @@ import wave
 #flask imports
 from flask import Flask, render_template
 from flask import request
-from flask_restful import Resource, Api
 from flask import send_file
+from flask_restful import Resource, Api
 
+#config import
+import config
 
 #Model imports
 from model import Voice
@@ -27,6 +29,12 @@ from loader import loadAllVoices
 from CMUDict import CMUDict
 
 db = "./twit_data.db"
+
+CONSUMER_TOKEN = config.CONSUMER_KEY
+CONSUMER_SECRET = config.CONSUMER_SECRET
+CALLBACK_URL = 'localhost:5000/verify'
+session = dict()
+db = dict() #you can save these values to a database
 
 app = Flask(__name__)
 api = Api(app)
@@ -173,39 +181,6 @@ def getArticle():
             if i != '\n':
                 text.append(i)
     return text
-
-def get_top_tweets():
-    conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-
-    c.execute("SELECT * from twit_data  ORDER BY datetime DESC LIMIT 30")
-    result = c.fetchall()
-    tweets = []
-
-    datetime_toptweets = result[0]['datetime']
-
-    for tweet in result:
-        tweets.append(tweet['top_tweet'])
-
-    conn.close()
-
-    return tweets, datetime_toptweets
-
-def get_lang():
-
-    conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * from lang_data ORDER BY datetime DESC LIMIT 1")
-
-    result = c.fetchone()
-    lang = ast.literal_eval(result['language'])
-    top_lang = ast.literal_eval(result['top_language'])
-
-    conn.close()
-
-    return lang, top_lang
 
 @app.route("/")
 def main():
