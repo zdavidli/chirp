@@ -322,8 +322,16 @@ function displayTrainingArticle(idx){
   var articles = ["article 1", "article 2", "article 3"];
   //var index = idx % (articles.length);
   var index = idx % (articleText.length);
+  if (idx > 1) {
+    document.getElementById('train').innerHTML = '<p  class="animated slideOutRight"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index-1] + '</b></font></p>'; //articleList[index];
+  }
   console.log("display Training Article");
-  document.getElementById('train').innerHTML = '<font size="6" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font>'; //articleList[index];
+  setTimeout(function (){
+
+  // Something you want delayed.
+    document.getElementById('train').innerHTML = '<p  class="animated slideInLeft"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font></p>'; //articleList[index];
+
+  }, 1000);
    //trainingArticle.textContent = "hello word! this is the text to train";
 }
 
