@@ -1,1 +1,9 @@
 /* custom styles */
+@font-face { font-family: Porter; src: url('fonts/Porter.ttf'); } 
+h1.porter {
+   font-family: Porter
+}
+
+p.porter {
+   font-family: Porter
+}
