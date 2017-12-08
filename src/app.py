@@ -8,12 +8,14 @@ import cgi
 import numpy as np
 import wave
 import requests
+import os
 
 #flask imports
 from flask import Flask, render_template
 from flask import request
 from flask_restful import Resource, Api
 from flask import send_file
+from flask import send_from_directory
 
 
 #Model imports
@@ -127,6 +129,20 @@ def deletetraindata(speaker_id):
   except:
     return "'status': 'failed'", 500
 
+@app.route('/api/numsamples/<string:speaker_id>', methods=['GET'])
+def numsamples(speaker_id):
+  try:
+    root = "static/traindata/" + speaker_id
+    counter = 0
+    filename = root + "/" + str(counter) + ".wav"
+    while os.path.isfile(filename) == True:
+      counter += 1
+      filename = root + "/" + str(counter) + ".wav"
+    return str(counter), 200
+  except Exception as e:
+    print e
+    return '0', 500
+
 @app.route('/api/train/<string:user_id>', methods=['POST', 'PUT'])
 def starttrain(user_id):
   #txt = request.values.keys()[0]
@@ -234,6 +250,10 @@ def train():
 def home():
     return render_template('home.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 if __name__ == "__main__":
     app.run(debug = True, port=80)
-

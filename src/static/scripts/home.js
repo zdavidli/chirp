@@ -5,6 +5,7 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 
 // set up basic variables for app
 var canvas = document.querySelector('.visualizer');
+var train = document.querySelector('.train');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -25,10 +26,11 @@ if (navigator.getUserMedia) {
     visualize(stream);
 
     
-    //test.onclick = function() {
-    //  console.log("Test");
-    //  playaudio("gary", "test sentence scott is the best");
-    //}
+    train.onclick = function() {
+      console.log("Test");
+      window.location.href = '/train';
+      //playaudio("gary", "test sentence scott is the best");
+    }
   }
 
   var onError = function(err) {
@@ -90,5 +92,29 @@ function visualize(stream) {
 
     canvasCtx.lineTo(canvas.width, canvas.height/2);
     canvasCtx.stroke();
+  }
+}
+
+
+function playaudio(speaker, txt) {
+  var urlBase = 'api/tts';
+  var url = [
+    urlBase,
+    "/",
+    speaker,
+  ].join('');
+
+  $.ajax({
+    url : url,
+    type: 'GET',
+    data: txt,
+    success : handledata
+  })
+  
+  function handledata(data) {
+    console.log(data);
+    console.log("Playing: " + txt)
+    var audio = new Audio(data);
+    audio.play();
   }
 }
