@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+
+{% block head %}
+  <link rel="stylesheet" href="/static/css/train.css">
+{% endblock %}   
+
+{% block body %}
+  <style>
+  .wrapper {
+      text-align: center;
+  }
+
+  .button {
+      position: absolute;
+      top: 50%;
+  }
+  </style>
+  
+  <div class="wrapper">
+
+      <section class="main-controls">
+        <section>
+        <img src="static/images/chirpfull.png" alt="Logo" style="width:500px;height:500px;">
+      </section>
+        <p class="porter" style="color:#42ccff"><font size="40">Log in with Twitter</font></p>
+        <div id = "train"><b></b></div>
+        <br></br>
+        <input type="image" src="static/images/twitter_signin.png" name="login" class="login" id="loginbutton" />
+
+      </section>
+
+      
+
+    </div>
+
+{% endblock %}

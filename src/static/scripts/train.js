@@ -105,8 +105,8 @@ if (navigator.getUserMedia) {
     }
     
     send.onclick = function() {
-      displayTrainingArticle(trainingIdx);
       trainingIdx++;
+      displayTrainingArticle(trainingIdx);
       sendPhoneme("gary", CurrAudio);
       clipsSent++;
       while (soundClips.firstChild) {
@@ -322,14 +322,14 @@ function displayTrainingArticle(idx){
   var articles = ["article 1", "article 2", "article 3"];
   //var index = idx % (articles.length);
   var index = idx % (articleText.length);
-  if (idx > 1) {
-    document.getElementById('train').innerHTML = '<p  class="animated slideOutRight"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index-1] + '</b></font></p>'; //articleList[index];
+  if (idx > 0) {
+    document.getElementById('train').innerHTML = '<p  class="animated fadeOutRight"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index-1] + '</b></font></p>'; //articleList[index];
   }
-  console.log("display Training Article");
+  console.log("display Training Article: " + idx);
   setTimeout(function (){
 
   // Something you want delayed.
-    document.getElementById('train').innerHTML = '<p  class="animated slideInLeft"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font></p>'; //articleList[index];
+    document.getElementById('train').innerHTML = '<p  class="animated fadeInLeft"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font></p>'; //articleList[index];
 
   }, 1000);
    //trainingArticle.textContent = "hello word! this is the text to train";

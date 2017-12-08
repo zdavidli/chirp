@@ -208,16 +208,17 @@ def get_lang():
 
 @app.route("/")
 def main():
-    language_data = []
-    top_language_data = []
-
-    lang, top_lang = get_lang()
-    for l in lang:
-        language_data.append([l[0], l[1], l[1]])
-
-    for t in top_lang:
-        top_language_data.append([t[0], t[1], t[1]])
-    return render_template("lang1.html", language_data = language_data, top_language_data = top_language_data)
+    #language_data = []
+    #top_language_data = []
+#
+    #lang, top_lang = get_lang()
+    #for l in lang:
+    #    language_data.append([l[0], l[1], l[1]])
+#
+    #for t in top_lang:
+    #    top_language_data.append([t[0], t[1], t[1]])
+    return render_template('login.html')
+    #return render_template("lang1.html", language_data = language_data, top_language_data = top_language_data)
 
 @app.route("/top_tweets")
 def top_tweets():
