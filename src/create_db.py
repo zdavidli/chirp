@@ -1,6 +1,6 @@
 import sqlite3
 
-db = "../twit_data.db"
+db = "./twit_data.db"
 
 conn = sqlite3.connect(db)
 c = conn.cursor()
