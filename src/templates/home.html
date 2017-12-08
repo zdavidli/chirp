@@ -2,6 +2,8 @@
 
 {% block head %}
   <link rel="stylesheet" href="/static/css/train.css">
+  <script src="/static/lib/WebAudioRecorder.js"></script>
+  <script src="/static/scripts/WavAudioEncoder.js"></script>
 {% endblock %}   
 
 {% block body %}
@@ -20,17 +22,15 @@
 
       <section class="main-controls">
         <section>
-        <img src="static/images/chirpfull.png" alt="Logo" style="width:500px;height:500px;">
+        <img src="static/images/chirpfull.png" alt="Logo" style="width:250px;height:250px;">
       </section>
-        <p class="porter" style="color:#42ccff"><font size="40">Sign in:</font></p>
-        <div id = "train"><b></b></div>
-        <br></br>
-        <input type="image" src="static/images/twitter_signin.png" name="login" class="login" id="loginbutton" />
-
+        <canvas class="visualizer" style="width:2000px;height:250px;""></canvas>
       </section>
 
       
 
     </div>
+
+    <script src="/static/scripts/home.js"></script>
 
 {% endblock %}
