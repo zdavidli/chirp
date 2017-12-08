@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import array
-import sqlite3
+import argparse
 import ast
-import os.path
 import cgitb
 import cgi
 import numpy as np
-import wave
+import os.path
 import requests
+import sqlite3
+import wave
 
 #flask imports
 from flask import Flask, render_template
@@ -25,7 +26,7 @@ from loader import loadVoice
 from loader import loadAllVoices
 from CMUDict import CMUDict
 
-db = "../twit_data.db"
+db = "./twit_data.db"
 
 app = Flask(__name__)
 api = Api(app)
@@ -111,7 +112,7 @@ def addtraindata(speaker_id):
   except Exception as e:
     print e
     return "'status': 'failed'", 500
-    
+
 @app.route('/api/deletetraindata/<string:speaker_id>', methods=['POST', 'PUT'])
 def deletetraindata(speaker_id):
   #txt = request.values.keys()[0]
@@ -137,7 +138,7 @@ def starttrain(user_id):
     return "Success: Training", 200
   except:
     return "Internal Server Error", 500
-    
+
 #curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):
   def put(self, user_id):
@@ -208,21 +209,8 @@ def get_lang():
 
 @app.route("/")
 def main():
-    language_data = []
-    top_language_data = []
+    return render_template('login.html')
 
-    lang, top_lang = get_lang()
-    for l in lang:
-        language_data.append([l[0], l[1], l[1]])
-
-    for t in top_lang:
-        top_language_data.append([t[0], t[1], t[1]])
-    return render_template("lang1.html", language_data = language_data, top_language_data = top_language_data)
-
-@app.route("/top_tweets")
-def top_tweets():
-    tweets, datetime_toptweets = get_top_tweets()
-    return render_template('top_tweets.html', tweets = tweets, datetime_toptweets = datetime_toptweets)
 
 @app.route("/train")
 def train():
@@ -230,5 +218,10 @@ def train():
     return render_template('train.html', articles = articles)
 
 if __name__ == "__main__":
-    app.run(debug = True, port=80)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=80)
+    arg = parser.parse_args()
+    port_number = arg.port
+    app.run(debug = True, port=port_number)
+
 

@@ -17,6 +17,7 @@ var canvas = document.querySelector('.visualizer');
 var test = document.querySelector('.test');
 
 var CurrAudio = null;
+var clipsSent = 0;
 
 //var trainingArticle = document.getElementById('train');
 var trainingIdx =0;
@@ -104,15 +105,24 @@ if (navigator.getUserMedia) {
     }
     
     send.onclick = function() {
-      displayTrainingArticle(trainingIdx);
       trainingIdx++;
+      displayTrainingArticle(trainingIdx);
       sendPhoneme("gary", CurrAudio);
+      clipsSent++;
+      while (soundClips.firstChild) {
+        soundClips.removeChild(soundClips.firstChild);
+      }
     }
 
     finish.onclick = function() {
-      displayTrainingArticle(trainingIdx);
-      trainingIdx++;
-      traincall("gary", CurrAudio);
+      var val = true;
+      var recc = 25;
+      if (clipsSent < recc) {
+        val = confirm('You have not recorded enough audio. Are you sure you want to submit for training?');
+      }
+      if (val) {
+        traincall("gary", CurrAudio);
+      }
     }
     
     test.onclick = function() {
@@ -209,11 +219,11 @@ function visualize(stream) {
 
     analyser.getByteTimeDomainData(dataArray);
 
-    canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+    canvasCtx.fillStyle = 'rgb(73, 207, 255)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
     canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+    canvasCtx.strokeStyle = 'rgb(255, 255, 10)';
 
     canvasCtx.beginPath();
 
@@ -268,6 +278,8 @@ function sendPhoneme(speaker, audio) {
     speaker,
   ].join('');
   
+
+
   var fd = new FormData();
   fd.append('file', audio);
   $.ajax({
@@ -300,7 +312,7 @@ function playaudio(speaker, txt) {
   
   function handledata(data) {
     console.log(data);
-    console.log("Playing: " + str(txt))
+    console.log("Playing: " + txt)
     var audio = new Audio(data);
     audio.play();
   }
@@ -310,8 +322,16 @@ function displayTrainingArticle(idx){
   var articles = ["article 1", "article 2", "article 3"];
   //var index = idx % (articles.length);
   var index = idx % (articleText.length);
-  console.log("display Training Article");
-  document.getElementById('train').innerHTML = "<b>" + articleText[index] + "</b>"; //articleList[index];
+  if (idx > 0) {
+    document.getElementById('train').innerHTML = '<p  class="animated fadeOutRight"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index-1] + '</b></font></p>'; //articleList[index];
+  }
+  console.log("display Training Article: " + idx);
+  setTimeout(function (){
+
+  // Something you want delayed.
+    document.getElementById('train').innerHTML = '<p  class="animated fadeInLeft"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font></p>'; //articleList[index];
+
+  }, 1000);
    //trainingArticle.textContent = "hello word! this is the text to train";
 }
 
