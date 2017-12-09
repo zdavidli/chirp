@@ -1,0 +1,38 @@
+{% extends "index.html" %}
+
+{% block head %}
+  <link rel="stylesheet" href="/static/css/train.css">
+  <script src="/static/lib/WebAudioRecorder.js"></script>
+  <script src="/static/scripts/WavAudioEncoder.js"></script>
+{% endblock %}   
+
+{% block body %}
+  <style>
+  .wrapper {
+      text-align: center;
+  }
+
+  .button {
+      position: absolute;
+      top: 50%;
+  }
+  </style>
+  
+  <div class="wrapper">
+
+      <section class="main-controls">
+        <div align="center">
+          <img src="static/images/chirpfull.png" alt="Logo" style="width:250px;height:250px;" align="left">
+          <input type="image" src="static/images/trainbutton.png" name="train" class="train" id="train" style="width:125px;height:45px;margin: 25px 0px" align="right">
+          <input type="image" src="static/images/loading.gif" name="load" class="load" id="load" style="width:55px;height:45px;margin: 25px 0px" align="right">
+        </div>
+      </section>
+      <canvas class="visualizer" style="width:1000px;height:250px;" align="left"></canvas>
+
+      
+
+    </div>
+
+    <script src="/static/scripts/home.js"></script>
+
+{% endblock %}

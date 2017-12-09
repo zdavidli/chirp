@@ -4,3 +4,4 @@ login.onclick = function() {
     console.log("Test");
     window.location.href = '/login';
 }
+

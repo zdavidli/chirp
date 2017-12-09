@@ -15,6 +15,7 @@ var send = document.querySelector('.send');
 var soundClips = document.querySelector('.sound-clips');
 var canvas = document.querySelector('.visualizer');
 var test = document.querySelector('.test');
+var quit = document.querySelector('.quit');
 
 var CurrAudio = null;
 var clipsSent = 0;
@@ -51,6 +52,7 @@ if (navigator.getUserMedia) {
 
   var onSuccess = function(stream) {
     var mediaRecorder = new MediaRecorder(stream);
+    getsamplecount("gary");
 
     visualize(stream);
     
@@ -118,16 +120,18 @@ if (navigator.getUserMedia) {
       var val = true;
       var recc = 25;
       if (clipsSent < recc) {
-        val = confirm('You have not recorded enough audio. Are you sure you want to submit for training?');
+        val = confirm('You have not recorded enough audio (' + clipsSent + '/' + recc + ') Are you sure you want to submit for training?');
+      }
+      else {
+        val = confirm('You have recorded (' + clipsSent + '/' + recc + ') Are you sure you want to submit for training?');
       }
       if (val) {
         traincall("gary", CurrAudio);
       }
     }
-    
-    test.onclick = function() {
-      console.log("Test");
-      playaudio("gary", "test sentence scott is the best");
+
+    quit.onclick = function() {
+      window.location.href = '/home';
     }
 
     mediaRecorder.onstop = function(e) {
@@ -251,6 +255,26 @@ function visualize(stream) {
   }
 }
 
+
+function getsamplecount(user) {
+  var urlBase = 'api/numsamples';
+  var url = [
+    urlBase,
+    "/",
+    user,
+  ].join('');
+
+  $.ajax({
+    url : url,
+    type: 'GET',
+    success : handledata
+  })
+  function handledata(data) {
+    clipsSent = parseInt(data);
+  }
+
+}
+
 function traincall(user) {
   var urlBase = 'api/train';
   var url = [
@@ -267,6 +291,8 @@ function traincall(user) {
   function handledata(data) {
     console.log(data);
   }
+
+  window.location.href = '/home';
 
 }
 
@@ -323,13 +349,13 @@ function displayTrainingArticle(idx){
   //var index = idx % (articles.length);
   var index = idx % (articleText.length);
   if (idx > 0) {
-    document.getElementById('train').innerHTML = '<p  class="animated fadeOutRight"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index-1] + '</b></font></p>'; //articleList[index];
+    document.getElementById('train').innerHTML = '<p  class="animated fadeOutRight"><font size="5" style="color:#0b2b5e;"><b>' + articleText[index-1] + '</b></font></p>'; //articleList[index];
   }
   console.log("display Training Article: " + idx);
   setTimeout(function (){
 
   // Something you want delayed.
-    document.getElementById('train').innerHTML = '<p  class="animated fadeInLeft"><font size="6" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font></p>'; //articleList[index];
+    document.getElementById('train').innerHTML = '<p  class="animated fadeInRight"><font size="5" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font></p>'; //articleList[index];
 
   }, 1000);
    //trainingArticle.textContent = "hello word! this is the text to train";

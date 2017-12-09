@@ -8,6 +8,7 @@ import numpy as np
 import os
 import os.path
 import requests
+import os
 import sqlite3
 from twython import Twython
 import wave
@@ -16,6 +17,7 @@ import wave
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask import send_file
 from flask_restful import Resource, Api
+from flask import send_from_directory
 
 #config import
 import config
@@ -139,6 +141,20 @@ def deletetraindata(speaker_id):
   except:
     return "'status': 'failed'", 500
 
+@app.route('/api/numsamples/<string:speaker_id>', methods=['GET'])
+def numsamples(speaker_id):
+  try:
+    root = "static/traindata/" + speaker_id
+    counter = 0
+    filename = root + "/" + str(counter) + ".wav"
+    while os.path.isfile(filename) == True:
+      counter += 1
+      filename = root + "/" + str(counter) + ".wav"
+    return str(counter), 200
+  except Exception as e:
+    print e
+    return '0', 500
+
 @app.route('/api/train/<string:user_id>', methods=['POST', 'PUT'])
 def starttrain(user_id):
   #txt = request.values.keys()[0]
@@ -226,11 +242,18 @@ def train():
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
+@app.route("/home")
+def home():
+    return render_template('home.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=5000)
     arg = parser.parse_args()
     port_number = arg.port
     app.run(debug = True, port=port_number)
-
-
