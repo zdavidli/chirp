@@ -30,6 +30,7 @@ from util import RATE
 from loader import loadVoice
 from loader import loadAllVoices
 from CMUDict import CMUDict
+from basictts import ttsbase
 
 db = "./twit_data.db"
 
@@ -99,9 +100,10 @@ def tts(speaker_id):
     counter = 0
     filename = renderroot + speaker_id + str(counter) + ".wav"
 
-    audio = v.tts(txt,cmu,delay=0.2)
-    #print audio
-    writeWav(filename, audio)
+    #audio = v.tts(txt,cmu,delay=0.2)
+    ##print audio
+    #writeWav(filename, audio)
+    ttsbase(txt, filename)
     return filename, 200
   except:
     return "'status': 'failed'", 500

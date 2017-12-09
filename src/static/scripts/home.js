@@ -75,15 +75,18 @@ function playaudio(speaker, txt) {
     console.log("Playing: " + txt)
     //var a = document.createElement("AUDIO");
     //a.src = data;
-    var audio = new Audio(data);
-    audio.addEventListener("ended", function(){
-      playing = false;
-      console.log("ended");
-    });
-    audio.play();
-    //a.load();
-    //a.play();
-    playing = true;
+    //Delay for generation
+    setTimeout(function (){
+      var audio = new Audio(data);
+      audio.addEventListener("ended", function(){
+        playing = false;
+        console.log("ended");
+        // check for more tweets in the queue
+      });
+      audio.play();
+      playing = true;
+    }, 1000);
+    
 
     //visualize(audio.captureStream());
   }
