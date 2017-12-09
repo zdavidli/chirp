@@ -226,7 +226,7 @@ function visualize(stream) {
     canvasCtx.fillStyle = 'rgb(73, 207, 255)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    canvasCtx.lineWidth = 2;
+    canvasCtx.lineWidth = 5;
     canvasCtx.strokeStyle = 'rgb(255, 255, 10)';
 
     canvasCtx.beginPath();

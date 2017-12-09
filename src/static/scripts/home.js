@@ -6,6 +6,12 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 // set up basic variables for app
 var canvas = document.querySelector('.visualizer');
 var train = document.querySelector('.train');
+train.onclick = function() {
+  console.log("Test");
+  window.location.href = '/train';
+  //playaudio("gary", "test sentence scott is the best");
+}
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -13,10 +19,10 @@ var remainingAudio = 0;
 var delay = 2000;
 var prevTweet = "";
 var tweet = "";
+var playing = false;
 setInterval(ttsRoutine, 2000);
 function ttsRoutine() {
-  remainingAudio -= 2000;
-  if (remainingAudio < 0) {
+  if (!playing) {
     prevTweet = tweet;
     tweet = getnexttweet("gary");
     if (tweet != prevTweet) {
@@ -67,8 +73,16 @@ function playaudio(speaker, txt) {
     console.log(data);
     console.log("Playing: " + txt)
     var audio = new Audio(data);
+    audio.addEventListener("ended", function(){
+      playing = false;
+      console.log("ended");
+    });
     remainingAudio = audio.duration;
+    console.log(remainingAudio);
     audio.play();
+    playing = true;
+
+    visualize(audio.captureStream());
   }
 }
 
@@ -89,11 +103,7 @@ if (navigator.getUserMedia) {
     visualize(stream);
 
     
-    train.onclick = function() {
-      console.log("Test");
-      window.location.href = '/train';
-      //playaudio("gary", "test sentence scott is the best");
-    }
+    
   }
 
   var onError = function(err) {
@@ -130,7 +140,7 @@ function visualize(stream) {
     canvasCtx.fillStyle = 'rgb(0, 188, 255)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    canvasCtx.lineWidth = 2;
+    canvasCtx.lineWidth = 8;
     canvasCtx.strokeStyle = 'rgb(255, 255, 10)';
 
     canvasCtx.beginPath();
