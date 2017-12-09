@@ -4,10 +4,12 @@ click==6.7
 EasyProcess==0.1.9
 Flask==0.12.2
 Flask-RESTful==0.3.6
+httplib2==0.10.3
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
 numpy==1.13.1
+oauth2==1.9.0.post1
 oauthlib==1.0.1
 pep8==1.6.2
 pkg-resources==0.0.0
@@ -20,5 +22,5 @@ scipy==1.0.0
 selenium==2.47.1
 simplejson==3.11.1
 six==1.9.0
-tweepy==3.3.0
+twython==3.6.0
 Werkzeug==0.10.4

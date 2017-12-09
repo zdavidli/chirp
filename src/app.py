@@ -5,22 +5,22 @@ import ast
 import cgitb
 import cgi
 import numpy as np
+import os
 import os.path
 import requests
-<<<<<<< HEAD
 import os
-=======
 import sqlite3
+from twython import Twython
 import wave
->>>>>>> 50d4f3a3046d3a89583f74849ed3e9158b301435
 
 #flask imports
-from flask import Flask, render_template
-from flask import request
-from flask_restful import Resource, Api
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask import send_file
+from flask_restful import Resource, Api
 from flask import send_from_directory
 
+#config import
+import config
 
 #Model imports
 from model import Voice
@@ -35,6 +35,14 @@ db = "./twit_data.db"
 
 app = Flask(__name__)
 api = Api(app)
+
+app.config['SECRET_KEY'] = os.urandom(24)
+twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+auth = twitter.get_authentication_tokens(callback_url='localhost:5000/callback')
+OAUTH_TOKEN = auth['oauth_token']
+OAUTH_TOKEN_SECRET = auth['oauth_token_secret']
+
+
 
 ###################################################################################
 ###################################################################################
@@ -193,46 +201,44 @@ def getArticle():
                 text.append(i)
     return text
 
-def get_top_tweets():
-    conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
+@app.route('/', methods=["POST"])
+def index_login():
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+    auth = twitter.get_authentication_tokens(callback_url='localhost:5000/login')
+    session['OAUTH_TOKEN'] = auth['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
+    return redirect(auth['auth_url'])
 
-    c.execute("SELECT * from twit_data  ORDER BY datetime DESC LIMIT 30")
-    result = c.fetchall()
-    tweets = []
+@app.route('/', methods=['GET'])
+def index():
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+    auth = twitter.get_authentication_tokens(callback_url='http://localhost:5000/login')
+    session['OAUTH_TOKEN'] = auth['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
+    print(session)
+    return redirect(auth['auth_url'])
 
-    datetime_toptweets = result[0]['datetime']
+    #return render_template('login.html')
 
-    for tweet in result:
-        tweets.append(tweet['top_tweet'])
+@app.route('/login')
+def login():
+    oauth_verifier = request.args.get('oauth_verifier')
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    final_step = twitter.get_authorized_tokens(oauth_verifier)
+    session['OAUTH_TOKEN'] = final_step['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = final_step['oauth_token_secret']
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    #session['twitter'] = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    flash("You've logged in!")
 
-    conn.close()
-
-    return tweets, datetime_toptweets
-
-def get_lang():
-
-    conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * from lang_data ORDER BY datetime DESC LIMIT 1")
-
-    result = c.fetchone()
-    lang = ast.literal_eval(result['language'])
-    top_lang = ast.literal_eval(result['top_language'])
-
-    conn.close()
-
-    return lang, top_lang
-
-@app.route("/")
-def main():
-    return render_template('login.html')
-
+    return redirect('/train')
 
 @app.route("/train")
 def train():
+    print(session)
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
@@ -247,7 +253,7 @@ def favicon():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=80)
+    parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=5000)
     arg = parser.parse_args()
     port_number = arg.port
     app.run(debug = True, port=port_number)
