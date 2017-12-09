@@ -21,26 +21,27 @@
   <div class="wrapper">
 
       <section class="main-controls">
-        <img src="static/images/chirpfull.png" alt="Logo" style="width:400px;height:400px;" align="left">
-        <p class="porter" style="margin: 40px 0px"><font size="40" style="color:#13438e;">Training </font><font size="40" style="color:#42ccff">Read This:</font></p>
+        <img class="animated fadeInDown" src="static/images/chirpfull.png" alt="Logo" style="width:400px;height:400px;" align="left">
+        <p class="porter animated fadeInDown" style="margin: 40px 0px"><font size="40" style="color:#13438e;">Training </font><font size="40" style="color:#42ccff">Read This:</font></p>
         <div id = "train"></div>
         <br></br>
         <script type="text/javascript"> 
           var articleText = {{ articles|tojson }}; </script>
         <canvas class="visualizer"></canvas>
         <div id="buttons">
-          <button class="record">Record</button>
-          <button class="stop">Stop</button>
-          <button class="send">Send</button>
+          <button class="record porter animated fadeInLeft">Record</button>
+          <button class="stop porter animated fadeIn">Stop</button>
+          <button class="send porter animated fadeInRight">Send</button>
         </div>
-        <div><img src="static/images/TrainInstructions.png" alt="Logo" style="width:1000px;height:60px;" align="middle"></div>
-        <section class="sound-clips">
+        <div><img class="animated fadeInUp" src="static/images/TrainInstructions.png" alt="Logo" style="width:1000px;height:60px;" align="middle"></div>
+        <section class="sound-clips animated fadeIn">
 
 
         </section>
+        <br></br>
         <div id="buttons">
-          <button class="finish">Finish</button>
-          <button class="quit">Save and Quit</button>
+          <button class="finish porter animated fadeInUp">Finish</button>
+          <button class="quit porter animated fadeInUp">Save and Quit</button>
           
         </div>
         
