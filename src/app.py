@@ -7,12 +7,9 @@ import cgi
 import numpy as np
 import os.path
 import requests
-<<<<<<< HEAD
 import os
-=======
 import sqlite3
 import wave
->>>>>>> 50d4f3a3046d3a89583f74849ed3e9158b301435
 
 #flask imports
 from flask import Flask, render_template
@@ -157,6 +154,17 @@ def starttrain(user_id):
     return "Success: Training", 200
   except:
     return "Internal Server Error", 500
+
+# Returns true if the user has ever sent any training data before
+@app.route('/api/hasdata/<string:speaker_id>', methods=['GET'])
+def hasdata(speaker_id):
+  try:
+    root = "static/traindata/" + speaker_id
+    exists = os.path.exists(root);
+    return str(exists), 200
+  except Exception as e:
+    print e
+    return 'false', 500
 
 #curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):

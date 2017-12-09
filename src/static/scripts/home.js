@@ -9,6 +9,69 @@ var train = document.querySelector('.train');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+var remainingAudio = 0;
+var delay = 2000;
+var prevTweet = "";
+var tweet = "";
+setInterval(ttsRoutine, 2000);
+function ttsRoutine() {
+  remainingAudio -= 2000;
+  if (remainingAudio < 0) {
+    prevTweet = tweet;
+    tweet = getnexttweet("gary");
+    if (tweet != prevTweet) {
+      playaudio("gary", tweet);
+    }
+  } 
+  
+}
+
+function getnexttweet(auth) {
+  //var urlBase = 'api/tts';
+  //var url = [
+  //  urlBase,
+  //  "/",
+  //  speaker,
+  //].join('');
+//
+  //$.ajax({
+  //  url : url,
+  //  type: 'GET',
+  //  data: txt,
+  //  success : handledata
+  //})
+  //
+  //function handledata(data) {
+  //  console.log(data);
+  //}
+  return "Hello";
+}
+
+
+function playaudio(speaker, txt) {
+  var urlBase = 'api/tts';
+  var url = [
+    urlBase,
+    "/",
+    speaker,
+  ].join('');
+
+  $.ajax({
+    url : url,
+    type: 'GET',
+    data: txt,
+    success : handledata
+  })
+  
+  function handledata(data) {
+    console.log(data);
+    console.log("Playing: " + txt)
+    var audio = new Audio(data);
+    remainingAudio = audio.duration;
+    audio.play();
+  }
+}
+
 // visualiser setup - create web audio api context and canvas
 
 var audioCtx = new (window.AudioContext || webkitAudioContext)();
@@ -92,29 +155,5 @@ function visualize(stream) {
 
     canvasCtx.lineTo(canvas.width, canvas.height/2);
     canvasCtx.stroke();
-  }
-}
-
-
-function playaudio(speaker, txt) {
-  var urlBase = 'api/tts';
-  var url = [
-    urlBase,
-    "/",
-    speaker,
-  ].join('');
-
-  $.ajax({
-    url : url,
-    type: 'GET',
-    data: txt,
-    success : handledata
-  })
-  
-  function handledata(data) {
-    console.log(data);
-    console.log("Playing: " + txt)
-    var audio = new Audio(data);
-    audio.play();
   }
 }
