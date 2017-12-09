@@ -5,14 +5,15 @@ import ast
 import cgitb
 import cgi
 import numpy as np
+import os
 import os.path
 import requests
 import sqlite3
+from twython import Twython
 import wave
 
 #flask imports
-from flask import Flask, render_template
-from flask import request
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask import send_file
 from flask_restful import Resource, Api
 
@@ -30,14 +31,16 @@ from CMUDict import CMUDict
 
 db = "./twit_data.db"
 
-CONSUMER_TOKEN = config.CONSUMER_KEY
-CONSUMER_SECRET = config.CONSUMER_SECRET
-CALLBACK_URL = 'localhost:5000/verify'
-session = dict()
-db = dict() #you can save these values to a database
-
 app = Flask(__name__)
 api = Api(app)
+
+app.config['SECRET_KEY'] = os.urandom(24)
+twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+auth = twitter.get_authentication_tokens(callback_url='localhost:5000/callback')
+OAUTH_TOKEN = auth['oauth_token']
+OAUTH_TOKEN_SECRET = auth['oauth_token_secret']
+
+
 
 ###################################################################################
 ###################################################################################
@@ -182,10 +185,42 @@ def getArticle():
                 text.append(i)
     return text
 
-@app.route("/")
-def main():
-    return render_template('login.html')
+@app.route('/', methods=["POST"])
+def index_login():
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+    auth = twitter.get_authentication_tokens(callback_url='localhost:5000/login')
+    session['OAUTH_TOKEN'] = auth['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
+    #return redirect(auth['auth_url'])
 
+@app.route('/', methods=['GET'])
+def index():
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+    auth = twitter.get_authentication_tokens(callback_url='http://localhost:5000/login')
+    session['OAUTH_TOKEN'] = auth['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
+    print(session)
+    return redirect(auth['auth_url'])
+
+    #return render_template('login.html')
+
+@app.route('/login')
+def login():
+    oauth_verifier = request.args.get('oauth_verifier')
+    print(oauth_verifier)
+    print(session)
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    final_step = twitter.get_authorized_tokens(oauth_verifier)
+    session['OAUTH_TOKEN'] = final_step['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = final_step['oauth_token_secret']
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    session['twitter'] = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+
+    flash("You've logged in!")
+    return redirect('/train')
 
 @app.route("/train")
 def train():
@@ -194,7 +229,7 @@ def train():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=80)
+    parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=5000)
     arg = parser.parse_args()
     port_number = arg.port
     app.run(debug = True, port=port_number)
