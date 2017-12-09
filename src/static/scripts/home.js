@@ -22,6 +22,7 @@ var tweet = "";
 var playing = false;
 setInterval(ttsRoutine, 2000);
 function ttsRoutine() {
+  console.log("Checking for new tweet");
   if (!playing) {
     prevTweet = tweet;
     tweet = getnexttweet("gary");
@@ -50,7 +51,7 @@ function getnexttweet(auth) {
   //function handledata(data) {
   //  console.log(data);
   //}
-  return "Hello";
+  return "If you dont take risks, youll always have regret.";
 }
 
 
@@ -72,48 +73,50 @@ function playaudio(speaker, txt) {
   function handledata(data) {
     console.log(data);
     console.log("Playing: " + txt)
+    //var a = document.createElement("AUDIO");
+    //a.src = data;
     var audio = new Audio(data);
     audio.addEventListener("ended", function(){
       playing = false;
       console.log("ended");
     });
-    remainingAudio = audio.duration;
-    console.log(remainingAudio);
     audio.play();
+    //a.load();
+    //a.play();
     playing = true;
 
-    visualize(audio.captureStream());
+    //visualize(audio.captureStream());
   }
 }
 
 // visualiser setup - create web audio api context and canvas
 
-var audioCtx = new (window.AudioContext || webkitAudioContext)();
-var canvasCtx = canvas.getContext("2d");
-
-if (navigator.getUserMedia) {
-  console.log('getUserMedia supported.');
-
-  var constraints = { audio: true };
-  var chunks = [];
-
-  var onSuccess = function(stream) {
-    var mediaRecorder = new MediaRecorder(stream);
-
-    visualize(stream);
-
-    
-    
-  }
-
-  var onError = function(err) {
-    console.log('The following error occured: ' + err);
-  }
-
-  navigator.getUserMedia(constraints, onSuccess, onError);
-} else {
-   console.log('getUserMedia not supported on your browser!');
-}
+//var audioCtx = new (window.AudioContext || webkitAudioContext)();
+//var canvasCtx = canvas.getContext("2d");
+//
+//if (navigator.getUserMedia) {
+//  console.log('getUserMedia supported.');
+//
+//  var constraints = { audio: true };
+//  var chunks = [];
+//
+//  var onSuccess = function(stream) {
+//    var mediaRecorder = new MediaRecorder(stream);
+//
+//    visualize(stream);
+//
+//    
+//    
+//  }
+//
+//  var onError = function(err) {
+//    console.log('The following error occured: ' + err);
+//  }
+//
+//  navigator.getUserMedia(constraints, onSuccess, onError);
+//} else {
+//   console.log('getUserMedia not supported on your browser!');
+//}
 
 function visualize(stream) {
   var source = audioCtx.createMediaStreamSource(stream);

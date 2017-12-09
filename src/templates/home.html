@@ -2,8 +2,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="/static/css/train.css">
-  <script src="/static/lib/WebAudioRecorder.js"></script>
-  <script src="/static/scripts/WavAudioEncoder.js"></script>
+  <link rel="stylesheet" href="/static/css/home.css">
 {% endblock %}   
 
 {% block body %}
@@ -27,12 +26,20 @@
           <input type="image" src="static/images/loading.gif" name="load" class="load animated fadeInRight" id="load" style="width:55px;height:45px;margin: 25px 20px" align="right">
         </div>
       </section>
+
+      <blockquote class="twitter-tweet tw-align-center" lang="en"><p>If you don&#39;t take risks, you&#39;ll always have regret. <a href="https://twitter.com/search?q=%23justdoit&amp;src=hash">#justdoit</a></p>&mdash; Nike (@Nike) <a href="https://twitter.com/Nike/statuses/476008225859706880">June 9, 2014</a></blockquote>
+      <a class="twitter-timeline">test</a>
+
       <canvas class="visualizer" style="width:1000px;height:250px;" align="left"></canvas>
-
-      
-
     </div>
 
-    <script src="/static/scripts/home.js"></script>
+
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/lib/WebAudioRecorder.js"></script>
+  <script src="/static/scripts/WavAudioEncoder.js"></script>
+  <script src="/static/scripts/home.js"></script>
+  <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 {% endblock %}
