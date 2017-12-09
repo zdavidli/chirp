@@ -233,7 +233,7 @@ def train():
     OAUTH_TOKEN = session['OAUTH_TOKEN']
     OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
     twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    twitter.update_status(status="Twython works!")
+    #twitter.update_status(status="Twython works!")
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
