@@ -204,21 +204,14 @@ def getArticle():
 @app.route('/', methods=["POST"])
 def index_login():
     twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
-    auth = twitter.get_authentication_tokens(callback_url='localhost:5000/login')
+    auth = twitter.get_authentication_tokens(callback_url='http://localhost:5000/login')
     session['OAUTH_TOKEN'] = auth['oauth_token']
     session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
     return redirect(auth['auth_url'])
 
 @app.route('/', methods=['GET'])
 def index():
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
-    auth = twitter.get_authentication_tokens(callback_url='http://localhost:5000/login')
-    session['OAUTH_TOKEN'] = auth['oauth_token']
-    session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
-    print(session)
-    return redirect(auth['auth_url'])
-
-    #return render_template('login.html')
+    return render_template('login.html')
 
 @app.route('/login')
 def login():
@@ -232,13 +225,15 @@ def login():
     OAUTH_TOKEN = session['OAUTH_TOKEN']
     OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
     #session['twitter'] = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    flash("You've logged in!")
 
     return redirect('/train')
 
 @app.route("/train")
 def train():
-    print(session)
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    twitter.update_status(status="Twython works!")
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
