@@ -17,41 +17,57 @@ canvas.height = window.innerHeight;
 
 var remainingAudio = 0;
 var delay = 2000;
-var prevTweet = "";
 var tweet = "";
 var playing = false;
+var queue = new Queue();
+var used = new Queue();
+ttsRoutine();
 setInterval(ttsRoutine, 2000);
+
 function ttsRoutine() {
   console.log("Checking for new tweet");
   if (!playing) {
-    prevTweet = tweet;
-    tweet = getnexttweet("gary");
-    if (tweet != prevTweet) {
-      playaudio("gary", tweet);
+    getnexttweets("gary");
+    if (!queue.isEmpty()) {
+      tweet = queue.dequeue();
+      used.enqueue(tweet);
+      if (used.getLength() > 10) {
+        used.dequeue();
+      }
     }
-  } 
-  
+    playaudio("gary", tweet);
+  }
 }
 
-function getnexttweet(auth) {
-  //var urlBase = 'api/tts';
-  //var url = [
+function getnexttweets(auth) {
+  // var urlBase = 'api/tts';
+  // var url = [
   //  urlBase,
   //  "/",
   //  speaker,
-  //].join('');
-//
-  //$.ajax({
+  // ].join('');
+
+  // $.ajax({
   //  url : url,
   //  type: 'GET',
   //  data: txt,
   //  success : handledata
-  //})
-  //
-  //function handledata(data) {
-  //  console.log(data);
-  //}
-  return "If you dont take risks, youll always have regret.";
+  // })
+
+  
+  function handledata(data) {
+    console.log(data);
+    var obj = JSON.parse(data);
+    for (var tweet in obj.tweets) { //TODO reverse order
+      if (queue.getLength() > 100 || queue.contains(tweet) || used.contains(tweet)) {
+        break;
+      }
+      else {
+        queue.enqueue(tweet);
+      }
+    }
+  }
+  queue.enqueue("Harold son, you are my herald, my son.");
 }
 
 
@@ -73,15 +89,14 @@ function playaudio(speaker, txt) {
   function handledata(data) {
     console.log(data);
     console.log("Playing: " + txt)
-    //var a = document.createElement("AUDIO");
-    //a.src = data;
     //Delay for generation
     setTimeout(function (){
-      var audio = new Audio(data);
+      //random number for cache-busting!
+      var randn = Math.floor(Math.random() * 10000000);
+      var audio = new Audio(String(data) + "?" + String(randn));
       audio.addEventListener("ended", function(){
         playing = false;
         console.log("ended");
-        // check for more tweets in the queue
       });
       audio.play();
       playing = true;
