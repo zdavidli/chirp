@@ -22,7 +22,7 @@ var playing = false;
 var queue = new Queue();
 var used = new Queue();
 ttsRoutine();
-setInterval(ttsRoutine, 2000);
+setInterval(ttsRoutine, delay);
 
 function ttsRoutine() {
   console.log("Checking for new tweet");
@@ -34,8 +34,8 @@ function ttsRoutine() {
       if (used.getLength() > 10) {
         used.dequeue();
       }
+      playaudio("gary", tweet);
     }
-    playaudio("gary", tweet);
   }
 }
 
