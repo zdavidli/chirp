@@ -191,7 +191,7 @@ def index_login():
     auth = twitter.get_authentication_tokens(callback_url='localhost:5000/login')
     session['OAUTH_TOKEN'] = auth['oauth_token']
     session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
-    #return redirect(auth['auth_url'])
+    return redirect(auth['auth_url'])
 
 @app.route('/', methods=['GET'])
 def index():
@@ -207,8 +207,6 @@ def index():
 @app.route('/login')
 def login():
     oauth_verifier = request.args.get('oauth_verifier')
-    print(oauth_verifier)
-    print(session)
     OAUTH_TOKEN = session['OAUTH_TOKEN']
     OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
     twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
@@ -217,13 +215,14 @@ def login():
     session['OAUTH_TOKEN_SECRET'] = final_step['oauth_token_secret']
     OAUTH_TOKEN = session['OAUTH_TOKEN']
     OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
-    session['twitter'] = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-
+    #session['twitter'] = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     flash("You've logged in!")
+
     return redirect('/train')
 
 @app.route("/train")
 def train():
+    print(session)
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
