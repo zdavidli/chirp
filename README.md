@@ -25,7 +25,7 @@ To run:
 python src/app.py
 ```
 
-You will now be able to access the app at localhost:5000/train
+You will now be able to access the app at localhost:5000
 
 You may also run on a different port with:
 
