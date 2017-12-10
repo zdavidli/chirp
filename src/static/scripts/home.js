@@ -30,10 +30,6 @@ function login() {
     ttsRoutine();
   }
 }
-//<blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/gamespot/status/939978080113872900"></a></blockquote>
-
-//<blockquote class="twitter-tweet tw-align-center" lang="en"><p>If you don&#39;t take risks, you&#39;ll always have regret. <a href="https://twitter.com/search?q=%23justdoit&amp;src=hash">#justdoit</a></p>&mdash; Nike (@Nike) <a href="https://twitter.com/Nike/statuses/476008225859706880">June 9, 2014</a></blockquote>
-
 train.onclick = function() {
   console.log("Test");
   window.location.href = '/train';
@@ -82,28 +78,32 @@ function processqueue() {
   }
 }
 
-// <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/43815496/status/939975621513375700"></a></blockquote><blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/17217640/status/939974985988431900"></a></blockquote>
 
 // <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937402084692975616"></a></blockquote>
 //               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/938972633416306690"></a></blockquote>
 //               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937447589460426752"></a></blockquote>
 //               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937411489635241984"></a></blockquote>
 //               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937401166299774976"></a></blockquote>
-
 function setfeed(tweet) {
-  var tweetstoshow = 2;
+  var tweetstoshow = 5;
   if (used.getLength() < tweetstoshow) {
     tweetstoshow = used.getLength();
   }
-  var str = "";
+  var str = "<ul>";
   //str += "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/" + tweet.user.id + "/status/" + tweet.id;
   for (var i = 0; i < tweetstoshow; ++i) {
-    var t = queue.get(i);
-    str += "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/" + t.user.screen_name + "/status/" + t.id+ "\"></a></blockquote>";
+    var t = used.get(i);
+    str += "<li><div class=\"box\" style=\"margin-bottom: 10px;\"><p align=\"left\" style=\"margin-bottom: 10px;\"><font size=\"5\" style=\"color:#1343ae;\">";
+    str += t.user.name;
+
+    str += " </font><font size=\"3\" style=\"color:#666666;\"> @"
+    str += t.user.screen_name
+    str += "</p><p align=\"left\"><font size=\"3\" style=\"color:#2363be;\">"
+    str += t.text;
+    str += "</font></p></div></li>";
   }
   //console.log(str);
-  str += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>"
-  str = "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/elonmusk/status/937402084692975616\"></a></blockquote>"
+  str += "</ul>"
   document.getElementById('feed').innerHTML = str;
 }
 
