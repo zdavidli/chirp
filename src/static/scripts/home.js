@@ -15,7 +15,6 @@ train.onclick = function() {
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var remainingAudio = 0;
 var delay = 2000;
 var tweet = "";
 var playing = false;
@@ -92,7 +91,7 @@ function playaudio(speaker, txt) {
     //Delay for generation
     setTimeout(function (){
       //random number for cache-busting!
-      var randn = Math.floor(Math.random() * 10000000);
+      var randn = Math.floor(Math.random() * 100000000);
       var audio = new Audio(String(data) + "?" + String(randn));
       audio.addEventListener("ended", function(){
         playing = false;

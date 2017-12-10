@@ -98,7 +98,7 @@ def tts(speaker_id):
     v = getVoice(speaker_id)
     renderroot = "static/audio/"
     counter = 0
-    filename = renderroot + speaker_id + str(counter) + ".wav"
+    filename = renderroot + speaker_id + str(counter) + ".mp3"
 
     #audio = v.tts(txt,cmu,delay=0.2)
     ##print audio
