@@ -18,12 +18,8 @@ from utils import preemphasis
 
 def get_mfccs_and_phones(wav_file, sr, trim=False, random_crop=True,
                          length=int(hp_default.duration / hp_default.frame_shift + 1)):
-    '''This is applied in `train1` or `test1` phase.
-    '''
-
     # Load
     wav, sr = librosa.load(wav_file, sr=sr)
-
     mfccs, _, _ = _get_mfcc_log_spec_and_log_mel_spec(wav, hp_default.preemphasis, hp_default.n_fft,
                                                       hp_default.win_length,
                                                       hp_default.hop_length)
@@ -187,58 +183,6 @@ def get_mfccs_and_spectrogram_queue(wav_file):
     return mfccs, spec, mel
 
 
-def get_batch_queue(mode, batch_size):
-    '''Loads data and put them in mini batch queues.
-    mode: A string. Either `train1` | `test1` | `train2` | `test2` | `convert`.
-    '''
-
-    if mode not in ('train1', 'test1', 'train2', 'test2', 'convert'):
-        raise Exception("invalid mode={}".format(mode))
-
-    with tf.device('/cpu:0'):
-        # Load data
-        wav_files = load_data(mode=mode)
-
-        # calc total batch count
-        num_batch = len(wav_files) // batch_size
-
-        # Convert to tensor
-        wav_files = tf.convert_to_tensor(wav_files)
-
-        # Create Queues
-        wav_file, = tf.train.slice_input_producer([wav_files, ], shuffle=True, capacity=128)
-
-        if mode in ('train1', 'test1'):
-            # Get inputs and target
-            mfcc, ppg = get_mfccs_and_phones_queue(inputs=wav_file,
-                                                   dtypes=[tf.float32, tf.int32],
-                                                   capacity=2048,
-                                                   num_threads=32)
-
-            # create batch queues
-            mfcc, ppg = tf.train.batch([mfcc, ppg],
-                                       shapes=[(None, hp_default.n_mfcc), (None,)],
-                                       num_threads=32,
-                                       batch_size=batch_size,
-                                       capacity=batch_size * 32,
-                                       dynamic_pad=True)
-            return mfcc, ppg, num_batch
-        else:
-            # Get inputs and target
-            mfcc, spec, mel = get_mfccs_and_spectrogram_queue(inputs=wav_file,
-                                                              dtypes=[tf.float32, tf.float32, tf.float32],
-                                                              capacity=2048,
-                                                              num_threads=64)
-
-            # create batch queues
-            mfcc, spec, mel = tf.train.batch([mfcc, spec, mel],
-                                             shapes=[(None, hp_default.n_mfcc), (None, 1 + hp_default.n_fft // 2),
-                                                     (None, hp_default.n_mels)],
-                                             num_threads=64,
-                                             batch_size=batch_size,
-                                             capacity=batch_size * 64,
-                                             dynamic_pad=True)
-            return mfcc, spec, mel, num_batch
 
 
 def get_batch(mode, batch_size):
@@ -353,39 +297,3 @@ def _get_zero_padded(list_of_arrays):
         padded = np.pad(d, pad_width=pad_width, mode="constant", constant_values=0)
         batch.append(padded)
     return np.array(batch)
-
-
-def load_vocab():
-    phns = ['h#', 'aa', 'ae', 'ah', 'ao', 'aw', 'ax', 'ax-h', 'axr', 'ay', 'b', 'bcl',
-            'ch', 'd', 'dcl', 'dh', 'dx', 'eh', 'el', 'em', 'en', 'eng', 'epi',
-            'er', 'ey', 'f', 'g', 'gcl', 'hh', 'hv', 'ih', 'ix', 'iy', 'jh',
-            'k', 'kcl', 'l', 'm', 'n', 'ng', 'nx', 'ow', 'oy', 'p', 'pau', 'pcl',
-            'q', 'r', 's', 'sh', 't', 'tcl', 'th', 'uh', 'uw', 'ux', 'v', 'w', 'y', 'z', 'zh']
-    phn2idx = {phn: idx for idx, phn in enumerate(phns)}
-    idx2phn = {idx: phn for idx, phn in enumerate(phns)}
-
-    return phn2idx, idx2phn
-
-
-def load_data(mode):
-    '''Loads the list of sound files.
-    mode: A string. One of the phases below:
-      `train1`: TIMIT TRAIN waveform -> mfccs (inputs) -> PGGs -> phones (target) (ce loss)
-      `test1`: TIMIT TEST waveform -> mfccs (inputs) -> PGGs -> phones (target) (accuracy)
-      `train2`: ARCTIC SLT waveform -> mfccs -> PGGs (inputs) -> spectrogram (target)(l2 loss)
-      `test2`: ARCTIC SLT waveform -> mfccs -> PGGs (inputs) -> spectrogram (target)(accuracy)
-      `convert`: ARCTIC BDL waveform -> mfccs (inputs) -> PGGs -> spectrogram -> waveform (output)
-    '''
-    if mode == "train1":
-        wav_files = glob.glob(hp.Train1.data_path)
-    elif mode == "test1":
-        wav_files = glob.glob(hp.Test1.data_path)
-    elif mode == "train2":
-        testset_size = hp.Test2.batch_size * 4
-        wav_files = glob.glob(hp.Train2.data_path)[testset_size:]
-    elif mode == "test2":
-        testset_size = hp.Test2.batch_size * 4
-        wav_files = glob.glob(hp.Train2.data_path)[:testset_size]
-    elif mode == "convert":
-        wav_files = glob.glob(hp.Convert.data_path)
-    return wav_files
