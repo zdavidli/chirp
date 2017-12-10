@@ -5,6 +5,7 @@ import os
 
 import tensorflow as tf
 from layers import prenet, cbhg
+from load_data import get_mfccs_and_phones_queue
 from utils import load_vocab
 
 
@@ -76,6 +77,23 @@ class Phoneme_Classifier:
                                        capacity=self.batch_size * 32,
                                        dynamic_pad=True)
             return mfcc, ppg, num_batches
+
+
+    def get_batch(batch_size):
+        with tf.device('/cpu:0'):
+            # Load data
+            wav_files = glob.glob(self.data_path)
+            target_wavs = sample(wav_files, self.batch_size)
+
+            if mode in ('train1', 'test1'):
+                mfcc, ppg = map(_get_zero_padded, zip(*map(lambda w: get_mfccs_and_phones(w, hp_default.sr), target_wavs)))
+                return mfcc, ppg
+            else:
+                mfcc, spec, mel = map(_get_zero_padded, zip(*map(
+                    lambda wav_file: get_mfccs_and_spectrogram(wav_file, duration=hp_default.duration), target_wavs)))
+                return mfcc, spec, mel
+
+
 
     def loss(self):
         istarget = tf.sign(tf.abs(tf.reduce_sum(self.x_mfcc, -1)))  # indicator: (N, T)
