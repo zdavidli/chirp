@@ -61,6 +61,8 @@ cmu.load_dict("dict.p")
 counter = 0
 cgitb.enable()
 
+peopleTraining = set()
+
 #curl http://localhost:5000/samplerate -d "data=Remember the milk" -X GET
 class SampleRate(Resource):
   def get(self):
@@ -97,7 +99,7 @@ def tts(speaker_id):
     v = getVoice(speaker_id)
     renderroot = "static/audio/"
     counter = 0
-    filename = renderroot + speaker_id + str(counter) + ".wav"
+    filename = renderroot + speaker_id + str(counter) + ".mp3"
 
     #audio = v.tts(txt,cmu,delay=0.2)
     ##print audio
@@ -162,8 +164,21 @@ def starttrain(user_id):
   try:
     root = "static/traindata/" + user_id + "/"
     filename = root + str(counter) + ".wav"
+    peopleTraining.add(user_id)
     #train here
     return "Success: Training", 200
+  except:
+    return "Internal Server Error", 500
+
+@app.route('/api/istraining/<string:user_id>', methods=['GET'])
+def istraining(user_id):
+  #txt = request.values.keys()[0]
+  try:
+    status = False
+    if (user_id in peopleTraining):
+      status = True
+      return "true", 200
+    return "false", 200
   except:
     return "Internal Server Error", 500
 
