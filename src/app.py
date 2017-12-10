@@ -4,10 +4,10 @@ import argparse
 import ast
 import cgitb
 import cgi
+import json
 import numpy as np
 import os
 import requests
-import os
 import sqlite3
 from twython import Twython
 import wave
@@ -228,19 +228,31 @@ def getArticle():
                 text.append(i)
     return text
 
-#@app.route('/api/feed')
+@app.route('/api/feed/', defaults={'count':10})
+@app.route('/api/feed/<int:count>', methods=['GET'])
+def get_feed(count):
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    response = twitter.get_home_timeline(count=count)
+    if response:
+        response = json.dumps(response)
+        return response, 200
+    else:
+        return "Error retrieving tweets", 500
 
-
-@app.route('/api/handle', methods=["GET"])
-def get_handle():
+@app.route('/api/user_id', methods=["GET"])
+def get_user_id():
     OAUTH_TOKEN = session['OAUTH_TOKEN']
     OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
     twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     response = twitter.get("account/verify_credentials")
-    handle = response[u"screen_name"]
-    print(handle)
-    return handle, 200
-
+    user_id = response[u"id_str"]
+    print(user_id)
+    if user_id:
+        return str(user_id), 200
+    else:
+        return 'Error retrieving user_id', 500
 
 @app.route('/', methods=["POST"])
 def index_login():
