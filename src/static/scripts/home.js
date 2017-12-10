@@ -6,6 +6,7 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 // set up basic variables for app
 var canvas = document.querySelector('.visualizer');
 var train = document.querySelector('.train');
+
 train.onclick = function() {
   console.log("Test");
   window.location.href = '/train';
@@ -15,6 +16,8 @@ train.onclick = function() {
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+istraining("gary");
+
 var delay = 2000;
 var tweet = "";
 var playing = false;
@@ -22,9 +25,14 @@ var queue = new Queue();
 var used = new Queue();
 ttsRoutine();
 setInterval(ttsRoutine, delay);
+var attempts = 0;
 
 function ttsRoutine() {
   console.log("Checking for new tweet");
+  attempts++;
+  if (attempts % 10 == 1) {
+    istraining("gary");
+  }
   if (!playing) {
     getnexttweets("gary");
     if (!queue.isEmpty()) {
@@ -103,6 +111,32 @@ function playaudio(speaker, txt) {
     
 
     //visualize(audio.captureStream());
+  }
+}
+
+function istraining(speaker) {
+  var urlBase = 'api/istraining';
+  var url = [
+    urlBase,
+    "/",
+    speaker,
+  ].join('');
+
+  $.ajax({
+    url : url,
+    type: 'GET',
+    success : handledata
+  })
+  
+  function handledata(data) {
+    console.log(data);
+    var img = document.getElementById('load');
+    if (data == "true") {
+      img.style.visibility = 'visible';
+    }
+    else {
+      img.style.visibility = 'hidden';
+    }
   }
 }
 
