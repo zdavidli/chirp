@@ -5,17 +5,22 @@ import ast
 import cgitb
 import cgi
 import numpy as np
+import os
 import os.path
 import requests
+import os
 import sqlite3
+from twython import Twython
 import wave
 
 #flask imports
-from flask import Flask, render_template
-from flask import request
-from flask_restful import Resource, Api
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask import send_file
+from flask_restful import Resource, Api
+from flask import send_from_directory
 
+#config import
+import config
 
 #Model imports
 from model import Voice
@@ -25,11 +30,20 @@ from util import RATE
 from loader import loadVoice
 from loader import loadAllVoices
 from CMUDict import CMUDict
+from basictts import ttsbase
 
 db = "./twit_data.db"
 
 app = Flask(__name__)
 api = Api(app)
+
+app.config['SECRET_KEY'] = os.urandom(24)
+twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+auth = twitter.get_authentication_tokens(callback_url='localhost:5000/callback')
+OAUTH_TOKEN = auth['oauth_token']
+OAUTH_TOKEN_SECRET = auth['oauth_token_secret']
+
+
 
 ###################################################################################
 ###################################################################################
@@ -86,9 +100,10 @@ def tts(speaker_id):
     counter = 0
     filename = renderroot + speaker_id + str(counter) + ".wav"
 
-    audio = v.tts(txt,cmu,delay=0.2)
-    #print audio
-    writeWav(filename, audio)
+    #audio = v.tts(txt,cmu,delay=0.2)
+    ##print audio
+    #writeWav(filename, audio)
+    ttsbase(txt, filename)
     return filename, 200
   except:
     return "'status': 'failed'", 500
@@ -128,6 +143,20 @@ def deletetraindata(speaker_id):
   except:
     return "'status': 'failed'", 500
 
+@app.route('/api/numsamples/<string:speaker_id>', methods=['GET'])
+def numsamples(speaker_id):
+  try:
+    root = "static/traindata/" + speaker_id
+    counter = 0
+    filename = root + "/" + str(counter) + ".wav"
+    while os.path.isfile(filename) == True:
+      counter += 1
+      filename = root + "/" + str(counter) + ".wav"
+    return str(counter), 200
+  except Exception as e:
+    print e
+    return '0', 500
+
 @app.route('/api/train/<string:user_id>', methods=['POST', 'PUT'])
 def starttrain(user_id):
   #txt = request.values.keys()[0]
@@ -138,6 +167,17 @@ def starttrain(user_id):
     return "Success: Training", 200
   except:
     return "Internal Server Error", 500
+
+# Returns true if the user has ever sent any training data before
+@app.route('/api/hasdata/<string:speaker_id>', methods=['GET'])
+def hasdata(speaker_id):
+  try:
+    root = "static/traindata/" + speaker_id
+    exists = os.path.exists(root);
+    return str(exists), 200
+  except Exception as e:
+    print e
+    return 'false', 500
 
 #curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):
@@ -174,54 +214,54 @@ def getArticle():
                 text.append(i)
     return text
 
-def get_top_tweets():
-    conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
+@app.route('/', methods=["POST"])
+def index_login():
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+    auth = twitter.get_authentication_tokens(callback_url='http://localhost:5000/login')
+    session['OAUTH_TOKEN'] = auth['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
+    return redirect(auth['auth_url'])
 
-    c.execute("SELECT * from twit_data  ORDER BY datetime DESC LIMIT 30")
-    result = c.fetchall()
-    tweets = []
-
-    datetime_toptweets = result[0]['datetime']
-
-    for tweet in result:
-        tweets.append(tweet['top_tweet'])
-
-    conn.close()
-
-    return tweets, datetime_toptweets
-
-def get_lang():
-
-    conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * from lang_data ORDER BY datetime DESC LIMIT 1")
-
-    result = c.fetchone()
-    lang = ast.literal_eval(result['language'])
-    top_lang = ast.literal_eval(result['top_language'])
-
-    conn.close()
-
-    return lang, top_lang
-
-@app.route("/")
-def main():
+@app.route('/', methods=['GET'])
+def index():
     return render_template('login.html')
 
+@app.route('/login')
+def login():
+    oauth_verifier = request.args.get('oauth_verifier')
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    final_step = twitter.get_authorized_tokens(oauth_verifier)
+    session['OAUTH_TOKEN'] = final_step['oauth_token']
+    session['OAUTH_TOKEN_SECRET'] = final_step['oauth_token_secret']
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    #session['twitter'] = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+
+    return redirect('/train')
 
 @app.route("/train")
 def train():
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    #twitter.update_status(status="Twython works!")
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
+@app.route("/home")
+def home():
+    return render_template('home.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=80)
+    parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=5000)
     arg = parser.parse_args()
     port_number = arg.port
     app.run(debug = True, port=port_number)
-
-

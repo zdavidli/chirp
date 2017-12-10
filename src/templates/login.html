@@ -19,18 +19,23 @@
   <div class="wrapper">
 
       <section class="main-controls">
-        <section>
-        <img src="static/images/chirpfull.png" alt="Logo" style="width:500px;height:500px;">
+        <img class="animated fadeInLeft" src="static/images/bird.png" alt="Logo" style="width:500px;height:250px;">
+        <img class="animated fadeIn" src="static/images/chirptext.png" alt="Logo" style="width:500px;height:100px;">
       </section>
-        <p class="porter" style="color:#42ccff"><font size="40">Log in with Twitter</font></p>
+        <p class="porter animated fadeInUp" style="color:#42ccff"><font size="40">Sign in:</font></p>
         <div id = "train"><b></b></div>
         <br></br>
-        <input type="image" src="static/images/twitter_signin.png" name="login" class="login" id="loginbutton" />
+        <form action = "" method = "post">
+            <input class="animated fadeInUp" type="image" src="static/images/twitter_signin.png" name="login" class="login" id="loginbutton" />
+        </form>
 
       </section>
 
       
 
     </div>
+    <!-- <script src="/static/scripts/login.js"></script> -->
+
 
 {% endblock %}
+

@@ -22,10 +22,16 @@ pip install -r requirements
 To run:
 
 ```
-python src/backend/app.py
+python src/app.py
 ```
 
-You will now be able to access the app at localhost:8080/train
+You will now be able to access the app at localhost:5000
+
+You may also run on a different port with:
+
+```
+python src/app.py -p <port>
+```
 
 # Testing
 
