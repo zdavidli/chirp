@@ -60,6 +60,15 @@ function Queue(){
 
   }
 
+  this.get = function(i){
+
+    // if the queue is empty, return immediately
+    if (queue.length == 0) return undefined;
+    // return the dequeued item
+    return queue[i];
+
+  }
+
   /* Returns the item at the front of the queue (without dequeuing it). If the
    * queue is empty then undefined is returned.
    */

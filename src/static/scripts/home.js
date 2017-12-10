@@ -7,6 +7,8 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 var canvas = document.querySelector('.visualizer');
 var train = document.querySelector('.train');
 
+var getTweets = true;
+
 var handle = undefined;
 login();
 // Obtain the handle
@@ -28,7 +30,7 @@ function login() {
     ttsRoutine();
   }
 }
-
+//<blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/gamespot/status/939978080113872900"></a></blockquote>
 
 //<blockquote class="twitter-tweet tw-align-center" lang="en"><p>If you don&#39;t take risks, you&#39;ll always have regret. <a href="https://twitter.com/search?q=%23justdoit&amp;src=hash">#justdoit</a></p>&mdash; Nike (@Nike) <a href="https://twitter.com/Nike/statuses/476008225859706880">June 9, 2014</a></blockquote>
 
@@ -49,6 +51,9 @@ var attempts = 0;
 var numTweets = 30;
 
 function ttsRoutine() {
+  if (!getTweets) {
+    return;
+  }
   if (handle == undefined) {
     return;
   }
@@ -68,12 +73,38 @@ function processqueue() {
       console.log("Queue is not empty!");
       tweet = queue.dequeue();
       used.enqueue(tweet);
-      if (used.getLength() > 10) {
+      if (used.getLength() > 20) {
         used.dequeue();
       }
+      setfeed(tweet);
       playaudio(handle, tweet);
     }
   }
+}
+
+// <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/43815496/status/939975621513375700"></a></blockquote><blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/17217640/status/939974985988431900"></a></blockquote>
+
+// <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937402084692975616"></a></blockquote>
+//               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/938972633416306690"></a></blockquote>
+//               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937447589460426752"></a></blockquote>
+//               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937411489635241984"></a></blockquote>
+//               <blockquote class="twitter-tweet tw-align-center" lang="en"><a href="https://twitter.com/elonmusk/status/937401166299774976"></a></blockquote>
+
+function setfeed(tweet) {
+  var tweetstoshow = 2;
+  if (used.getLength() < tweetstoshow) {
+    tweetstoshow = used.getLength();
+  }
+  var str = "";
+  //str += "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/" + tweet.user.id + "/status/" + tweet.id;
+  for (var i = 0; i < tweetstoshow; ++i) {
+    var t = queue.get(i);
+    str += "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/" + t.user.screen_name + "/status/" + t.id+ "\"></a></blockquote>";
+  }
+  //console.log(str);
+  str += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>"
+  str = "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/elonmusk/status/937402084692975616\"></a></blockquote>"
+  document.getElementById('feed').innerHTML = str;
 }
 
 function getnexttweets(auth) {
@@ -128,7 +159,8 @@ function playaudio(speaker, tweet) {
     url : url,
     type: 'GET',
     data: {message:txt},
-    success : handledata
+    success : handledata,
+    error: err
   })
   
   function handledata(data) {
@@ -151,6 +183,12 @@ function playaudio(speaker, tweet) {
     
 
     //visualize(audio.captureStream());
+  }
+
+  function err(xhr) {
+    playing = false;
+    requesting = false;
+    processqueue();
   }
 }
 
