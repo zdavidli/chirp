@@ -8,8 +8,9 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 
 var handle = undefined;
 // Obtain the handle
+login();
 function login() {
-  var urlBase = 'api/handle';
+  var urlBase = 'api/user_id';
   var url = [
    urlBase,
   ].join('');

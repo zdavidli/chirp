@@ -90,16 +90,17 @@ def getCount():
 #curl http://localhost/tts/<speaker_id> -d "words to read out" -X GET
 @app.route('/api/tts/<string:speaker_id>', methods=['GET', 'POST'])
 def tts(speaker_id):
-  txt = request.values.keys()[0]
+  txt = request.values['message']
+  print txt
   if txt is None:
     print "Text was None. Falling back"
     txt = "fallback text to render"
     #return " 'status': 'No text'", 400
   try:
-    v = getVoice(speaker_id)
     renderroot = "static/audio/"
     counter = 0
     filename = renderroot + speaker_id + str(counter) + ".mp3"
+    print filename
 
     #audio = v.tts(txt,cmu,delay=0.2)
     ##print audio

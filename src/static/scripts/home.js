@@ -8,9 +8,10 @@ var canvas = document.querySelector('.visualizer');
 var train = document.querySelector('.train');
 
 var handle = undefined;
+login();
 // Obtain the handle
 function login() {
-  var urlBase = 'api/handle';
+  var urlBase = 'api/user_id';
   var url = [
    urlBase,
   ].join('');
@@ -24,8 +25,10 @@ function login() {
     console.log(data);
     handle = data;
     istraining(handle);
+    ttsRoutine();
   }
 }
+
 
 //<blockquote class="twitter-tweet tw-align-center" lang="en"><p>If you don&#39;t take risks, you&#39;ll always have regret. <a href="https://twitter.com/search?q=%23justdoit&amp;src=hash">#justdoit</a></p>&mdash; Nike (@Nike) <a href="https://twitter.com/Nike/statuses/476008225859706880">June 9, 2014</a></blockquote>
 
@@ -35,18 +38,15 @@ train.onclick = function() {
   //playaudio(handle, "test sentence scott is the best");
 }
 
-// canvas.width = window.innerWidth;
-// canvas.height = window.innerHeight;
-
-
-var delay = 2000;
+var delay = 60000;
 var tweet = "";
 var playing = false;
+var requesting = false;
 var queue = new Queue();
 var used = new Queue();
-ttsRoutine();
 setInterval(ttsRoutine, delay);
 var attempts = 0;
+var numTweets = 30;
 
 function ttsRoutine() {
   if (handle == undefined) {
@@ -57,9 +57,15 @@ function ttsRoutine() {
   if (attempts % 10 == 1) {
     istraining(handle);
   }
-  if (!playing) {
-    getnexttweets(handle);
+  getnexttweets(handle);
+  processqueue()
+}
+
+function processqueue() {
+  console.log("Processing Queue");
+  if (!playing && !requesting) {
     if (!queue.isEmpty()) {
+      console.log("Queue is not empty!");
       tweet = queue.dequeue();
       used.enqueue(tweet);
       if (used.getLength() > 10) {
@@ -71,38 +77,46 @@ function ttsRoutine() {
 }
 
 function getnexttweets(auth) {
-  // var urlBase = 'api/tts';
-  // var url = [
-  //  urlBase,
-  //  "/",
-  //  speaker,
-  // ].join('');
+  var urlBase = 'api/feed';
+  var url = [
+   urlBase,
+   "/",
+   numTweets,
+  ].join('');
 
-  // $.ajax({
-  //  url : url,
-  //  type: 'GET',
-  //  data: txt,
-  //  success : handledata
-  // })
+  $.ajax({
+   url : url,
+   type: 'GET',
+   success : handledata
+  })
 
   
   function handledata(data) {
-    console.log(data);
+    //console.log(data);
     var obj = JSON.parse(data);
-    for (var tweet in obj.tweets) { //TODO reverse order
-      if (queue.getLength() > 100 || queue.contains(tweet) || used.contains(tweet)) {
+    console.log(obj[0]);
+    for (var i = 0; i < numTweets; ++i) { //TODO reverse order
+      var t = obj[i];
+      if (queue.getLength() > 100 || queue.contains(t) || used.contains(t)) {
         break;
       }
       else {
-        queue.enqueue(tweet);
+        queue.enqueue(t);
       }
     }
+    console.log(queue.getLength());
+    processqueue();
   }
-  queue.enqueue("Harold son, you are my herald, my son.");
+  //queue.enqueue("Harold son, you are my herald, my son.");
 }
 
 
-function playaudio(speaker, txt) {
+function playaudio(speaker, tweet) {
+  requesting = true;
+  var txt = tweet.text;
+  var usr = tweet.user.id;
+  console.log("text: " + txt)
+  console.log("user: " + usr)
   var urlBase = 'api/tts';
   var url = [
     urlBase,
@@ -113,12 +127,13 @@ function playaudio(speaker, txt) {
   $.ajax({
     url : url,
     type: 'GET',
-    data: txt,
+    data: {message:txt},
     success : handledata
   })
   
   function handledata(data) {
     console.log(data);
+    requesting = false;
     console.log("Playing: " + txt)
     //Delay for generation
     setTimeout(function (){
@@ -128,6 +143,7 @@ function playaudio(speaker, txt) {
       audio.addEventListener("ended", function(){
         playing = false;
         console.log("ended");
+        processqueue();
       });
       audio.play();
       playing = true;
