@@ -213,6 +213,20 @@ def getArticle():
                 text.append(i)
     return text
 
+#@app.route('/api/feed')
+
+
+@app.route('/api/handle', methods=["GET"])
+def get_handle():
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    response = twitter.get("account/verify_credentials")
+    handle = response[u"screen_name"]
+    print(handle)
+    return handle, 200
+
+
 @app.route('/', methods=["POST"])
 def index_login():
     twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
