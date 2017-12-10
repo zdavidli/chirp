@@ -23,10 +23,11 @@ function login() {
   function handledata(data) {
     console.log(data);
     handle = data;
+    istraining(handle);
   }
 }
 
-
+//<blockquote class="twitter-tweet tw-align-center" lang="en"><p>If you don&#39;t take risks, you&#39;ll always have regret. <a href="https://twitter.com/search?q=%23justdoit&amp;src=hash">#justdoit</a></p>&mdash; Nike (@Nike) <a href="https://twitter.com/Nike/statuses/476008225859706880">June 9, 2014</a></blockquote>
 
 train.onclick = function() {
   console.log("Test");
@@ -34,10 +35,9 @@ train.onclick = function() {
   //playaudio(handle, "test sentence scott is the best");
 }
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// canvas.width = window.innerWidth;
+// canvas.height = window.innerHeight;
 
-istraining(handle);
 
 var delay = 2000;
 var tweet = "";
@@ -166,32 +166,32 @@ function istraining(speaker) {
 
 // visualiser setup - create web audio api context and canvas
 
-//var audioCtx = new (window.AudioContext || webkitAudioContext)();
-//var canvasCtx = canvas.getContext("2d");
-//
-//if (navigator.getUserMedia) {
-//  console.log('getUserMedia supported.');
-//
-//  var constraints = { audio: true };
-//  var chunks = [];
-//
-//  var onSuccess = function(stream) {
-//    var mediaRecorder = new MediaRecorder(stream);
-//
-//    visualize(stream);
-//
-//    
-//    
-//  }
-//
-//  var onError = function(err) {
-//    console.log('The following error occured: ' + err);
-//  }
-//
-//  navigator.getUserMedia(constraints, onSuccess, onError);
-//} else {
-//   console.log('getUserMedia not supported on your browser!');
-//}
+var audioCtx = new (window.AudioContext || webkitAudioContext)();
+var canvasCtx = canvas.getContext("2d");
+
+if (navigator.getUserMedia) {
+ console.log('getUserMedia supported.');
+
+ var constraints = { audio: true };
+ var chunks = [];
+
+ var onSuccess = function(stream) {
+   var mediaRecorder = new MediaRecorder(stream);
+
+   visualize(stream);
+
+   
+   
+ }
+
+ var onError = function(err) {
+   console.log('The following error occured: ' + err);
+ }
+
+ navigator.getUserMedia(constraints, onSuccess, onError);
+} else {
+  console.log('getUserMedia not supported on your browser!');
+}
 
 function visualize(stream) {
   var source = audioCtx.createMediaStreamSource(stream);
@@ -218,8 +218,9 @@ function visualize(stream) {
     canvasCtx.fillStyle = 'rgb(0, 188, 255)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    canvasCtx.lineWidth = 8;
-    canvasCtx.strokeStyle = 'rgb(255, 255, 10)';
+    canvasCtx.lineWidth = 4;
+    //canvasCtx.strokeStyle = 'rgb(255, 255, 10)';
+    canvasCtx.strokeStyle = 'rgb(49, 232, 255)';
 
     canvasCtx.beginPath();
 

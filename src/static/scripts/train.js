@@ -6,6 +6,25 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
                        navigator.mozGetUserMedia ||
                        navigator.msGetUserMedia);
 
+var handle = undefined;
+// Obtain the handle
+function login() {
+  var urlBase = 'api/handle';
+  var url = [
+   urlBase,
+  ].join('');
+
+  $.get({
+   url : url,
+   type: 'GET',
+   success : handledata
+  })
+  function handledata(data) {
+    console.log(data);
+    handle = data;
+  }
+}
+
 // set up basic variables for app
 
 var record = document.querySelector('.record');
@@ -52,7 +71,7 @@ if (navigator.getUserMedia) {
 
   var onSuccess = function(stream) {
     var mediaRecorder = new MediaRecorder(stream);
-    getsamplecount("gary");
+    getsamplecount(handle);
 
     visualize(stream);
     
@@ -109,7 +128,7 @@ if (navigator.getUserMedia) {
     send.onclick = function() {
       trainingIdx++;
       displayTrainingArticle(trainingIdx);
-      sendPhoneme("gary", CurrAudio);
+      sendPhoneme(handle, CurrAudio);
       clipsSent++;
       while (soundClips.firstChild) {
         soundClips.removeChild(soundClips.firstChild);
@@ -126,7 +145,7 @@ if (navigator.getUserMedia) {
         val = confirm('You have recorded (' + clipsSent + '/' + recc + ') Are you sure you want to submit for training?');
       }
       if (val) {
-        traincall("gary", CurrAudio);
+        traincall(handle, CurrAudio);
       }
     }
 
