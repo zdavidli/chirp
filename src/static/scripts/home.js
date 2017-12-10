@@ -7,16 +7,37 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 var canvas = document.querySelector('.visualizer');
 var train = document.querySelector('.train');
 
+var handle = undefined;
+// Obtain the handle
+function login() {
+  var urlBase = 'api/handle';
+  var url = [
+   urlBase,
+  ].join('');
+
+  $.get({
+   url : url,
+   type: 'GET',
+   success : handledata
+  })
+  function handledata(data) {
+    console.log(data);
+    handle = data;
+  }
+}
+
+
+
 train.onclick = function() {
   console.log("Test");
   window.location.href = '/train';
-  //playaudio("gary", "test sentence scott is the best");
+  //playaudio(handle, "test sentence scott is the best");
 }
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-istraining("gary");
+istraining(handle);
 
 var delay = 2000;
 var tweet = "";
@@ -28,20 +49,23 @@ setInterval(ttsRoutine, delay);
 var attempts = 0;
 
 function ttsRoutine() {
+  if (handle == undefined) {
+    return;
+  }
   console.log("Checking for new tweet");
   attempts++;
   if (attempts % 10 == 1) {
-    istraining("gary");
+    istraining(handle);
   }
   if (!playing) {
-    getnexttweets("gary");
+    getnexttweets(handle);
     if (!queue.isEmpty()) {
       tweet = queue.dequeue();
       used.enqueue(tweet);
       if (used.getLength() > 10) {
         used.dequeue();
       }
-      playaudio("gary", tweet);
+      playaudio(handle, tweet);
     }
   }
 }
