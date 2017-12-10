@@ -6,7 +6,6 @@ import cgitb
 import cgi
 import numpy as np
 import os
-import os.path
 import requests
 import os
 import sqlite3
@@ -224,9 +223,16 @@ def login():
     session['OAUTH_TOKEN_SECRET'] = final_step['oauth_token_secret']
     OAUTH_TOKEN = session['OAUTH_TOKEN']
     OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
-    #session['twitter'] = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
-    return redirect('/train')
+    #update OAUTH token
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    response = twitter.get("account/verify_credentials")
+    speaker_id = response[u"screen_name"]
+    exists = os.path.exists(os.path.join('static/traindata/', speaker_id))
+
+    if exists:
+        return redirect('/train')
+    return redirect('/home')
 
 @app.route("/train")
 def train():
