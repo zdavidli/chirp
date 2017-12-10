@@ -29,6 +29,7 @@ from util import RATE
 from loader import loadVoice
 from loader import loadAllVoices
 from CMUDict import CMUDict
+from basictts import ttsbase
 
 db = "./twit_data.db"
 
@@ -98,9 +99,10 @@ def tts(speaker_id):
     counter = 0
     filename = renderroot + speaker_id + str(counter) + ".wav"
 
-    audio = v.tts(txt,cmu,delay=0.2)
-    #print audio
-    writeWav(filename, audio)
+    #audio = v.tts(txt,cmu,delay=0.2)
+    ##print audio
+    #writeWav(filename, audio)
+    ttsbase(txt, filename)
     return filename, 200
   except:
     return "'status': 'failed'", 500
@@ -164,6 +166,17 @@ def starttrain(user_id):
     return "Success: Training", 200
   except:
     return "Internal Server Error", 500
+
+# Returns true if the user has ever sent any training data before
+@app.route('/api/hasdata/<string:speaker_id>', methods=['GET'])
+def hasdata(speaker_id):
+  try:
+    root = "static/traindata/" + speaker_id
+    exists = os.path.exists(root);
+    return str(exists), 200
+  except Exception as e:
+    print e
+    return 'false', 500
 
 #curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
 class trainer(Resource):

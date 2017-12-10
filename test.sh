@@ -1,3 +1,3 @@
 #!/bin/sh
-cd src/backend
+cd src
 python test.py

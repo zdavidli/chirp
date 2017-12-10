@@ -8,7 +8,6 @@
     {% block head %} {% endblock %}
     {% block graphs %} {% endblock %}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <script src="/static/scripts/jquery-3.2.1.min.js"></script>
   </head>
 
   <body>
@@ -17,6 +16,11 @@
     {% block tweets %}  {% endblock %}
     
     {% block body %}  {% endblock %}
+
+    
+    <script src="/static/scripts/jquery-3.2.1.min.js"></script>
+    
+    {% block scripts %}  {% endblock %}
     
   </body>
 </html>

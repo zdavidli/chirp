@@ -2,58 +2,46 @@
 # /usr/bin/python2
 
 from __future__ import print_function
-import hparams as hp
+
 from hparams import logdir_path
 from tqdm import tqdm
 
-from modules import *
-from models import Model
+from layers import *
+from Phoneme_Classifier import Phoneme_Classifier
 import eval1
 from data_load import get_batch
 import argparse
 
 
-def train(logdir='logdir/default/train1', queue=True):
-    model = Model(mode="train1", batch_size=hp.Train1.batch_size, queue=queue)
+def train(logdir='logdir/phoneme_classifier', data_path='datasets/TIMIT/TRAIN/*/*/*.WAV', num_epochs=1000, lr=0.0003, queue=True):
+    model = Phoneme_Classifier(data_path, queue)
 
-    # Loss
-    loss_op = model.loss_net1()
+    ### 1. Initializing operations
+    loss_op = model.loss() # loss operation
+    acc_op = model.acc() # accuracy operation
+    global_step = tf.Variable(0, name='global_step', trainable=False) # Training Scheme
 
-    # Accuracy
-    acc_op = model.acc_net1()
-
-    # Training Scheme
-    global_step = tf.Variable(0, name='global_step', trainable=False)
-
-    optimizer = tf.train.AdamOptimizer(learning_rate=hp.Train1.lr)
+    optimizer = tf.train.AdamOptimizer(learning_rate=lr)
     with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
-        var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'net/net1')
+        var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'net/phoneme_classifier')
         train_op = optimizer.minimize(loss_op, global_step=global_step, var_list=var_list)
 
-    # Summary
-    # for v in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'net/net1'):
-    #     tf.summary.histogram(v.name, v)
-    tf.summary.scalar('net1/train/loss', loss_op)
-    tf.summary.scalar('net1/train/acc', acc_op)
+    tf.summary.scalar('phoneme_classifier/train/loss', loss_op)
+    tf.summary.scalar('phoneme_classifier/train/acc', acc_op)
     summ_op = tf.summary.merge_all()
 
-    session_conf = tf.ConfigProto(
-        gpu_options=tf.GPUOptions(
-            allow_growth=True,
-        ),
-    )
     # Training
+    session_conf = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
     with tf.Session(config=session_conf) as sess:
         # Load trained model
         sess.run(tf.global_variables_initializer())
-        #model.load(sess, 'train1', logdir=logdir)
 
         writer = tf.summary.FileWriter(logdir, sess.graph)
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(coord=coord)
 
-        for epoch in range(1, hp.Train1.num_epochs + 1):
-            for step in tqdm(range(model.num_batch), total=model.num_batch, ncols=70, leave=False, unit='b'):
+        for epoch in range(1, num_epochs + 1):
+            for step in tqdm(range(model.num_batches), total=model.num_batches, ncols=70, leave=False, unit='b'):
                 if queue:
                     sess.run(train_op)
                 else:

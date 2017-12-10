@@ -18,9 +18,6 @@ from utils import preemphasis
 
 def get_mfccs_and_phones(wav_file, sr, trim=False, random_crop=True,
                          length=int(hp_default.duration / hp_default.frame_shift + 1)):
-    '''This is applied in `train1` or `test1` phase.
-    '''
-
     # Load
     wav, sr = librosa.load(wav_file, sr=sr)
 
@@ -192,28 +189,15 @@ def get_batch_queue(mode, batch_size):
     mode: A string. Either `train1` | `test1` | `train2` | `test2` | `convert`.
     '''
 
-    if mode not in ('train1', 'test1', 'train2', 'test2', 'convert'):
-        raise Exception("invalid mode={}".format(mode))
-
     with tf.device('/cpu:0'):
-        # Load data
-        wav_files = load_data(mode=mode)
-
-        # calc total batch count
-        num_batch = len(wav_files) // batch_size
-
-        # Convert to tensor
-        wav_files = tf.convert_to_tensor(wav_files)
-
-        # Create Queues
-        wav_file, = tf.train.slice_input_producer([wav_files, ], shuffle=True, capacity=128)
+        wav_files = load_data(mode=mode) # Load data
+        num_batch = len(wav_files) // batch_size # calc total batch count
+        wav_files = tf.convert_to_tensor(wav_files) # Convert to tensor
+        wav_file, = tf.train.slice_input_producer([wav_files, ], shuffle=True, capacity=128) # Create Queues
 
         if mode in ('train1', 'test1'):
             # Get inputs and target
-            mfcc, ppg = get_mfccs_and_phones_queue(inputs=wav_file,
-                                                   dtypes=[tf.float32, tf.int32],
-                                                   capacity=2048,
-                                                   num_threads=32)
+            mfcc, ppg = get_mfccs_and_phones_queue(inputs=wav_file, dtypes=[tf.float32, tf.int32], capacity=2048, num_threads=32)
 
             # create batch queues
             mfcc, ppg = tf.train.batch([mfcc, ppg],
