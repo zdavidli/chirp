@@ -196,7 +196,7 @@ function playaudio(user_id, tweet) {
   }
 
   var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, ''))
-  var usr = tweet.user.id;
+  var usr = tweet.user.id_str;
   console.log("text: " + txt)
   console.log("user: " + usr + " " + user_id)
   var urlBase = 'api/tts';
