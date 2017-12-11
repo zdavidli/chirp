@@ -11,6 +11,7 @@ import requests
 import sqlite3
 from twython import Twython
 import wave
+import cPickle as pickle
 
 #flask imports
 from flask import Flask, flash, redirect, render_template, request, session, url_for
@@ -30,6 +31,7 @@ from loader import loadVoice
 from loader import loadAllVoices
 from CMUDict import CMUDict
 from basictts import ttsbase
+from basictransfer import pitchFromData
 
 db = "./twit_data.db"
 
@@ -42,6 +44,9 @@ auth = twitter.get_authentication_tokens(callback_url='localhost:5000/callback')
 OAUTH_TOKEN = auth['oauth_token']
 OAUTH_TOKEN_SECRET = auth['oauth_token_secret']
 
+
+GooglePitch = 404.0
+# ttsbase("It was a bright cold day in April and the clocks were striking thirteen Winston Smith his chin nuzzled into his breast in an effort to escape the vile wind slipped quickly through the glass doors of Victory Mansions though not quickly enough to prevent a swirl of gritty dust from entering along with him", "static/traindata/google/0.wav", 1)
 
 
 ###################################################################################
@@ -105,11 +110,15 @@ def tts(speaker_id):
     #audio = v.tts(txt,cmu,delay=0.2)
     ##print audio
     #writeWav(filename, audio)
-    pitch = 0.7
-
-    ttsbase(txt, filename, pitch)
+    pFilename = "static/pitches/" + speaker_id
+    pitch = GooglePitch
+    if (os.path.isfile(pFilename)):
+      pitch = pickle.load(open("static/pitches/" + speaker_id))
+    print "Loaded"
+    print pitch
+    ttsbase(txt, filename, pitch / GooglePitch)
     print "rendered Audio"
-    out = {'filename': filename + "mod.wav", 'pitch': pitch}
+    out = {'filename': filename + "mod.wav", 'pitch': pitch / GooglePitch}
     r = json.dumps(out)
     return r, 200
   except:
@@ -171,7 +180,8 @@ def starttrain(user_id):
     root = "static/traindata/" + user_id + "/"
     filename = root + str(counter) + ".wav"
     peopleTraining.add(user_id)
-    #train here
+    pitchFromData(user_id)
+    peopleTraining.remove(user_id)
     return "Success: Training", 200
   except:
     return "Internal Server Error", 500
