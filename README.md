@@ -48,6 +48,8 @@ http://www.renevolution.com/ffmpeg/2013/03/16/how-to-install-ffmpeg-on-mac-os-x.
 http://www.idiotinside.com/2016/05/01/ffmpeg-mac-os-x/
 http://macappstore.org/ffmpeg/
 
+Restart your shell/command prompt/ssh after your install ffmpeg
+
 To run:
 
 ```
