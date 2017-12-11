@@ -187,7 +187,7 @@ function getnexttweets(auth) {
 }
 
 
-function playaudio(speaker, tweet) {
+function playaudio(user_id, tweet) {
   requesting = true;
 
   function removeEmojis (string) {
@@ -198,7 +198,7 @@ function playaudio(speaker, tweet) {
   var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, ''))
   var usr = tweet.user.id;
   console.log("text: " + txt)
-  console.log("user: " + usr)
+  console.log("user: " + usr + " " + user_id)
   var urlBase = 'api/tts';
   var url = [
     urlBase,
