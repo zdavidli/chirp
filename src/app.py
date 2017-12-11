@@ -56,8 +56,8 @@ OAUTH_TOKEN_SECRET = auth['oauth_token_secret']
 
 # Initialize the voice data and cmudict
 voices = loadAllVoices()
-cmu = CMUDict()
-cmu.load_dict("dict.p")
+# cmu = CMUDict()
+# cmu.load_dict("dict.p")
 counter = 0
 cgitb.enable()
 

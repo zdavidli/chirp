@@ -7,6 +7,8 @@ navigator.getUserMedia = ( navigator.getUserMedia ||
 var canvas = document.querySelector('.visualizer');
 var train = document.querySelector('.train');
 
+var getTweets = true;
+
 var handle = undefined;
 login();
 // Obtain the handle
@@ -22,33 +24,30 @@ function login() {
    success : handledata
   })
   function handledata(data) {
-    console.log(data);
     handle = data;
     istraining(handle);
     ttsRoutine();
   }
 }
-
-
-//<blockquote class="twitter-tweet tw-align-center" lang="en"><p>If you don&#39;t take risks, you&#39;ll always have regret. <a href="https://twitter.com/search?q=%23justdoit&amp;src=hash">#justdoit</a></p>&mdash; Nike (@Nike) <a href="https://twitter.com/Nike/statuses/476008225859706880">June 9, 2014</a></blockquote>
-
 train.onclick = function() {
-  console.log("Test");
   window.location.href = '/train';
   //playaudio(handle, "test sentence scott is the best");
 }
 
-var delay = 60000;
-var tweet = "";
+var delay = 62000;
+var tweet = undefined;
 var playing = false;
 var requesting = false;
 var queue = new Queue();
-var used = new Queue();
+var used = [];
 setInterval(ttsRoutine, delay);
 var attempts = 0;
-var numTweets = 30;
+var numTweets = 10;
 
 function ttsRoutine() {
+  if (!getTweets) {
+    return;
+  }
   if (handle == undefined) {
     return;
   }
@@ -58,22 +57,58 @@ function ttsRoutine() {
     istraining(handle);
   }
   getnexttweets(handle);
-  processqueue()
 }
 
 function processqueue() {
   console.log("Processing Queue");
   if (!playing && !requesting) {
     if (!queue.isEmpty()) {
-      console.log("Queue is not empty!");
       tweet = queue.dequeue();
-      used.enqueue(tweet);
-      if (used.getLength() > 10) {
-        used.dequeue();
-      }
+      used.push(tweet);
       playaudio(handle, tweet);
     }
   }
+  setfeed(tweet);
+}
+
+// <ul> 
+//   <li>
+//     <div class="box" style="margin-bottom: 10px;">
+//       <p align="left" style="margin-bottom: 10px;"><font size="5" style="color:#1343ae;">@RealDolandsRump</font></p>
+//       <p align="left"><font size="3" style="color:#2363be;">Gyna</font></p>
+//     </div>
+//   </li>
+//   <li>
+//     <div class="box" style="margin-bottom: 10px;">
+//       <p align="left" style="margin-bottom: 10px;"><font size="5" style="color:#1343ae;">@RealDolandsRump</font></p>
+//       <p align="left"><font size="3" style="color:#2363be;">Gyna</font></p>
+//     </div>
+//   </li>
+// </ul>
+
+function setfeed(tweet) {
+  var tweetstoshow = 10;
+  if (used.length < tweetstoshow) {
+    tweetstoshow = used.length;
+  }
+  var str = "<ul>";
+
+  var t = undefined;
+  //str += "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/" + tweet.user.id + "/status/" + tweet.id;
+  for (var i = 0; i < tweetstoshow; ++i) {
+    t = used[used.length - i - 1];
+    str += "<li><div class=\"box\" style=\"margin-bottom: 10px;\"><p align=\"left\" style=\"margin-bottom: 10px;\"><font size=\"5\" style=\"color:#1343ae;\">";
+    str += t.user.name;
+
+    str += " </font><font size=\"3\" style=\"color:#666666;\"> @"
+    str += t.user.screen_name
+    str += "</p><p align=\"left\"><font size=\"3\" style=\"color:#2363be;\">"
+    str += t.text;
+    str += "</font></p></div></li>";
+  }
+  //console.log(str);
+  str += "</ul>"
+  document.getElementById('feed').innerHTML = str;
 }
 
 function getnexttweets(auth) {
@@ -87,24 +122,63 @@ function getnexttweets(auth) {
   $.ajax({
    url : url,
    type: 'GET',
-   success : handledata
+   success : handledata,
+   err: err
   })
 
   
   function handledata(data) {
-    //console.log(data);
+    console.log("Got tweets");
     var obj = JSON.parse(data);
     console.log(obj[0]);
-    for (var i = 0; i < numTweets; ++i) { //TODO reverse order
-      var t = obj[i];
-      if (queue.getLength() > 100 || queue.contains(t) || used.contains(t)) {
-        break;
-      }
-      else {
-        queue.enqueue(t);
+    console.log("converted json");
+    if (attempts == 1) {
+      queue.enqueue(obj[0]);
+      for (var i = 1; i < numTweets; ++i) {
+        used.push(obj[obj.length - i]);
       }
     }
+    else {
+      console.log("calculating new tweets");
+      var prequeue = [];
+      for (var i = 0; i < numTweets; ++i) {
+        console.log(i);
+        if (obj[i].id == used[used.length - 1].id) {
+          console.log("New tweet count: " + i);
+          break;
+        }
+        prequeue.push(obj[i]);
+      }
+      while (prequeue.length != 0) {
+        queue.enqueeu(prequeue.pop())
+      }
+      console.log("Finished calculating");
+
+      // var i = numTweets - 1;
+      // while (used.peek().id != obj[i]) {
+      //   i--;
+      // }
+      // console.log(i);
+      // while (--i >= 0) {
+      //   queue.enqueue(obj[i]);
+      // }
+
+
+      //for (var i = numTweets - 1; i >= 0; --i) { //TODO reverse order
+      //  var t = obj[i];
+      //  if (queue.getLength() > 100 || queue.contains(t) || used.contains(t)) {
+      //    break;
+      //  }
+      //  else {
+      //    queue.enqueue(t);
+      //  }
+      //}
+    }
     console.log(queue.getLength());
+    processqueue();
+  }
+
+  function err(xhr) {
     processqueue();
   }
   //queue.enqueue("Harold son, you are my herald, my son.");
@@ -113,7 +187,7 @@ function getnexttweets(auth) {
 
 function playaudio(speaker, tweet) {
   requesting = true;
-  var txt = tweet.text;
+  var txt = tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '');
   var usr = tweet.user.id;
   console.log("text: " + txt)
   console.log("user: " + usr)
@@ -128,7 +202,8 @@ function playaudio(speaker, tweet) {
     url : url,
     type: 'GET',
     data: {message:txt},
-    success : handledata
+    success : handledata,
+    error: err
   })
   
   function handledata(data) {
@@ -151,6 +226,12 @@ function playaudio(speaker, tweet) {
     
 
     //visualize(audio.captureStream());
+  }
+
+  function err(xhr) {
+    playing = false;
+    requesting = false;
+    processqueue();
   }
 }
 
