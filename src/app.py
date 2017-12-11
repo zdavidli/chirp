@@ -99,14 +99,19 @@ def tts(speaker_id):
   try:
     renderroot = "static/audio/"
     counter = 0
-    filename = renderroot + speaker_id + str(counter) + ".mp3"
+    filename = renderroot + speaker_id + str(counter) + "."
     print filename
 
     #audio = v.tts(txt,cmu,delay=0.2)
     ##print audio
     #writeWav(filename, audio)
-    ttsbase(txt, filename)
-    return filename, 200
+    pitch = 0.7
+
+    ttsbase(txt, filename, pitch)
+    print "rendered Audio"
+    out = {'filename': filename + "mod.wav", 'pitch': pitch}
+    r = json.dumps(out)
+    return r, 200
   except:
     return "'status': 'failed'", 500
 

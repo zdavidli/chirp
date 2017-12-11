@@ -19,6 +19,35 @@ To install requirements
 pip install -r requirements
 ```
 
+Install ffmpeg:
+
+Windows 64 bit:
+
+Open an administrator Command Prompt:
+
+```
+setx /M PATH "C:\path\to\git\repo\lib\ffmpegwin64\bin;%PATH%"
+```
+
+Be sure to replace the path with the correct path to the lib/ffmpegwin64 directory.
+
+Ubuntu:
+
+```
+sudo add-apt-repository ppa:mc3man/trusty-media  
+sudo apt-get update  
+sudo apt-get install ffmpeg  
+sudo apt-get install frei0r-plugins  
+```
+
+MacOS
+
+Here are a couple of links to instructions:
+
+http://www.renevolution.com/ffmpeg/2013/03/16/how-to-install-ffmpeg-on-mac-os-x.html
+http://www.idiotinside.com/2016/05/01/ffmpeg-mac-os-x/
+http://macappstore.org/ffmpeg/
+
 To run:
 
 ```
@@ -32,6 +61,8 @@ You may also run on a different port with:
 ```
 python src/app.py -p <port>
 ```
+
+Note: On unix devices, use sudo to run on ports below 1024.
 
 # Testing
 

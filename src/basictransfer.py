@@ -1,12 +1,9 @@
 
-import scipy.io.wavfile
-import librosa
 
-filename = 'static/audio/gary0.mp3'
+import cPickle as pickle
+import os
 
-y, sr = librosa.load(filename)
-
-
-# rate, data = scipy.io.wavfile.read(filename)
-# print rate
-# print data
+def pitchFromData(user_id):
+	filebase = "static/traindata/user_id/"
+	counter = 0
+	

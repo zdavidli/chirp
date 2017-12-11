@@ -216,18 +216,20 @@ function playaudio(speaker, tweet) {
   
   function handledata(data) {
     console.log(data);
+    var obj = JSON.parse(data);
     requesting = false;
     console.log("Playing: " + txt)
     //Delay for generation
     setTimeout(function (){
       //random number for cache-busting!
       var randn = Math.floor(Math.random() * 100000000);
-      var audio = new Audio(String(data) + "?" + String(randn));
+      var audio = new Audio(String(obj.filename) + "?" + String(randn));
       audio.addEventListener("ended", function(){
         playing = false;
         console.log("ended");
         processqueue();
       });
+      audio.playbackRate = 1.0 / obj.pitch;
       audio.play();
       playing = true;
     }, 1000);
