@@ -250,7 +250,7 @@ def get_messages(count):
         response = json.dumps(response)
         return response, 200
     else:
-        return "Error retrieving tweets", 500
+        return "Error retrieving messages", 500
 
 @app.route('/api/feed/', defaults={'count':10})
 @app.route('/api/feed/<int:count>', methods=['GET'])
