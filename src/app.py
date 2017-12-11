@@ -219,14 +219,22 @@ api.add_resource(trainer, '/train/<string:user_id>')
 ###################################################################################
 
 
-def getArticle():
-    text = []
-    with open('article.txt','r') as f:
-        data = f.readlines()
-        for i in data:
-            if i != '\n':
-                text.append(i)
-    return text
+"""
+API ENDPOINTS
+"""
+
+@app.route('/api/messages/', defaults={'count':10})
+@app.route('/api/messages/<int:count>', methods=['GET'])
+def get_messages(count):
+    OAUTH_TOKEN = session['OAUTH_TOKEN']
+    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
+    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    response = twitter.get_direct_messages(count=count)
+    if response:
+        response = json.dumps(response)
+        return response, 200
+    else:
+        return "Error retrieving tweets", 500
 
 @app.route('/api/feed/', defaults={'count':10})
 @app.route('/api/feed/<int:count>', methods=['GET'])
@@ -254,6 +262,16 @@ def get_user_id():
     else:
         return 'Error retrieving user_id', 500
 
+
+"""
+LOGIN
+"""
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('login.html')
+
+
 @app.route('/', methods=["POST"])
 def index_login():
     twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
@@ -262,9 +280,6 @@ def index_login():
     session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
     return redirect(auth['auth_url'])
 
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('login.html')
 
 @app.route('/login')
 def login():
@@ -290,12 +305,22 @@ def login():
 
 @app.route("/train")
 def train():
+    def getArticle():
+        text = []
+        with open('article.txt','r') as f:
+            data = f.readlines()
+            for i in data:
+                if i != '\n':
+                    text.append(i)
+        return text
+
     OAUTH_TOKEN = session['OAUTH_TOKEN']
     OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
     twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     #twitter.update_status(status="Twython works!")
     articles = getArticle()
     return render_template('train.html', articles = articles)
+
 
 @app.route("/home")
 def home():
