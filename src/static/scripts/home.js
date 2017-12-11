@@ -99,11 +99,13 @@ function setfeed(tweet) {
     t = used[used.length - i - 1];
     str += "<li><div class=\"box\" style=\"margin-bottom: 10px;\"><p align=\"left\" style=\"margin-bottom: 10px;\"><font size=\"5\" style=\"color:#1343ae;\">";
     str += t.user.name;
-
-    str += " </font><font size=\"3\" style=\"color:#666666;\"> @"
+    str += " </font><font size=\"3\" style=\"color:#35538c;\"> @"
     str += t.user.screen_name
-    str += "</p><p align=\"left\"><font size=\"3\" style=\"color:#2363be;\">"
+    str += "</p><p align=\"left\"><font size=\"3\" style=\"color:#114691;margin-bottom: 14px;\">"
     str += t.text;
+    str += "</font></p>"
+    str += "<p align=\"left\"><font size=\"1\" style=\"color:#6dc6ff;\">";
+    str += t.created_at;
     str += "</font></p></div></li>";
   }
   //console.log(str);
