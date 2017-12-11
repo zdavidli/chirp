@@ -15,3 +15,16 @@ All notable changes to this project will be documented in this file.
 - completed Tweet/Message Scraping
 - added Text-to-speech (TTS) RESTful API
 - added voice generation infrastructure
+
+## [1.0.2] - 2017-12-9
+- Completed core functionality
+- Twitter login
+- Login page
+- Home page
+- Training UI
+- Endpoint completion
+- Record and send voices
+- gTTS system
+- Client TTS request and playback
+- Custom tweet feed
+- Waveform display
