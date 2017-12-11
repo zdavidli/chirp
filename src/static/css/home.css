@@ -74,3 +74,7 @@ div.box {
   max-width: 468px;
 }
 
+ul {
+  list-style-type: none;
+}
+

@@ -80,11 +80,10 @@ function Queue(){
     if (queue.length < 0) {
       return false;
     }
-    for (var i = 0; i <= offset; ++i) {
-      if (item == queue[offset]) {
-        return true;
-      }
+    if (item == undefined) {
+      return false;
     }
+    return queue.includes(item);
   }
 
 }
