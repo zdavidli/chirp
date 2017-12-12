@@ -68,6 +68,14 @@ cgitb.enable()
 
 peopleTraining = set()
 
+# delete all temp voice data
+for filename in os.listdir("static/audio"):
+  if filename.endswith(".wav") or filename.endswith(".mp3"): 
+    os.remove(os.path.join("static/audio", filename))
+    continue
+  else:
+    continue
+
 #curl http://localhost:5000/samplerate -d "data=Remember the milk" -X GET
 class SampleRate(Resource):
   def get(self):
