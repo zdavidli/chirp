@@ -23,6 +23,7 @@ function login() {
   function handledata(data) {
     console.log(data);
     handle = data;
+    getsamplecount(handle);
   }
 }
 
@@ -36,6 +37,7 @@ var soundClips = document.querySelector('.sound-clips');
 var canvas = document.querySelector('.visualizer');
 var test = document.querySelector('.test');
 var quit = document.querySelector('.quit');
+var del = document.querySelector('.delete');
 
 var CurrAudio = null;
 var clipsSent = 0;
@@ -72,7 +74,6 @@ if (navigator.getUserMedia) {
 
   var onSuccess = function(stream) {
     var mediaRecorder = new MediaRecorder(stream);
-    getsamplecount(handle);
 
     visualize(stream);
     
@@ -152,6 +153,16 @@ if (navigator.getUserMedia) {
 
     quit.onclick = function() {
       window.location.href = '/home';
+    }
+
+    del.onclick = function() {
+      var val = confirm('Are you sure you want to delete all training data and voice model? This cannot be undone!');
+      if (val) {
+        var val2 = confirm('You have selected yes and wish to delete your data. Is this correct?');
+        if (val2) {
+          delDataCall(handle);
+        }
+      }
     }
 
     mediaRecorder.onstop = function(e) {
@@ -292,6 +303,26 @@ function getsamplecount(user) {
   function handledata(data) {
     clipsSent = parseInt(data);
   }
+}
+
+function delDataCall(user) {
+  var urlBase = 'api/deletetraindata';
+  var url = [
+    urlBase,
+    "/",
+    user,
+  ].join('');
+
+  $.ajax({
+    url : url,
+    type: 'POST',
+    success : handledata
+  })
+  function handledata(data) {
+    console.log(data);
+  }
+
+  window.location.href = '/home';
 
 }
 

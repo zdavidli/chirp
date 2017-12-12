@@ -26,9 +26,28 @@ function login() {
   function handledata(data) {
     handle = data;
     istraining(handle);
+    //test();
     ttsRoutine();
   }
 }
+
+//function test() {
+//  var urlBase = 'api/messages';
+//  var url = [
+//   urlBase,
+//  ].join('');
+//
+//  $.get({
+//   url : url,
+//   type: 'GET',
+//   success : handledata
+//  })
+//  function handledata(data) {
+//    console.log(data);
+//  }
+//}
+
+
 train.onclick = function() {
   window.location.href = '/train';
   //playaudio(handle, "test sentence scott is the best");

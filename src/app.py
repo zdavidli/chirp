@@ -155,6 +155,9 @@ def deletetraindata(speaker_id):
       os.remove(filename)
       counter += 1
       filename = root + str(counter) + ".wav"
+    if (os.path.isfile("static/pitches/" + speaker_id)):
+      os.remove("static/pitches/" + speaker_id)
+    
     return "success", 200
   except:
     return "'status': 'failed'", 500
