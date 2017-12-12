@@ -16,7 +16,7 @@ Note: Since the project is primarily in python and Flask, it does not need to be
 To install requirements
 
 ```
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 Install ffmpeg:
