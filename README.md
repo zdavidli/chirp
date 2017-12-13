@@ -50,9 +50,10 @@ http://macappstore.org/ffmpeg/
 
 Restart your shell/command prompt/ssh after your install ffmpeg
 
-To run, go to src folder and type:
+To run:
 
 ```
+cd src
 python app.py
 ```
 
@@ -61,6 +62,7 @@ You will now be able to access the app at localhost:5000
 You may also run on a different port with:
 
 ```
+cd src
 python app.py -p <port>
 ```
 
