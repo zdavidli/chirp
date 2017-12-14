@@ -53,7 +53,8 @@ Restart your shell/command prompt/ssh after your install ffmpeg
 To run:
 
 ```
-python src/app.py
+cd src
+python app.py
 ```
 
 You will now be able to access the app at localhost:5000
@@ -61,7 +62,8 @@ You will now be able to access the app at localhost:5000
 You may also run on a different port with:
 
 ```
-python src/app.py -p <port>
+cd src
+python app.py -p <port>
 ```
 
 Note: On unix devices, use sudo to run on ports below 1024.
