@@ -13,6 +13,8 @@ Group Members:
 
 Note: Since the project is primarily in python and Flask, it does not need to be built!
 
+We recommend Python 3.6 due to Tensorflow requirements.
+
 To install requirements
 
 ```
