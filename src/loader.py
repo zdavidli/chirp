@@ -1,6 +1,6 @@
 import pyaudio
 import wave
-import cPickle as pickle
+import pickle
 from os import path
 from os import walk
 from os import listdir

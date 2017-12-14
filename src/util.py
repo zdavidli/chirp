@@ -1,6 +1,6 @@
 import pyaudio
 import wave
-import cPickle as pickle
+import pickle
 from loader import dataroot
 import struct
 import numpy as np

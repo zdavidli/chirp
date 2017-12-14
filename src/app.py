@@ -11,7 +11,7 @@ import requests
 import sqlite3
 from twython import Twython
 import wave
-import cPickle as pickle
+import pickle
 
 #flask imports
 from flask import Flask, flash, redirect, render_template, request, session, url_for
@@ -104,28 +104,28 @@ def getCount():
 @app.route('/api/tts/<string:speaker_id>', methods=['GET', 'POST'])
 def tts(speaker_id):
   txt = request.values['message']
-  print txt
+  print(txt)
   if txt is None:
-    print "Text was None. Falling back"
+    print("Text was None. Falling back")
     txt = "fallback text to render"
     #return " 'status': 'No text'", 400
   try:
     renderroot = "static/audio/"
     counter = 0
     filename = renderroot + speaker_id + str(counter) + "."
-    print filename
+    print(filename)
 
     #audio = v.tts(txt,cmu,delay=0.2)
-    ##print audio
+    ##print(audio)
     #writeWav(filename, audio)
     pFilename = "static/pitches/" + speaker_id
     pitch = GooglePitch
     if (os.path.isfile(pFilename)):
       pitch = pickle.load(open("static/pitches/" + speaker_id))
-    print "Loaded"
-    print pitch
+    print("Loaded")
+    print(pitch)
     ttsbase(txt, filename, pitch / GooglePitch)
-    print "rendered Audio"
+    print("rendered Audio")
     out = {'filename': filename + "mod.wav", 'pitch': pitch / GooglePitch}
     r = json.dumps(out)
     return r, 200
@@ -144,12 +144,12 @@ def addtraindata(speaker_id):
       filename = root + "/" + str(counter) + ".wav"
     if not os.path.exists(root):
       os.makedirs(root)
-    print "Saving: " + filename
+    print("Saving: " + filename)
     blob = request.files['file']
     blob.save(filename)
     return "success", 200
   except Exception as e:
-    print e
+    print(e)
     return "'status': 'failed'", 500
 
 @app.route('/api/deletetraindata/<string:speaker_id>', methods=['POST', 'PUT'])
@@ -181,7 +181,7 @@ def numsamples(speaker_id):
       filename = root + "/" + str(counter) + ".wav"
     return str(counter), 200
   except Exception as e:
-    print e
+    print(e)
     return '0', 500
 
 @app.route('/api/train/<string:user_id>', methods=['POST', 'PUT'])
@@ -217,7 +217,7 @@ def hasdata(speaker_id):
     exists = os.path.exists(root);
     return str(exists), 200
   except Exception as e:
-    print e
+    print(e)
     return 'false', 500
 
 #curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT

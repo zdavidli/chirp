@@ -1,6 +1,6 @@
 
 import numpy as np
-import cPickle as pickle
+import pickle
 import os
 import os.path
 import librosa
