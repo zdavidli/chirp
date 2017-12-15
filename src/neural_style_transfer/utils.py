@@ -22,17 +22,6 @@ def spectrogram2wav(mag, n_fft, win_length, hop_length, num_iters, phase_angle=N
             spec = mag * np.exp(1.j * phase_angle)
     return wav
 
-def load_vocab():
-    phns = ['h#', 'aa', 'ae', 'ah', 'ao', 'aw', 'ax', 'ax-h', 'axr', 'ay', 'b', 'bcl',
-            'ch', 'd', 'dcl', 'dh', 'dx', 'eh', 'el', 'em', 'en', 'eng', 'epi',
-            'er', 'ey', 'f', 'g', 'gcl', 'hh', 'hv', 'ih', 'ix', 'iy', 'jh',
-            'k', 'kcl', 'l', 'm', 'n', 'ng', 'nx', 'ow', 'oy', 'p', 'pau', 'pcl',
-            'q', 'r', 's', 'sh', 't', 'tcl', 'th', 'uh', 'uw', 'ux', 'v', 'w', 'y', 'z', 'zh']
-    phn2idx = {phn: idx for idx, phn in enumerate(phns)}
-    idx2phn = {idx: phn for idx, phn in enumerate(phns)}
-
-    return phn2idx, idx2phn
-        
 
 def preemphasis(x, coeff=0.97):
   return signal.lfilter([1, -coeff], [1], x)

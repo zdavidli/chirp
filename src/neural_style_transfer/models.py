@@ -22,7 +22,7 @@ class Model:
         self.x_mfcc, self.y_ppgs, self.y_spec, self.y_mel, self.num_batch = self.get_input(mode, batch_size, queue)
 
         # Networks
-        self.net_template = tf.make_template('net', self._net2)
+        self.net_template = tf.make_template('net', self._net1)
         self.ppgs, self.pred_ppg, self.logits_ppg, self.pred_spec, self.pred_mel = self.net_template()
 
     def __call__(self):

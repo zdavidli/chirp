@@ -3,7 +3,7 @@
 
 # path
 ## local
-data_path_base = 'datasets'
+data_path_base = './datasets'
 logdir_path = './logdir'
 
 ## remote

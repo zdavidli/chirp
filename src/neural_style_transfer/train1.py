@@ -46,7 +46,7 @@ def train(logdir='logdir/default/train1', queue=True):
     with tf.Session(config=session_conf) as sess:
         # Load trained model
         sess.run(tf.global_variables_initializer())
-        #model.load(sess, 'train1', logdir=logdir)
+        model.load(sess, 'train1', logdir=logdir)
 
         writer = tf.summary.FileWriter(logdir, sess.graph)
         coord = tf.train.Coordinator()
@@ -79,7 +79,7 @@ def train(logdir='logdir/default/train1', queue=True):
 
 def get_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--case', default="default", type=str, help='experiment case name')
+    parser.add_argument('case', type=str, help='experiment case name')
     arguments = parser.parse_args()
     return arguments
 
