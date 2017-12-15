@@ -20,6 +20,13 @@ from flask_restful import Resource, Api
 from flask import send_from_directory
 
 
+#Streaming imports
+from flask_socketio import SocketIO, emit
+from streaming import TwitterStreamer, TwitterWatchDog
+import gevent
+from gevent import monkey;
+monkey.patch_all()
+
 #twitter frontend imports
 import twitter_api as tapi
 import twitter_login as tl
@@ -42,6 +49,8 @@ db = "./twit_data.db"
 
 app = Flask(__name__)
 api = Api(app)
+
+socketio = SocketIO(app)
 
 app.config['SECRET_KEY'] = os.urandom(24)
 twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
@@ -326,9 +335,14 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
+
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", help="Specify port number for app", type=int, default=5000)
     arg = parser.parse_args()
     port_number = arg.port
-    app.run(debug = True, port=port_number)
+    socketio.run(app, debug = True, port=port_number)
