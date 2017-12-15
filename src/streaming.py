@@ -13,7 +13,8 @@ class TwitterStreamer(TwythonStreamer):
     def on_success(self, data):
         self.queue.put_nowait(data)
         if self.queue.qsize() > 10000:
-            self.queue.get()
+            el = self.queue.get()
+            print(el)
 
     def on_error(self, status_code, data):
         print(status_code, data, "TwitterStreamer stopped because of an error!")
@@ -25,7 +26,7 @@ class TwitterWatchDog:
         OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
         self.streamer = TwitterStreamer(config.CONSUMER_KEY, config.CONSUMER_SECRET,
                                         OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-        self.green = gevent.spawn(self.streamer.statuses.filter)
+        self.green = gevent.spawn(self.streamer.statuses.filter, track='twitter')
 
     def check_alive(self):
         if self.green.dead:

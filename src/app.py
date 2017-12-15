@@ -260,6 +260,8 @@ api.add_resource(trainer, '/train/<string:user_id>')
 ###################################################################################
 
 
+dog = None
+
 """
 API ENDPOINTS
 """
@@ -309,6 +311,9 @@ def login():
     speaker_id = response[u"id_str"]
     exists = os.path.exists(os.path.join('./static/traindata/', speaker_id))
 
+    #setup watchdog
+    dog = TwitterWatchDog(session)
+
     url = '/train' if not exists else '/home'
     return redirect(url)
 
@@ -336,8 +341,19 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-
-
+@socketio.on('connect', namespace='/tweets')
+def tweets_connect():
+    dog.check_alive()
+    uid = request.namespace.socket.sessid
+    print('Client %s connected' % uid)
+    while True:
+        try:
+            tweet = dog.streamer.queue.get(timeout=5)
+        except gevent.queue.Empty:
+            dog.check_alive()
+        else:
+            print(tweet)
+            emit('tweet', tweet, broadcast=True)
 
 
 if __name__ == "__main__":
