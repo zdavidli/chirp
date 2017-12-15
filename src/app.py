@@ -19,6 +19,11 @@ from flask import send_file
 from flask_restful import Resource, Api
 from flask import send_from_directory
 
+
+#twitter frontend imports
+import twitter_api as tapi
+import twitter_login as tl
+
 #config import
 import config
 
@@ -70,7 +75,7 @@ peopleTraining = set()
 
 # delete all temp voice data
 for filename in os.listdir("static/audio"):
-  if filename.endswith(".wav") or filename.endswith(".mp3"): 
+  if filename.endswith(".wav") or filename.endswith(".mp3"):
     os.remove(os.path.join("static/audio", filename))
     continue
   else:
@@ -165,7 +170,7 @@ def deletetraindata(speaker_id):
       filename = root + str(counter) + ".wav"
     if (os.path.isfile("static/pitches/" + speaker_id)):
       os.remove("static/pitches/" + speaker_id)
-    
+
     return "success", 200
   except:
     return "'status': 'failed'", 500
@@ -253,42 +258,16 @@ API ENDPOINTS
 @app.route('/api/messages/', defaults={'count':10})
 @app.route('/api/messages/<int:count>', methods=['GET'])
 def get_messages(count):
-    OAUTH_TOKEN = session['OAUTH_TOKEN']
-    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    response = twitter.get_direct_messages(count=count)
-    if response:
-        response = json.dumps(response)
-        return response, 200
-    else:
-        return "Error retrieving messages", 500
+    return tapi.get_messages(count, session)
 
 @app.route('/api/feed/', defaults={'count':10})
 @app.route('/api/feed/<int:count>', methods=['GET'])
 def get_feed(count):
-    OAUTH_TOKEN = session['OAUTH_TOKEN']
-    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    response = twitter.get_home_timeline(count=count)
-    if response:
-        response = json.dumps(response)
-        return response, 200
-    else:
-        return "Error retrieving tweets", 500
+    return tapi.get_feed(count, session)
 
 @app.route('/api/user_id', methods=["GET"])
 def get_user_id():
-    OAUTH_TOKEN = session['OAUTH_TOKEN']
-    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    response = twitter.get("account/verify_credentials")
-    user_id = response[u"id_str"]
-    print(user_id)
-    if user_id:
-        return str(user_id), 200
-    else:
-        return 'Error retrieving user_id', 500
-
+    return tapi.get_user_id(session)
 
 """
 LOGIN
@@ -301,8 +280,7 @@ def index():
 
 @app.route('/', methods=["POST"])
 def index_login():
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET)
-    auth = twitter.get_authentication_tokens(callback_url='http://localhost:5000/login')
+    twitter, auth = tl.login_button(callback='http://localhost:5000/login')
     session['OAUTH_TOKEN'] = auth['oauth_token']
     session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
     return redirect(auth['auth_url'])
@@ -311,40 +289,30 @@ def index_login():
 @app.route('/login')
 def login():
     oauth_verifier = request.args.get('oauth_verifier')
-    OAUTH_TOKEN = session['OAUTH_TOKEN']
-    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    final_step = twitter.get_authorized_tokens(oauth_verifier)
-    session['OAUTH_TOKEN'] = final_step['oauth_token']
-    session['OAUTH_TOKEN_SECRET'] = final_step['oauth_token_secret']
-    OAUTH_TOKEN = session['OAUTH_TOKEN']
-    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
 
-    #update OAUTH token
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    #Set OAUTH keys
+    tl.first_login(session, oauth_verifier)
+
+    #login with updated OAUTH keys
+    twitter = tl.login(session)
+
     response = twitter.get("account/verify_credentials")
-    speaker_id = response[u"screen_name"]
-    exists = os.path.exists(os.path.join('static/traindata/', speaker_id))
+    speaker_id = response[u"id_str"]
+    exists = os.path.exists(os.path.join('./static/traindata/', speaker_id))
 
-    if exists:
-        return redirect('/train')
-    return redirect('/home')
+    url = '/train' if not exists else '/home'
+    return redirect(url)
 
 @app.route("/train")
 def train():
     def getArticle():
         text = []
         with open('article.txt','r') as f:
-            data = f.readlines()
-            for i in data:
-                if i != '\n':
-                    text.append(i)
+            for line in f:
+                text.append(line)
         return text
 
-    OAUTH_TOKEN = session['OAUTH_TOKEN']
-    OAUTH_TOKEN_SECRET = session['OAUTH_TOKEN_SECRET']
-    twitter = Twython(config.CONSUMER_KEY, config.CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    #twitter.update_status(status="Twython works!")
+    twitter = tl.login(session)
     articles = getArticle()
     return render_template('train.html', articles = articles)
 
