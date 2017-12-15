@@ -37,11 +37,7 @@ def train(logdir='logdir/default/train1', queue=True):
     tf.summary.scalar('net1/train/acc', acc_op)
     summ_op = tf.summary.merge_all()
 
-    session_conf = tf.ConfigProto(
-        gpu_options=tf.GPUOptions(
-            allow_growth=True,
-        ),
-    )
+    session_conf = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
     # Training
     with tf.Session(config=session_conf) as sess:
         # Load trained model
@@ -79,7 +75,7 @@ def train(logdir='logdir/default/train1', queue=True):
 
 def get_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('case', type=str, help='experiment case name')
+    parser.add_argument('--case', default="default", type=str, help='experiment case name')
     arguments = parser.parse_args()
     return arguments
 
