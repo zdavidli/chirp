@@ -120,9 +120,6 @@ def tts(speaker_id):
     filename = renderroot + speaker_id + "."
     print(filename)
 
-    #audio = v.tts(txt,cmu,delay=0.2)
-    ##print(audio)
-    #writeWav(filename, audio)
     pFilename = "static/pitches/" + speaker_id
     pitch = GooglePitch
     if os.path.isfile(pFilename):

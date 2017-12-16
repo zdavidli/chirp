@@ -31,23 +31,6 @@ function login() {
   }
 }
 
-//function test() {
-//  var urlBase = 'api/messages';
-//  var url = [
-//   urlBase,
-//  ].join('');
-//
-//  $.get({
-//   url : url,
-//   type: 'GET',
-//   success : handledata
-//  })
-//  function handledata(data) {
-//    console.log(data);
-//  }
-//}
-
-
 train.onclick = function() {
   window.location.href = '/train';
   //playaudio(handle, "test sentence scott is the best");
@@ -87,7 +70,7 @@ function processqueue() {
       playaudio(handle, tweet);
     }
   }
-  setfeed(tweet);
+  //setfeed(tweet);
 }
 
 // <ul> 
@@ -195,7 +178,7 @@ function playaudio(user_id, tweet) {
     return string.replace(regex, '');
   }
 
-  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/(?:http?|ftp):\/\/[\n\S]+/g, ''))
+  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/(?:http?|ftp):\/\/[\n\S]+/g, '').replace(/\W/g, ''))
   var usr = tweet.user.id_str;
   console.log("text: " + txt)
   console.log("user: " + usr + " " + user_id)
@@ -250,8 +233,9 @@ function playaudio(user_id, tweet) {
           console.log("ended");
           processqueue();
         });
-        audio.playbackRate = (1.0 / obj.pitch) * 1.2;
+        audio.playbackRate = (1.0 / obj.pitch) * 1.1;
         audio.play();
+        setfeed(tweet);
         playing = true;
       }
     }, 1000);

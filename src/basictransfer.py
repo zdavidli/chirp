@@ -21,7 +21,7 @@ class VoiceTransfer:
     S = librosa.stft(x, self.N_FFT)
     p = np.angle(S)
     
-    S = np.log1p(np.abs(S[:,:600]))
+    S = np.log1p(np.abs(S[:,:650]))
     return S, fs
           
   def transfer(self):
@@ -95,7 +95,7 @@ class VoiceTransfer:
     from sys import stderr
 
     ALPHA= 2e-1
-    iterations = 20
+    iterations = 30
 
     result = None
     with tf.Graph().as_default():
