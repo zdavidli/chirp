@@ -70,7 +70,6 @@ function processqueue() {
       playaudio(handle, tweet);
     }
   }
-  //setfeed(tweet);
 }
 
 // <ul> 
@@ -141,6 +140,8 @@ function getnexttweets(auth) {
       for (var i = 1; i < numTweets; ++i) {
         used.push(obj[obj.length - i]);
       }
+      processqueue();
+      setfeed(tweet);
     }
     else {
       console.log("calculating new tweets");
