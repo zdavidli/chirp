@@ -99,7 +99,7 @@ function setfeed(tweet) {
   //str += "<blockquote class=\"twitter-tweet tw-align-center\" lang=\"en\"><a href=\"https://twitter.com/" + tweet.user.id + "/status/" + tweet.id;
   for (var i = 0; i < tweetstoshow; ++i) {
     t = used[used.length - i - 1];
-    str += "<li><div class=\"box\" style=\"margin-bottom: 10px;\"><p align=\"left\" style=\"margin-bottom: 10px;\"><font size=\"5\" style=\"color:#1343ae;\">";
+    str += "<li><div class=\"box\" style=\"margin-bottom: 10px;\"><p align=\"left\" style=\"margin-bottom: 10px;\"><font size=\"5\" style=\"color:#1323ae;\">";
     str += t.user.name;
     str += " </font><font size=\"3\" style=\"color:#35538c;\"> @"
     str += t.user.screen_name
@@ -178,7 +178,7 @@ function playaudio(user_id, tweet) {
     return string.replace(regex, '');
   }
 
-  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/(?:http?|ftp):\/\/[\n\S]+/g, '').replace(/\W/g, ''))
+  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/(?:http?|ftp):\/\/[\n\S]+/g, '').replace(/[^0-9a-z\-\s]/gi, ''))
   var usr = tweet.user.id_str;
   console.log("text: " + txt)
   console.log("user: " + usr + " " + user_id)
