@@ -139,7 +139,7 @@ if (navigator.getUserMedia) {
 
     finish.onclick = function() {
       var val = true;
-      var recc = 25;
+      var recc = 3;
       if (clipsSent < recc) {
         val = confirm('You have not recorded enough audio (' + clipsSent + '/' + recc + ') Are you sure you want to submit for training?');
       }
