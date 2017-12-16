@@ -79,7 +79,7 @@ def testNeural():
 
     ######################################################
     from sys import stderr
-
+    print("test")
     ALPHA= 1.2e-2
     learning_rate= 1e-3
     iterations = 100
