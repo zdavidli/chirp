@@ -103,7 +103,10 @@ function setfeed(tweet) {
     str += " </font><font size=\"3\" style=\"color:#35538c;\"> @"
     str += t.user.screen_name
     str += "</p><p align=\"left\"><font size=\"3\" style=\"color:#114691;margin-bottom: 14px;\">"
-    str += t.text;
+    var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    var txt = t.text.replace(exp,"<a href='$1' target='_blank'>$1</a>");
+
+    str += txt;
     str += "</font></p>"
     str += "<p align=\"left\"><font size=\"1\" style=\"color:#6dc6ff;\">";
     str += t.created_at;
