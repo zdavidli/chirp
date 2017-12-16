@@ -175,25 +175,6 @@ function getnexttweets(auth) {
       }
       console.log("Finished calculating");
 
-      // var i = numTweets - 1;
-      // while (used.peek().id != obj[i]) {
-      //   i--;
-      // }
-      // console.log(i);
-      // while (--i >= 0) {
-      //   queue.enqueue(obj[i]);
-      // }
-
-
-      //for (var i = numTweets - 1; i >= 0; --i) { //TODO reverse order
-      //  var t = obj[i];
-      //  if (queue.getLength() > 100 || queue.contains(t) || used.contains(t)) {
-      //    break;
-      //  }
-      //  else {
-      //    queue.enqueue(t);
-      //  }
-      //}
     }
     console.log(queue.getLength());
     processqueue();
@@ -214,7 +195,7 @@ function playaudio(user_id, tweet) {
     return string.replace(regex, '');
   }
 
-  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, ''))
+  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/(?:http?|ftp):\/\/[\n\S]+/g, ''))
   var usr = tweet.user.id_str;
   console.log("text: " + txt)
   console.log("user: " + usr + " " + user_id)
@@ -238,19 +219,41 @@ function playaudio(user_id, tweet) {
     var obj = JSON.parse(data);
     requesting = false;
     console.log("Playing: " + txt)
-    //Delay for generation
-    setTimeout(function (){
-      //random number for cache-busting!
-      var randn = Math.floor(Math.random() * 100000000);
-      var audio = new Audio(String(obj.filename) + "?" + String(randn));
-      audio.addEventListener("ended", function(){
-        playing = false;
-        console.log("ended");
-        processqueue();
-      });
-      audio.playbackRate = 1.0 / obj.pitch;
-      audio.play();
-      playing = true;
+    // Check for generation
+
+
+    var checker = setInterval(function (){
+      var urlBase = 'api/audioready';
+      var url = [
+        urlBase,
+        "/",
+        usr,
+      ].join('');
+
+      $.ajax({
+        url : url,
+        type: 'GET',
+        success : handlefilecheck,
+        error: err
+      })
+
+      function handlefilecheck(data) {
+        if (data == false) {
+          return;
+        }
+        clearInterval(checker);
+        //random number for cache-busting!
+        var randn = Math.floor(Math.random() * 100000000);
+        var audio = new Audio(String(obj.filename) + "?" + String(randn));
+        audio.addEventListener("ended", function(){
+          playing = false;
+          console.log("ended");
+          processqueue();
+        });
+        audio.playbackRate = (1.0 / obj.pitch) * 1.2;
+        audio.play();
+        playing = true;
+      }
     }, 1000);
     
 

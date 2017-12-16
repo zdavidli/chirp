@@ -117,7 +117,7 @@ def tts(speaker_id):
   try:
     renderroot = "static/audio/"
     counter = 0
-    filename = renderroot + speaker_id + str(counter) + "."
+    filename = renderroot + speaker_id + "."
     print(filename)
 
     #audio = v.tts(txt,cmu,delay=0.2)
@@ -125,13 +125,13 @@ def tts(speaker_id):
     #writeWav(filename, audio)
     pFilename = "static/pitches/" + speaker_id
     pitch = GooglePitch
-    if (os.path.isfile(pFilename)):
-      pitch = pickle.load(open("static/pitches/" + speaker_id))
-    print("Loaded")
+    if os.path.isfile(pFilename):
+      pitch = pickle.load(open(pFilename, 'rb'))
+      print("Loaded")
     print(pitch)
-    ttsbase(txt, filename, pitch / GooglePitch)
+    ttsbase(txt, filename, pitch / GooglePitch, speaker_id)
     print("rendered Audio")
-    out = {'filename': filename + "mod.wav", 'pitch': pitch / GooglePitch}
+    out = {'filename': filename + "trans.wav", 'pitch': pitch / GooglePitch}
     r = json.dumps(out)
     return r, 200
   except:
@@ -220,6 +220,17 @@ def hasdata(speaker_id):
   try:
     root = "static/traindata/" + speaker_id
     exists = os.path.exists(root);
+    return str(exists), 200
+  except Exception as e:
+    print(e)
+    return 'false', 500
+
+# Returns true if the audio rendered 
+@app.route('/api/audioready/<string:speaker_id>', methods=['GET'])
+def audioready(speaker_id):
+  try:
+    filename = "static/audio/" + speaker_id + ".trans.wav"
+    exists = os.path.isfile(filename);
     return str(exists), 200
   except Exception as e:
     print(e)

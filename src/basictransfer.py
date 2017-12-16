@@ -7,31 +7,42 @@ import librosa
 import tensorflow as tf
 import scipy
 
-
-from basictts import ttsbase
     
+class VoiceTransfer:
 
-def testNeural():
+  def __init__(self, id):
+    self.id = str(id)
+    STYLE_FILENAME = "static/traindata/" + str(id) + "/0.wav"
+    self.N_FFT = 2048 #window size
+    self.a_style, self.fs = self.read_audio_spectum(STYLE_FILENAME)
+
+  def read_audio_spectum(self, filename):
+    x, fs = librosa.load(filename)
+    S = librosa.stft(x, self.N_FFT)
+    p = np.angle(S)
+    
+    S = np.log1p(np.abs(S[:,:600]))
+    return S, fs
+          
+  def transfer(self):
     #ttsbase("What a wonderful world Johns Hopkins University is a top 10 university Ronny D is just the swellest person This is a completely different text that hopefully sounds unique from the other one", "static/diff.", 0.8)
 
-    test = 0
+    CONTENT_FILENAME = "static/audio/" + self.id + ".mod.wav"
+    #CONTENT_FILENAME = "static/diff_12s.wav"
+    OUTPUT_FILENAME = "static/audio/" + self.id + ".trans.wav"
+    if os.path.isfile(OUTPUT_FILENAME) == True:
+      os.remove(OUTPUT_FILENAME)
+    
+    print('Loading Data')
+
 
     # Reads wav file and produces spectrum
     # Fourier phases are ignored
-    N_FFT = 2048 #window size
-    def read_audio_spectum(filename):
-        x, fs = librosa.load(filename)
-        S = librosa.stft(x, N_FFT)
-        p = np.angle(S)
-        
-        S = np.log1p(np.abs(S[:,:430]))
-        return S, fs
+    
 
-    CONTENT_FILENAME = "static/diff_10s.wav"
-    STYLE_FILENAME = "static/traindata/gary/0_10s.wav"
 
-    a_content, fs = read_audio_spectum(CONTENT_FILENAME)
-    a_style, fs = read_audio_spectum(STYLE_FILENAME)
+    a_content, fs = self.read_audio_spectum(CONTENT_FILENAME)
+    a_style, fs = self.a_style, self.fs
 
     N_SAMPLES = a_content.shape[1]
     N_CHANNELS = a_content.shape[0]
@@ -56,89 +67,80 @@ def testNeural():
     a_style_tf = np.ascontiguousarray(a_style.T[None,None,:,:])
 
     # filter shape is "[filter_height, filter_width, in_channels, out_channels]"
-    std = np.sqrt(2) * np.sqrt(2.0 / ((N_CHANNELS + N_FILTERS) * 11))
-    kernel = np.random.randn(1, 11, N_CHANNELS, N_FILTERS)*std
+    std = np.sqrt(2) * np.sqrt(2.0 / ((N_CHANNELS + N_FILTERS) * 1))
+    kernel = np.random.randn(1, 1, N_CHANNELS, N_FILTERS)*std
         
     g = tf.Graph()
     with g.as_default(), g.device('/cpu:0'), tf.Session() as sess:
-        # data shape is "[batch, in_height, in_width, in_channels]",
-        x = tf.placeholder('float32', [1,1,N_SAMPLES,N_CHANNELS], name="x")
+      # data shape is "[batch, in_height, in_width, in_channels]",
+      x = tf.placeholder('float32', [1,1,N_SAMPLES,N_CHANNELS], name="x")
 
-        kernel_tf = tf.constant(kernel, name="kernel", dtype='float32')
-        conv = tf.nn.conv2d(
-            x,
-            kernel_tf,
-            strides=[1, 1, 1, 1],
-            padding="VALID",
-            name="conv")
-        
-        net = tf.nn.relu(conv)
+      kernel_tf = tf.constant(kernel, name="kernel", dtype='float32')
+      conv = tf.nn.conv2d(
+        x,
+        kernel_tf,
+        strides=[1, 1, 1, 1],
+        padding="VALID",
+        name="conv")
+      
+      net = tf.nn.relu(conv)
 
-        content_features = net.eval(feed_dict={x: a_content_tf})
-        style_features = net.eval(feed_dict={x: a_style_tf})
-        
-        features = np.reshape(style_features, (-1, N_FILTERS))
-        style_gram = np.matmul(features.T, features) / N_SAMPLES
+      content_features = net.eval(feed_dict={x: a_content_tf})
+      style_features = net.eval(feed_dict={x: a_style_tf})
+      
+      features = np.reshape(style_features, (-1, N_FILTERS))
+      style_gram = np.matmul(features.T, features) / N_SAMPLES
 
     ######################################################
     from sys import stderr
-    print("test")
-    ALPHA= 1.2e-2
-    learning_rate= 1e-1
-    iterations = 40
+
+    ALPHA= 2e-1
+    iterations = 20
 
     result = None
     with tf.Graph().as_default():
 
-        # Build graph with variable input
-        # x = tf.Variable(np.zeros([1,1,N_SAMPLES,N_CHANNELS], dtype=np.float32), name="x")
-        x = tf.Variable(np.random.randn(1,1,N_SAMPLES,N_CHANNELS).astype(np.float32)*1e-3, name="x")
+      # Build graph with variable input
+      x = tf.Variable(np.random.randn(1,1,N_SAMPLES,N_CHANNELS).astype(np.float32)*1e-3, name="x")
 
-        kernel_tf = tf.constant(kernel, name="kernel", dtype='float32')
-        conv = tf.nn.conv2d(
-            x,
-            kernel_tf,
-            strides=[1, 1, 1, 1],
-            padding="VALID",
-            name="conv")
+      kernel_tf = tf.constant(kernel, name="kernel", dtype='float32')
+      conv = tf.nn.conv2d(
+        x,
+        kernel_tf,
+        strides=[1, 1, 1, 1],
+        padding="VALID",
+        name="conv")
+      
+      
+      net = tf.nn.relu(conv)
+
+      content_loss = ALPHA * 2 * tf.nn.l2_loss(
+              net - content_features)
+
+      style_loss = 0
+
+      _, height, width, number = map(lambda i: i.value, net.get_shape())
+
+      size = height * width * number
+      feats = tf.reshape(net, (-1, number))
+      gram = tf.matmul(tf.transpose(feats), feats)  / N_SAMPLES
+      style_loss = 2 * tf.nn.l2_loss(gram - style_gram)
+
+       # Overall loss
+      loss = content_loss + style_loss
+
+      opt = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B', options={'maxiter': iterations})
+          
+      # Optimization
+
+      with tf.Session() as sess:
+        sess.run(tf.initialize_all_variables())
         
-        
-        net = tf.nn.relu(conv)
+        print('Started optimization.')
+        opt.minimize(sess)
 
-        content_loss = ALPHA * 2 * tf.nn.l2_loss(
-                net - content_features)
-
-        style_loss = 0
-
-        _, height, width, number = map(lambda i: i.value, net.get_shape())
-
-        size = height * width * number
-        feats = tf.reshape(net, (-1, number))
-        gram = tf.matmul(tf.transpose(feats), feats)  / N_SAMPLES
-        style_loss = 2 * tf.nn.l2_loss(gram - style_gram)
-
-         # Overall loss
-        loss = content_loss + style_loss
-
-        opt = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B', options={'maxiter': iterations, 'learning_rate': learning_rate})
-            
-        # Optimization
-
-        with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
-           
-            print('Started optimization.')
-            opt.minimize(sess)
-            #saver = tf.train.Saver()
-            #save_path = saver.save(sess, "static/models/gary.model")
-            #tf.train.Saver().save(sess, "static/models/gary.model"a)
-
-            print('Final loss:' + str(loss.eval()))
-            result = x.eval()
-
-        #saver.save(sess, "static/models/gary.model")
-
-    #save_path = saver.save(sess, "static/models/gary.model")
+        print('Final loss:' + str(loss.eval()))
+        result = x.eval()
 
 
     ######################################################
@@ -150,18 +152,19 @@ def testNeural():
     # This code is supposed to do phase reconstruction
     p = 2 * np.pi * np.random.random_sample(a.shape) - np.pi
     for i in range(12):
-        S = a * np.exp(1j*p)
-        x = librosa.istft(S)
-        p = np.angle(librosa.stft(x, N_FFT))
+      S = a * np.exp(1j*p)
+      x = librosa.istft(S)
+      p = np.angle(librosa.stft(x, self.N_FFT))
 
-    fft=librosa.stft(x) # (G) and (H)
+    # Denoise by lowpass filter
+    fft=librosa.stft(x)
     bp=fft[:]
     print(len(bp))
-    for i in range(700, len(bp)): # (H-red)
-        bp[i]=0
-    x=librosa.istft(bp) # (I), (J), (K) and (L)
-    print('done.Saving')
-    OUTPUT_FILENAME = 'static/out.wav'
+    thresh = min(800, len(bp))
+    for i in range(thresh, len(bp)):
+      bp[i]=0
+    x=librosa.istft(bp)
+    print('Transfer Complete: Saving')
     librosa.output.write_wav(OUTPUT_FILENAME, x, fs)
 
 
@@ -174,40 +177,42 @@ def load(sess, logdir):
 
 
 def pitchFromData(user_id):
-    filebase = "static/traindata/" + user_id+ "/"
-    counter = 0
-    totPitch = 0
-    files = 0
-    while (True):
-        filename = filebase + str(counter) + ".wav"
-        if (os.path.isfile(filename) == False):
-            break
-        y, sr = librosa.load(filename, sr=40000)
-        pitches, magnitudes = librosa.core.piptrack(y=y, sr=sr, fmin=75, fmax=1600)
+  filebase = "static/traindata/" + user_id+ "/"
+  counter = 0
+  totPitch = 0
+  files = 0
+  while (True):
+    filename = filebase + str(counter) + ".wav"
+    if (os.path.isfile(filename) == False):
+      break
+    y, sr = librosa.load(filename, sr=40000)
+    pitches, magnitudes = librosa.core.piptrack(y=y, sr=sr, fmin=75, fmax=1600)
 
-        np.set_printoptions(threshold=np.nan)
-        s = 0
-        i = 0
-        for t in range(0, pitches.shape[1], 3):
-            # print magnitudes[:,t].mean()
-            if (magnitudes[:,t].mean() > 0.03):
-                s += detect_pitch(pitches, magnitudes, t)
-                i += 1
-        if (i != 0):
-            totPitch += s / i
-            files += 1
-        counter += 1
-    pitch = totPitch / files
-    pickle.dump(pitch, open("static/pitches/" + user_id, "wb"))
-    return pitch
+    np.set_printoptions(threshold=np.nan)
+    s = 0
+    i = 0
+    for t in range(0, pitches.shape[1], 3):
+      # print magnitudes[:,t].mean()
+      if (magnitudes[:,t].mean() > 0.03):
+        s += detect_pitch(pitches, magnitudes, t)
+        i += 1
+    if (i != 0):
+      totPitch += s / i
+      files += 1
+    counter += 1
+  pitch = totPitch / files
+  pickle.dump(pitch, open("static/pitches/" + user_id, "wb"))
+  return pitch
 
 
 def detect_pitch(pitches, magnitudes, t):
-    index = magnitudes[:, t].argmax()
-    pitch = pitches[index, t]
+  index = magnitudes[:, t].argmax()
+  pitch = pitches[index, t]
 
-    return pitch
+  return pitch
 
 
-if __name__ == "__main__":
-    testNeural()
+#if __name__ == "__main__":
+#    ttsbase("testing one two three four five six seven eight nine ten the is a sentence that is rather long for demonstration purposes",  "#static/audio/gary.", 0.85, "gary")
+    #obj = VoiceTransfer("gary")
+    #obj.transfer()
