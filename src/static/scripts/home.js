@@ -182,7 +182,7 @@ function playaudio(user_id, tweet) {
     return string.replace(regex, '');
   }
 
-  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/(?:http?|ftp):\/\/[\n\S]+/g, '').replace(/[^0-9a-z\-\s]/gi, ''))
+  var txt = " " + removeEmojis(tweet.text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/(?:http?|ftp):\/\/[\n\S]+/g, '').replace(/[^0-9a-z\-\s#@:—/]/gi, ''))
   var usr = tweet.user.id_str;
   console.log("text: " + txt)
   console.log("user: " + usr + " " + user_id)
