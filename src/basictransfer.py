@@ -117,10 +117,10 @@ def testNeural():
          # Overall loss
         loss = content_loss + style_loss
 
-        opt = tf.contrib.opt.ScipyOptimizerInterface(
-              loss, method='L-BFGS-B', options={'maxiter': 300})
+        opt = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B', options={'maxiter': 300})
             
         # Optimization
+
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
            
@@ -128,9 +128,12 @@ def testNeural():
             opt.minimize(sess)
             #saver = tf.train.Saver()
             #save_path = saver.save(sess, "static/models/gary.model")
-        
+            tf.train.Saver().save(sess, "static/models/gary.model"a)
+
             print('Final loss:' + str(loss.eval()))
             result = x.eval()
+
+        saver.save(sess, "static/models/gary.model")
 
     #save_path = saver.save(sess, "static/models/gary.model")
 
@@ -149,6 +152,15 @@ def testNeural():
 
     OUTPUT_FILENAME = 'static/out.wav'
     librosa.output.write_wav(OUTPUT_FILENAME, x, fs)
+
+
+def load(sess, logdir):   
+    var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+    ckpt = tf.train.latest_checkpoint(logdir)
+    tf.train.Saver(var_list=var_list).restore(sess, ckpt)
+
+
+
 
 def pitchFromData(user_id):
     filebase = "static/traindata/" + user_id+ "/"
@@ -177,7 +189,6 @@ def pitchFromData(user_id):
     pitch = totPitch / files
     pickle.dump(pitch, open("static/pitches/" + user_id, "wb"))
     return pitch
-
 
 
 def detect_pitch(pitches, magnitudes, t):
