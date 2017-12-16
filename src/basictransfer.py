@@ -5,6 +5,9 @@ import os
 import os.path
 import librosa
 import tensorflow as tf
+import scipy
+
+
 from basictts import ttsbase
     
 
@@ -15,16 +18,16 @@ def testNeural():
 
     # Reads wav file and produces spectrum
     # Fourier phases are ignored
-    N_FFT = 2048
+    N_FFT = 2048 #window size
     def read_audio_spectum(filename):
         x, fs = librosa.load(filename)
         S = librosa.stft(x, N_FFT)
         p = np.angle(S)
         
-        S = np.log1p(np.abs(S[:,:430]))    
+        S = np.log1p(np.abs(S[:,:430]))
         return S, fs
 
-    CONTENT_FILENAME = "static/diff_12s.wav"#"static/diff_10s.wav"
+    CONTENT_FILENAME = "static/diff_10s.wav"
     STYLE_FILENAME = "static/traindata/gary/0_10s.wav"
 
     a_content, fs = read_audio_spectum(CONTENT_FILENAME)
@@ -81,8 +84,8 @@ def testNeural():
     from sys import stderr
     print("test")
     ALPHA= 1.2e-2
-    learning_rate= 1e-3
-    iterations = 100
+    learning_rate= 1e-1
+    iterations = 40
 
     result = None
     with tf.Graph().as_default():
@@ -117,7 +120,7 @@ def testNeural():
          # Overall loss
         loss = content_loss + style_loss
 
-        opt = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B', options={'maxiter': 300})
+        opt = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B', options={'maxiter': iterations, 'learning_rate': learning_rate})
             
         # Optimization
 
@@ -128,12 +131,12 @@ def testNeural():
             opt.minimize(sess)
             #saver = tf.train.Saver()
             #save_path = saver.save(sess, "static/models/gary.model")
-            tf.train.Saver().save(sess, "static/models/gary.model"a)
+            #tf.train.Saver().save(sess, "static/models/gary.model"a)
 
             print('Final loss:' + str(loss.eval()))
             result = x.eval()
 
-        saver.save(sess, "static/models/gary.model")
+        #saver.save(sess, "static/models/gary.model")
 
     #save_path = saver.save(sess, "static/models/gary.model")
 
@@ -142,14 +145,22 @@ def testNeural():
 
     a = np.zeros_like(a_content)
     a[:N_CHANNELS,:] = np.exp(result[0,0].T) - 1
+    print('here')
 
     # This code is supposed to do phase reconstruction
     p = 2 * np.pi * np.random.random_sample(a.shape) - np.pi
-    for i in range(500):
+    for i in range(12):
         S = a * np.exp(1j*p)
         x = librosa.istft(S)
         p = np.angle(librosa.stft(x, N_FFT))
 
+    fft=librosa.stft(x) # (G) and (H)
+    bp=fft[:]
+    print(len(bp))
+    for i in range(700, len(bp)): # (H-red)
+        bp[i]=0
+    x=librosa.istft(bp) # (I), (J), (K) and (L)
+    print('done.Saving')
     OUTPUT_FILENAME = 'static/out.wav'
     librosa.output.write_wav(OUTPUT_FILENAME, x, fs)
 
