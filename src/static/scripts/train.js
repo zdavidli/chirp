@@ -322,7 +322,7 @@ function delDataCall(user) {
     console.log(data);
   }
 
-  window.location.href = '/home';
+  //window.location.href = '/home';
 
 }
 

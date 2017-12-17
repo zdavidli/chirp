@@ -94,7 +94,7 @@ class VoiceTransfer:
     ######################################################
     from sys import stderr
 
-    ALPHA= 2e-1
+    ALPHA= 1e-1
     iterations = 30
 
     result = None
@@ -193,7 +193,7 @@ def pitchFromData(user_id):
     i = 0
     for t in range(0, pitches.shape[1], 3):
       # print magnitudes[:,t].mean()
-      if (magnitudes[:,t].mean() > 0.03):
+      if (magnitudes[:,t].mean() > 0.08):
         s += detect_pitch(pitches, magnitudes, t)
         i += 1
     if (i != 0):
@@ -212,7 +212,10 @@ def detect_pitch(pitches, magnitudes, t):
   return pitch
 
 
-#if __name__ == "__main__":
-#    ttsbase("testing one two three four five six seven eight nine ten the is a sentence that is rather long for demonstration purposes",  "#static/audio/gary.", 0.85, "gary")
-    #obj = VoiceTransfer("gary")
-    #obj.transfer()
+if __name__ == "__main__":
+  print(pitchFromData("276811979"))
+  #print(pitchFromData("google"))
+  print(pickle.load(open("static/pitches/276811979", 'rb')))
+  #ttsbase("testing one two three four five six seven eight nine ten the is a sentence that is rather long for demonstration purposes",  "#static/audio/gary.", 0.85, "gary")
+  #obj = VoiceTransfer("gary")
+  #obj.transfer()

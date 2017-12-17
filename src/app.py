@@ -12,6 +12,7 @@ import sqlite3
 from twython import Twython
 import wave
 import pickle
+import librosa
 
 #flask imports
 from flask import Flask, flash, redirect, render_template, request, session, url_for
@@ -50,7 +51,7 @@ OAUTH_TOKEN = auth['oauth_token']
 OAUTH_TOKEN_SECRET = auth['oauth_token_secret']
 
 
-GooglePitch = 404.0
+GooglePitch = 439.0
 # ttsbase("It was a bright cold day in April and the clocks were striking thirteen Winston Smith his chin nuzzled into his breast in an effort to escape the vile wind slipped quickly through the glass doors of Victory Mansions though not quickly enough to prevent a swirl of gritty dust from entering along with him", "static/traindata/google/0.wav", 1)
 
 
@@ -149,6 +150,14 @@ def addtraindata(speaker_id):
     print("Saving: " + filename)
     blob = request.files['file']
     blob.save(filename)
+    x, fs = librosa.load(filename)
+    fft=librosa.stft(x)
+    bp=fft[:]
+    thresh = min(800, len(bp))
+    for i in range(thresh, len(bp)):
+      bp[i]=0
+    x=librosa.istft(bp)
+    librosa.output.write_wav(filename, x, fs)
     return "success", 200
   except Exception as e:
     print(e)
@@ -233,20 +242,19 @@ def audioready(speaker_id):
     print(e)
     return 'false', 500
 
-#curl http://localhost/train/<user_id> -d "data=<recording>" -X PUT
-class trainer(Resource):
-  def put(self, user_id):
-    audio = request.form['data']
-    if user_id not in voices:
-      voices[user_id] = Voice()
-    v = voices[speaker_id]
-    try:
-      v.addPhoneme(audio)
-    except:
-      return " 'status': 'failed'", 500
-    v.save()
-    return send_file(filename, mimetype='audio/wav'), 200
-api.add_resource(trainer, '/train/<string:user_id>')
+# class trainer(Resource):
+#   def put(self, user_id):
+#     audio = request.form['data']
+#     if user_id not in voices:
+#       voices[user_id] = Voice()
+#     v = voices[speaker_id]
+#     try:
+#       v.addPhoneme(audio)
+#     except:
+#       return " 'status': 'failed'", 500
+#     v.save()
+#     return send_file(filename, mimetype='audio/wav'), 200
+# api.add_resource(trainer, '/train/<string:user_id>')
 
 ###################################################################################
 ###################################################################################
