@@ -21,7 +21,7 @@ class VoiceTransfer:
     S = librosa.stft(x, self.N_FFT)
     p = np.angle(S)
     
-    S = np.log1p(np.abs(S[:,:650]))
+    S = np.log1p(np.abs(S[:,:636]))
     return S, fs
           
   def transfer(self):
@@ -61,7 +61,7 @@ class VoiceTransfer:
 
     ######################################################
 
-    N_FILTERS = 4096
+    N_FILTERS = 4096*2
 
     a_content_tf = np.ascontiguousarray(a_content.T[None,None,:,:])
     a_style_tf = np.ascontiguousarray(a_style.T[None,None,:,:])
@@ -117,17 +117,16 @@ class VoiceTransfer:
       content_loss = ALPHA * 2 * tf.nn.l2_loss(
               net - content_features)
 
-      style_loss = 0
 
       _, height, width, number = map(lambda i: i.value, net.get_shape())
 
       size = height * width * number
       feats = tf.reshape(net, (-1, number))
       gram = tf.matmul(tf.transpose(feats), feats)  / N_SAMPLES
-      style_loss = 2 * tf.nn.l2_loss(gram - style_gram)
+      style_loss = tf.nn.l2_loss(gram - style_gram)
 
        # Overall loss
-      loss = content_loss + style_loss
+      loss = style_loss
 
       opt = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B', options={'maxiter': iterations})
           

@@ -37,4 +37,4 @@ def ttsbase(txt, file, pitch, id):
     obj.transfer()
 
 if __name__ == "__main__":
-  ttsbase("testing one two three four five six seven eight nine ten the is a sentence that is rather long for demonstration purposes otherwise we would try to make shorter sentences because it is faster",  "static/audio/gary.", 0.85, "gary")
+  ttsbase("It was a bright cold day in April, and the clocks were striking thirteen. Winston Smith, his chin nuzzled into his breast in an effort to escape the vile wind, slipped quickly through the glass doors of Victory Mansions, though not quickly enough to prevent a swirl of gritty dust from entering along with him.",  "static/audio/gary.", 0.85, "gary")
