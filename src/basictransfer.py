@@ -20,8 +20,9 @@ class VoiceTransfer:
     x, fs = librosa.load(filename)
     S = librosa.stft(x, self.N_FFT)
     p = np.angle(S)
-    
-    S = np.log1p(np.abs(S[:,:636]))
+
+    print(S.shape[1])
+    S = np.log1p(np.abs(S[:,:min(630, S.shape[1])]))
     return S, fs
           
   def transfer(self):
