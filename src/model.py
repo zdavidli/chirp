@@ -8,13 +8,49 @@ import os
 import copy
 
 # Custom Code
-from loader import dataroot
 from CMUDict import CMUDict
 from CMUDict import ALL_PHONEMES
-from util import record
-from util import writeWav
-from util import RATE
 from renderer import Renderer
+from basictransfer import VoiceTransfer
+from basictts import ttsbase
+
+dataroot = "voices/"
+
+class Model:
+  
+  def __init__(self, id):
+    print("Init model")
+    self.userid = str(id)
+    self.googlePitch = 439.0
+    self.pitch = self.googlePitch
+    pitchpath = "static/pitches/" + str(id)
+    if os.path.isfile(pitchpath):
+      self.pitch = pickle.load(open(pitchpath, 'rb'))
+    self.vtransfer = VoiceTransfer(self.userid)
+    
+  def __hash__(self):
+    return str(self.userid)
+
+  def genBase(self, txt, file):
+    ttsbase(txt, file, self.pitch / self.googlePitch, self.userid)
+
+  def transfer(self):
+    print("Transferring")
+    self.vtransfer.transfer()
+
+  def tts(self, txt, file):
+    print("Beginning TTS")
+    self.genBase(txt, file)
+    if self.hasTraining():
+      print("Transferring")
+      self.transfer()
+
+  def hasTraining(self):
+    return os.path.isfile("static/traindata/" + str(self.userid) + "/0.wav")
+  
+  
+
+
 
 class Voice:
   

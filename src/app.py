@@ -29,12 +29,11 @@ import twitter_login as tl
 import config
 
 #Model imports
-from model import Voice
-from util import record
-from util import writeWav
 from util import RATE
 from loader import loadVoice
 from loader import loadAllVoices
+from loader import VoiceIO
+from loader import VoiceDB
 from CMUDict import CMUDict
 from basictts import ttsbase
 from basictransfer import pitchFromData
@@ -66,11 +65,13 @@ GooglePitch = 439.0
 ###################################################################################
 
 # Initialize the voice data and cmudict
-voices = loadAllVoices()
+db = VoiceDB()
 # cmu = CMUDict()
 # cmu.load_dict("dict.p")
 counter = 0
 cgitb.enable()
+#Initialize VoiceIO
+voiceIO = VoiceIO()
 
 peopleTraining = set()
 
@@ -89,23 +90,6 @@ class SampleRate(Resource):
 
 api.add_resource(SampleRate, '/samplerate')
 
-# Get the voice by the id. If the voice is not loaded, load it.
-# if the voice does not exist, return DEFAULT
-def getVoice(speaker_id):
-  if speaker_id in voices:
-    return voices[speaker_id]
-  else:
-    v = loadVoice(speaker_id)
-    if v is None:
-      return voices['DEFAULT']
-    else:
-      voices[speaker_id] = v
-      return voices[speaker_id]
-
-def getCount():
-  counter += 1
-  return counter
-
 #curl http://localhost/tts/<speaker_id> -d "words to read out" -X GET
 @app.route('/api/tts/<string:speaker_id>', methods=['GET', 'POST'])
 def tts(speaker_id):
@@ -121,43 +105,41 @@ def tts(speaker_id):
     filename = renderroot + speaker_id + "."
     print(filename)
 
-    pFilename = "static/pitches/" + speaker_id
-    pitch = GooglePitch
-    if os.path.isfile(pFilename):
-      pitch = pickle.load(open(pFilename, 'rb'))
-      print("Loaded")
-    print(pitch)
-    ttsbase(txt, filename, pitch / GooglePitch, speaker_id)
-    print("rendered Audio")
-    out = {'filename': filename + "trans.wav", 'pitch': pitch / GooglePitch}
+    # pFilename = "static/pitches/" + speaker_id
+    # pitch = GooglePitch
+    # if os.path.isfile(pFilename):
+    #   pitch = pickle.load(open(pFilename, 'rb'))
+    #   print("Loaded")
+    # print(pitch)
+    print("Getting model")
+    m = db.getModel(speaker_id)
+    print("Performing TTS")
+    m.tts(txt, filename)
+    #ttsbase(txt, filename, pitch / GooglePitch, speaker_id)
+    print("Rendered Audio")
+    out = {'filename': filename + "trans.wav", 'pitch': m.pitch / m.googlePitch}
     r = json.dumps(out)
     return r, 200
-  except:
+  except Exception as e:
+    print(e)
     return "'status': 'failed'", 500
 
 @app.route('/api/addtraindata/<string:speaker_id>', methods=['POST', 'PUT'])
 def addtraindata(speaker_id):
   #txt = request.values.keys()[0]
   try:
-    root = "static/traindata/" + speaker_id
-    counter = 0
-    filename = root + "/" + str(counter) + ".wav"
-    while os.path.isfile(filename) == True:
-      counter += 1
-      filename = root + "/" + str(counter) + ".wav"
-    if not os.path.exists(root):
-      os.makedirs(root)
+    filename = voiceIO.getNextTrainFile(speaker_id)
     print("Saving: " + filename)
     blob = request.files['file']
     blob.save(filename)
-    x, fs = librosa.load(filename)
+    x, fs = voiceIO.loadWav(filename)
     fft=librosa.stft(x)
     bp=fft[:]
     thresh = min(800, len(bp))
     for i in range(thresh, len(bp)):
       bp[i]=0
     x=librosa.istft(bp)
-    librosa.output.write_wav(filename, x, fs)
+    voiceIO.saveWav(speaker_id, x, fs, filename)
     return "success", 200
   except Exception as e:
     print(e)
@@ -166,30 +148,16 @@ def addtraindata(speaker_id):
 @app.route('/api/deletetraindata/<string:speaker_id>', methods=['POST', 'PUT'])
 def deletetraindata(speaker_id):
   #txt = request.values.keys()[0]
-  try:
-    root = "static/traindata/" + speaker_id + "/"
-    counter = 0
-    filename = root + str(counter) + ".wav"
-    while os.path.isfile(filename) == True:
-      os.remove(filename)
-      counter += 1
-      filename = root + str(counter) + ".wav"
-    if (os.path.isfile("static/pitches/" + speaker_id)):
-      os.remove("static/pitches/" + speaker_id)
-
+  success = voiceIO.deleteTrainData(speaker_id)
+  if success:
     return "success", 200
-  except:
+  else:
     return "'status': 'failed'", 500
 
-@app.route('/api/numsamples/<string:speaker_id>', methods=['GET'])
-def numsamples(speaker_id):
+@app.route('/api/numsamples/<string:user_id>', methods=['GET'])
+def numsamples(user_id):
   try:
-    root = "static/traindata/" + speaker_id
-    counter = 0
-    filename = root + "/" + str(counter) + ".wav"
-    while os.path.isfile(filename) == True:
-      counter += 1
-      filename = root + "/" + str(counter) + ".wav"
+    counter = voiceIO.numSamples(user_id)
     return str(counter), 200
   except Exception as e:
     print(e)
@@ -199,8 +167,9 @@ def numsamples(speaker_id):
 def starttrain(user_id):
   #txt = request.values.keys()[0]
   try:
-    root = "static/traindata/" + user_id + "/"
-    filename = root + str(counter) + ".wav"
+    #root = "static/traindata/" + user_id + "/"
+    #filename = root + str(counter) + ".wav"
+    filename = voiceIO.getNextTrainFile(user_id)
     peopleTraining.add(user_id)
     pitchFromData(user_id)
     peopleTraining.remove(user_id)
