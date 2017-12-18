@@ -43,7 +43,7 @@ var CurrAudio = null;
 var clipsSent = 0;
 
 //var trainingArticle = document.getElementById('train');
-var trainingIdx =0;
+var trainingIdx = 0;
 displayTrainingArticle(trainingIdx);
 
 // disable stop button while not recording
@@ -396,16 +396,17 @@ function playaudio(speaker, txt) {
 }
 
 function displayTrainingArticle(idx){
-  var articles = ["article 1", "article 2", "article 3"];
+  console.log("Displaying New Article");
+  console.log(idx);
   //var index = idx % (articles.length);
-  var index = idx % (articleText.length);
+  var index = (idx % (articleText.length)) * 2;
+  console.log(articleText[index]);
   if (idx > 0) {
     document.getElementById('train').innerHTML = '<p  class="animated fadeOutRight"><font size="5" style="color:#0b2b5e;"><b>' + articleText[index-1] + '</b></font></p>'; //articleList[index];
   }
   console.log("display Training Article: " + idx);
   setTimeout(function (){
 
-  // Something you want delayed.
     document.getElementById('train').innerHTML = '<p  class="animated fadeInRight"><font size="5" style="color:#0b2b5e;"><b>' + articleText[index] + '</b></font></p>'; //articleList[index];
 
   }, 1000);
