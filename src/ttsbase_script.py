@@ -1,8 +1,12 @@
+import argparse
+import os
+
 from gtts import gTTS
 from pydub import AudioSegment
 import wave
-import os
+
 from basictransfer import VoiceTransfer
+
 
 def ttsbase(args):
   print("1. Generating base voice using Google TTS")
@@ -27,8 +31,7 @@ def ttsbase(args):
 
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description="Train a U-Net model",
-                   formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  parser = argparse.ArgumentParser(description="Perform Voice Neural Style Transfer.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('--txt', type=str, help='Input text.', default='It was a bright cold day in April, and the clocks were striking thirteen.')
   parser.add_argument('--content_dir', type=str, help='Target voice directory.', default='static/audio/')
   parser.add_argument('--style_dir', type=str, help='Style voice directory.', default='static/traindata/')
@@ -40,5 +43,5 @@ if __name__ == "__main__":
   parser.add_argument('--channels', type = int, help = 'channels', default = 1)
   parser.add_argument('--sWidth', type = int, help = 'swidth', default = 2)
 
-  args = parser.parse_args(args)
+  args = parser.parse_args()
   ttsbase(args)  
