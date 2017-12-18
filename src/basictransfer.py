@@ -11,10 +11,13 @@ import scipy
 class VoiceTransfer:
 
   def __init__(self, id):
+    print("Creating VoiceTransfer")
     self.id = str(id)
     STYLE_FILENAME = "static/traindata/" + str(id) + "/0.wav"
     self.N_FFT = 2048 #window size
-    self.a_style, self.fs = self.read_audio_spectum(STYLE_FILENAME)
+    self.a_style, self.fs = None, None
+    if (os.path.isfile(STYLE_FILENAME)):
+      self.a_style, self.fs = self.read_audio_spectum(STYLE_FILENAME)
 
   def read_audio_spectum(self, filename):
     x, fs = librosa.load(filename)
@@ -26,6 +29,8 @@ class VoiceTransfer:
     return S, fs
           
   def transfer(self):
+    if self.a_style is None:
+      return
     #ttsbase("What a wonderful world Johns Hopkins University is a top 10 university Ronny D is just the swellest person This is a completely different text that hopefully sounds unique from the other one", "static/diff.", 0.8)
 
     CONTENT_FILENAME = "static/audio/" + self.id + ".mod.wav"

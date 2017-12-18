@@ -29,13 +29,11 @@ import twitter_login as tl
 import config
 
 #Model imports
-from model import Voice
-from util import record
-from util import writeWav
 from util import RATE
 from loader import loadVoice
 from loader import loadAllVoices
 from loader import VoiceIO
+from loader import VoiceDB
 from CMUDict import CMUDict
 from basictts import ttsbase
 from basictransfer import pitchFromData
@@ -67,7 +65,7 @@ GooglePitch = 439.0
 ###################################################################################
 
 # Initialize the voice data and cmudict
-voices = loadAllVoices()
+db = VoiceDB()
 # cmu = CMUDict()
 # cmu.load_dict("dict.p")
 counter = 0
@@ -92,23 +90,6 @@ class SampleRate(Resource):
 
 api.add_resource(SampleRate, '/samplerate')
 
-# Get the voice by the id. If the voice is not loaded, load it.
-# if the voice does not exist, return DEFAULT
-def getVoice(speaker_id):
-  if speaker_id in voices:
-    return voices[speaker_id]
-  else:
-    v = loadVoice(speaker_id)
-    if v is None:
-      return voices['DEFAULT']
-    else:
-      voices[speaker_id] = v
-      return voices[speaker_id]
-
-def getCount():
-  counter += 1
-  return counter
-
 #curl http://localhost/tts/<speaker_id> -d "words to read out" -X GET
 @app.route('/api/tts/<string:speaker_id>', methods=['GET', 'POST'])
 def tts(speaker_id):
@@ -124,18 +105,23 @@ def tts(speaker_id):
     filename = renderroot + speaker_id + "."
     print(filename)
 
-    pFilename = "static/pitches/" + speaker_id
-    pitch = GooglePitch
-    if os.path.isfile(pFilename):
-      pitch = pickle.load(open(pFilename, 'rb'))
-      print("Loaded")
-    print(pitch)
-    ttsbase(txt, filename, pitch / GooglePitch, speaker_id)
-    print("rendered Audio")
-    out = {'filename': filename + "trans.wav", 'pitch': pitch / GooglePitch}
+    # pFilename = "static/pitches/" + speaker_id
+    # pitch = GooglePitch
+    # if os.path.isfile(pFilename):
+    #   pitch = pickle.load(open(pFilename, 'rb'))
+    #   print("Loaded")
+    # print(pitch)
+    print("Getting model")
+    m = db.getModel(speaker_id)
+    print("Performing TTS")
+    m.tts(txt, filename)
+    #ttsbase(txt, filename, pitch / GooglePitch, speaker_id)
+    print("Rendered Audio")
+    out = {'filename': filename + "trans.wav", 'pitch': m.pitch / m.googlePitch}
     r = json.dumps(out)
     return r, 200
-  except:
+  except Exception as e:
+    print(e)
     return "'status': 'failed'", 500
 
 @app.route('/api/addtraindata/<string:speaker_id>', methods=['POST', 'PUT'])
@@ -168,10 +154,10 @@ def deletetraindata(speaker_id):
   else:
     return "'status': 'failed'", 500
 
-@app.route('/api/numsamples/<string:speaker_id>', methods=['GET'])
-def numsamples(speaker_id):
+@app.route('/api/numsamples/<string:user_id>', methods=['GET'])
+def numsamples(user_id):
   try:
-    counter = voiceIO.numSamples(userId)
+    counter = voiceIO.numSamples(user_id)
     return str(counter), 200
   except Exception as e:
     print(e)
