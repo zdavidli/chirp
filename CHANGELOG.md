@@ -28,3 +28,12 @@ All notable changes to this project will be documented in this file.
 - Client TTS request and playback
 - Custom tweet feed
 - Waveform display
+
+## [1.0.3] - 2017-12-17
+- Built Google gTTS system
+- Built training process for new users
+- Refined Front-end UI
+- Built Neural Style Transfer System 
+- Completed API Spec
+- Seperate functions/variables into classes 
+
