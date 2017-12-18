@@ -1,7 +1,9 @@
 aniso8601==1.3.0
+anyconfig==0.9.3
 audioread==2.1.5
 autopep8==1.2
 bleach==1.5.0
+bunch==1.0.1
 certifi==2017.11.5
 click==6.7
 decorator==4.1.2
@@ -31,6 +33,7 @@ PyAudio==0.2.11
 pydub==0.20.0
 python-dateutil==2.6.1
 pytz==2017.3
+PyYAML==3.12
 requests==2.7.0
 requests-oauthlib==0.5.0
 resampy==0.2.0
@@ -46,3 +49,4 @@ tensorflow-tensorboard==0.4.0rc3
 twython==3.6.0
 Werkzeug==0.13
 wincertstore==0.2
+
