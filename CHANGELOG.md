@@ -35,5 +35,5 @@ All notable changes to this project will be documented in this file.
 - Refined Front-end UI
 - Built Neural Style Transfer System 
 - Completed API Spec
-- Seperate functions/variables into classes 
+- Seperated functions/variables into classes 
 
