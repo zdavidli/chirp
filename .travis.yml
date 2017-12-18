@@ -1,5 +1,8 @@
 language: python
 
+python:
+  - "3.6"
+
 before_install:
   - sudo apt-get install libjack-jackd2-dev portaudio19-dev
 
