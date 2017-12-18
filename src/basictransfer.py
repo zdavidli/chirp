@@ -19,6 +19,7 @@ class VoiceTransfer:
     if (os.path.isfile(STYLE_FILENAME)):
       self.a_style, self.fs = self.read_audio_spectum(STYLE_FILENAME)
 
+  # Run the FFT and load the data files
   def read_audio_spectum(self, filename):
     x, fs = librosa.load(filename)
     S = librosa.stft(x, self.N_FFT)
@@ -27,7 +28,8 @@ class VoiceTransfer:
     print(S.shape[1])
     S = np.log1p(np.abs(S[:,:min(630, S.shape[1])]))
     return S, fs
-          
+  
+  #Perform the tensorflow Neural Transfer
   def transfer(self):
     if self.a_style is None:
       return
