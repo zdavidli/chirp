@@ -67,7 +67,7 @@ class VoiceTransfer:
 
     ######################################################
 
-    N_FILTERS = 4096*2
+    N_FILTERS = 4096
 
     a_content_tf = np.ascontiguousarray(a_content.T[None,None,:,:])
     a_style_tf = np.ascontiguousarray(a_style.T[None,None,:,:])
@@ -132,7 +132,7 @@ class VoiceTransfer:
       style_loss = tf.nn.l2_loss(gram - style_gram)
 
        # Overall loss
-      loss = style_loss
+      loss = content_loss + style_loss
 
       opt = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B', options={'maxiter': iterations})
           
@@ -218,9 +218,12 @@ def detect_pitch(pitches, magnitudes, t):
 
 
 if __name__ == "__main__":
-  print(pitchFromData("276811979"))
+  pitch = 505.0
+  user_id = "924631666395635712"
+  pickle.dump(pitch, open("static/pitches/" + user_id, "wb"))
+  #print(pitchFromData("276811979"))
   #print(pitchFromData("google"))
-  print(pickle.load(open("static/pitches/276811979", 'rb')))
+  #print(pickle.load(open("static/pitches/276811979", 'rb')))
   #ttsbase("testing one two three four five six seven eight nine ten the is a sentence that is rather long for demonstration purposes",  "#static/audio/gary.", 0.85, "gary")
   #obj = VoiceTransfer("gary")
   #obj.transfer()
