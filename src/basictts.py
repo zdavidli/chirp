@@ -8,6 +8,7 @@ def ttsbase(txt, file, pitch, id):
   print("Generating base voice")
   tts = gTTS(text=txt, lang='en', slow=False)
   tts.save(file + "mp3")
+
   sound = AudioSegment.from_mp3(file + "mp3")
   sound.export(file + "wav", format="wav")
   CHANNELS = 1
