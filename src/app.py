@@ -173,6 +173,7 @@ def starttrain(user_id):
     peopleTraining.add(user_id)
     pitchFromData(user_id)
     peopleTraining.remove(user_id)
+    db.getModel(user_id).reloadModel(user_id)
     return "Success: Training", 200
   except:
     return "Internal Server Error", 500
