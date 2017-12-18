@@ -1,7 +1,7 @@
 import unittest
 import pyaudio
 import wave
-import cPickle as pickle
+import pickle
 import struct
 import numpy as np
 import scipy.io.wavfile as wavfile
