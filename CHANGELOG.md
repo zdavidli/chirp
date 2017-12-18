@@ -30,10 +30,12 @@ All notable changes to this project will be documented in this file.
 - Waveform display
 
 ## [1.0.3] - 2017-12-17
-- Built Google gTTS system
+- Built pitch shifted gTTS system
+- Built pitch extraction and saving system
+- Built Shifted Oneshot Neural Transfer system
 - Built training process for new users
 - Refined Front-end UI
 - Built Neural Style Transfer System 
 - Completed API Spec
-- Seperated functions/variables into classes 
+- Seperated functions/variables into classes to a new OO style
 
