@@ -43,5 +43,5 @@ if __name__ == "__main__":
   parser.add_argument('--channels', type = int, help = 'channels', default = 1)
   parser.add_argument('--sWidth', type = int, help = 'swidth', default = 2)
 
-  args = parser.parse_args(args)
+  args = parser.parse_args()
   ttsbase(args)  
