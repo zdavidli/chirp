@@ -40,6 +40,7 @@ class Model:
 
   def tts(self, txt, file):
     print("Beginning TTS")
+    print("Pitch: " + str(self.pitch))
     self.genBase(txt, file)
     if self.hasTraining():
       print("Transferring")
