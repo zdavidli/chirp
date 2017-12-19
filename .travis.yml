@@ -1,15 +1,8 @@
 language: python
 
-python:
-  - "3.6"
-
 before_install:
   - sudo apt-get install libjack-jackd2-dev portaudio19-dev
-  - wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb   
-  - sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-  - sudo apt-get update
-  - sudo apt-get install cuda
-
+  
 install:
   - pip install .
   - pip install -r requirements.txt
