@@ -8,8 +8,6 @@ from os import listdir
 import os
 import csv
 
-from model import Model
-
 dataroot = "voices/"
 
 # Loads the voice for the specified user.
@@ -37,25 +35,6 @@ def loadAllVoices():
         except:
           pass
   return voices
-
-class VoiceDB:
-
-  def __init__(self):
-    self.models = dict()
-
-  def getModel(self, id):
-    if (str(id) not in self.models):
-      print("Loading model from disk: " + str(id))
-      self.models[str(id)] = self.loadModel(str(id))
-      print("Model loaded.")
-    return self.models[str(id)]
-
-  def loadModel(self, id):
-    m = Model(str(id))
-    return m
-
-  def reloadModel(self, id):
-    self.models[str(id)] = self.loadModel(str(id))
 
 
 

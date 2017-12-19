@@ -17,7 +17,7 @@ from basictts import ttsbase
 dataroot = "voices/"
 
 class Model:
-  
+  # Load the model parameters
   def __init__(self, id):
     print("Init model")
     self.userid = str(id)
@@ -26,11 +26,13 @@ class Model:
     pitchpath = "static/pitches/" + str(id)
     if os.path.isfile(pitchpath):
       self.pitch = pickle.load(open(pitchpath, 'rb'))
+    # Create the voice transfer object to delegate to
     self.vtransfer = VoiceTransfer(self.userid)
     
   def __hash__(self):
     return str(self.userid)
 
+  # Generate the basic tacotron tts
   def genBase(self, txt, file):
     ttsbase(txt, file, self.pitch / self.googlePitch, self.userid)
 
@@ -38,6 +40,7 @@ class Model:
     print("Transferring")
     self.vtransfer.transfer()
 
+  # Run full tts
   def tts(self, txt, file):
     print("Beginning TTS")
     print("Pitch: " + str(self.pitch))

@@ -33,7 +33,7 @@ from util import RATE
 from loader import loadVoice
 from loader import loadAllVoices
 from loader import VoiceIO
-from loader import VoiceDB
+from neural_loader import VoiceDB
 from CMUDict import CMUDict
 from basictts import ttsbase
 from basictransfer import pitchFromData
@@ -104,13 +104,6 @@ def tts(speaker_id):
     counter = 0
     filename = renderroot + speaker_id + "."
     print(filename)
-
-    # pFilename = "static/pitches/" + speaker_id
-    # pitch = GooglePitch
-    # if os.path.isfile(pFilename):
-    #   pitch = pickle.load(open(pFilename, 'rb'))
-    #   print("Loaded")
-    # print(pitch)
     print("Getting model")
     m = db.getModel(speaker_id)
     print("Performing TTS")
