@@ -16,7 +16,7 @@ from util import record
 from util import writeWav
 from util import RATE
 from util import CHUNK
-from model import Voice
+from voice import Voice
 from renderer import Renderer
 
 class TestModel(unittest.TestCase):
