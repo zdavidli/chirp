@@ -6,6 +6,7 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import os
 from CMUDict import CMUDict
+from util import RATE
 
 trimThreshold = 1100
 
