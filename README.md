@@ -15,7 +15,7 @@ Note: Since the project is primarily in python and Flask, it does not need to be
 
 **Note:** Minimum recommended server requirements: GTX 1060 or above with >8gb RAM
 
-We recommend Python 3.6 and Anaconda due to Tensorflow requirements.
+We recommend Python 3.6 and Anaconda due to Tensorflow requirements. To use the GPU features, you must also install the CUDA libraries that Tensorflow requries.
 
 To install requirements
 
